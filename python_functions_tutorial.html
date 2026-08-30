@@ -190,23 +190,22 @@
     <svg viewBox="0 0 900 210" width="100%" role="img" aria-label="Diagram of a function as a reusable box called from three different places">
       <rect x="4" y="4" width="892" height="202" fill="none" stroke="#3a6690" stroke-width="1" stroke-dasharray="4 4"/>
 
-      <text x="30" y="35" fill="#7fa0c0" font-size="11">call site 1</text>
-      <text x="30" y="80" fill="#7fa0c0" font-size="11">call site 2</text>
-      <text x="30" y="125" fill="#7fa0c0" font-size="11">call site 3</text>
-      <text x="30" y="28" fill="#e8eef5" font-size="12"> </text>
+      <text x="30" y="18" fill="#7fa0c0" font-size="9">call site 1</text>
+      <text x="30" y="63" fill="#7fa0c0" font-size="9">call site 2</text>
+      <text x="30" y="108" fill="#7fa0c0" font-size="9">call site 3</text>
 
-      <rect x="20" y="15" width="180" height="26" fill="none" stroke="#5f83a8" stroke-width="1"/>
-      <text x="30" y="32" fill="#c3d3e4" font-size="11">calculate_discount(100, "Gold")</text>
+      <rect x="20" y="23" width="300" height="26" fill="none" stroke="#5f83a8" stroke-width="1"/>
+      <text x="30" y="40" fill="#c3d3e4" font-size="11">calculate_discount(100, "Gold")</text>
 
-      <rect x="20" y="60" width="200" height="26" fill="none" stroke="#5f83a8" stroke-width="1"/>
-      <text x="30" y="77" fill="#c3d3e4" font-size="11">calculate_discount(250, "Platinum")</text>
+      <rect x="20" y="68" width="300" height="26" fill="none" stroke="#5f83a8" stroke-width="1"/>
+      <text x="30" y="85" fill="#c3d3e4" font-size="11">calculate_discount(250, "Platinum")</text>
 
-      <rect x="20" y="105" width="210" height="26" fill="none" stroke="#5f83a8" stroke-width="1"/>
-      <text x="30" y="122" fill="#c3d3e4" font-size="11">calculate_discount(60, "Standard")</text>
+      <rect x="20" y="113" width="300" height="26" fill="none" stroke="#5f83a8" stroke-width="1"/>
+      <text x="30" y="130" fill="#c3d3e4" font-size="11">calculate_discount(60, "Standard")</text>
 
-      <line x1="230" y1="28" x2="360" y2="90" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3"/>
-      <line x1="230" y1="73" x2="360" y2="100" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3"/>
-      <line x1="230" y1="118" x2="360" y2="110" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3"/>
+      <line x1="320" y1="36" x2="360" y2="90" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3"/>
+      <line x1="320" y1="81" x2="360" y2="100" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3"/>
+      <line x1="320" y1="126" x2="360" y2="110" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3"/>
 
       <rect x="365" y="70" width="190" height="60" fill="none" stroke="#f2b84b" stroke-width="1.5"/>
       <text x="460" y="95" fill="#f2b84b" font-size="13" text-anchor="middle" font-weight="600">FUNCTION</text>
@@ -504,6 +503,45 @@ products.sort(key=<span class="kw">lambda</span> item: item[<span class="nm">1</
       <p><code>lambda item: item[1]</code> is equivalent to writing a full <code>def</code> function that returns <code>item[1]</code> — it just isn't worth naming for a one-off use like this.</p>
     </div>
   </details>
+  
+    <details class="sheet">
+      <summary>
+        <span class="sheet-num">09</span>
+        <span class="sheet-title">Practical pattern — tier-based discounts</span>
+        <span class="sheet-hint">click to expand</span>
+        <span class="sheet-toggle">+</span>
+      </summary>
+      <div class="sheet-body">
+        <p>Use a dictionary when a function needs to select from named business rules. This keeps the rates separate from the calculation and makes adding a new tier a one-line change.</p>
+        <div class="code-block">
+          <div class="code-head"><span>discounts.py</span><span>python 3</span></div>
+          <pre><code>DISCOUNT_RATES = {
+      <span class="st">"Platinum"</span>: <span class="nm">0.20</span>,
+      <span class="st">"Gold"</span>: <span class="nm">0.15</span>,
+      <span class="st">"Standard"</span>: <span class="nm">0.10</span>
+  }
+
+
+  <span class="kw">def</span> calculate_discount(price, tier):
+      <span class="st">"""Return the discounted price for a given customer tier."""</span>
+      rate = DISCOUNT_RATES.get(tier, DISCOUNT_RATES[<span class="st">"Standard"</span>])
+      <span class="kw">return</span> <span class="kw">round</span>(price * (<span class="nm">1</span> - rate), <span class="nm">2</span>)</code></pre>
+        </div>
+        <button class="reveal-btn" data-target="out-09">▸ Show example output</button>
+        <div class="output-panel" id="out-09" hidden>calculate_discount(100, "Platinum")
+  80.0
+
+  calculate_discount(100, "New tier")
+  90.0</div>
+        <h4>Why this is structured this way</h4>
+        <ul>
+          <li><code>DISCOUNT_RATES</code> is uppercase because it is a module-level constant: the rules have one named source rather than being duplicated inside the function.</li>
+          <li><code>.get(tier, DISCOUNT_RATES["Standard"])</code> looks up a recognized tier and safely falls back to the Standard rate when the tier is missing or unexpected.</li>
+          <li>The function returns a value instead of printing it, so callers can display it, store it, or test it independently.</li>
+          <li><code>round(..., 2)</code> produces a price rounded to two decimal places, which is appropriate for a simple money-display example.</li>
+        </ul>
+      </div>
+    </details>
 
   <div class="section-lede">
     <p class="eyebrow">Active recall</p>
