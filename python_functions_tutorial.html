@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Functions — Basic to Advanced (Interactive)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue-deep:#0e2d4a; --blue-panel:#153c60; --blue-line:#3a6690; --blue-line-soft:#264d70;
+    --paper:#e8eef5; --amber:#f2b84b; --cyan:#7fdde3; --coral:#ef8a6a; --green:#8fd48a;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background-color:var(--blue-deep);
+    background-image:
+      repeating-linear-gradient(0deg, var(--blue-line-soft) 0px, var(--blue-line-soft) 1px, transparent 1px, transparent 32px),
+      repeating-linear-gradient(90deg, var(--blue-line-soft) 0px, var(--blue-line-soft) 1px, transparent 1px, transparent 32px);
+    color:var(--paper); font-family:'IBM Plex Sans', sans-serif; line-height:1.55; padding-bottom:80px;
+  }
+  code, pre, .mono{ font-family:'IBM Plex Mono', monospace; }
+  @media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important;} }
+
+  header.titleblock{ max-width:1000px; margin:0 auto; padding:40px 24px 10px; }
+  .stamp{
+    display:inline-block; border:1px solid var(--amber); color:var(--amber);
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:2px;
+    text-transform:uppercase; padding:4px 10px; margin-bottom:18px;
+  }
+  h1.doc-title{ font-size:clamp(26px,5vw,42px); margin:0 0 6px; font-weight:700; letter-spacing:-0.5px; }
+  .doc-sub{ color:var(--cyan); font-family:'IBM Plex Mono', monospace; font-size:14px; margin:0 0 20px; }
+  .lede{ max-width:680px; font-size:16px; color:#cbd9e8; margin-bottom:0; }
+
+  .schematic-wrap{ max-width:1000px; margin:16px auto 10px; padding:0 24px; }
+  .schematic-frame{ border:1px solid var(--blue-line); background:rgba(255,255,255,0.02); padding:16px 10px 6px; }
+  .schematic-caption{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:#7fa0c0; text-align:center;
+    letter-spacing:1.5px; text-transform:uppercase; margin:8px 0 0;
+  }
+  svg text{ font-family:'IBM Plex Mono', monospace; }
+
+  main{ max-width:1000px; margin:0 auto; padding:0 24px; }
+  .section-lede{ margin:52px 0 16px; }
+  .section-lede .eyebrow{
+    font-family:'IBM Plex Mono', monospace; color:var(--amber); font-size:12px;
+    letter-spacing:2px; text-transform:uppercase; margin:0 0 8px;
+  }
+  .section-lede h2{ margin:0 0 8px; font-size:clamp(20px,3vw,27px); }
+  .section-lede p{ color:#c3d3e4; max-width:700px; margin:0; }
+
+  details.sheet{ border:1px solid var(--blue-line); background:var(--blue-panel); margin-bottom:14px; }
+  details.sheet > summary{ list-style:none; cursor:pointer; display:flex; align-items:center; gap:14px; padding:16px 18px; user-select:none; }
+  details.sheet > summary::-webkit-details-marker{ display:none; }
+  .sheet-num{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--amber); border:1px solid var(--amber); padding:2px 8px; white-space:nowrap; }
+  .sheet-title{ font-weight:600; font-size:17px; flex:1; }
+  .sheet-hint{ color:#7fa0c0; font-size:13px; font-family:'IBM Plex Mono', monospace; display:none; }
+  @media (min-width:640px){ .sheet-hint{ display:inline; } }
+  .sheet-toggle{ font-family:'IBM Plex Mono', monospace; font-size:18px; color:var(--amber); width:20px; text-align:center; transition:transform .15s ease; }
+  details[open] .sheet-toggle{ transform:rotate(45deg); }
+  .sheet-body{ padding:4px 20px 24px; border-top:1px dashed var(--blue-line); }
+  .sheet-body p{ color:#d3e0ee; }
+  .sheet-body h4{ color:var(--cyan); font-family:'IBM Plex Mono', monospace; font-size:13px; letter-spacing:1px; text-transform:uppercase; margin:22px 0 8px; }
+  .sheet-body ul{ padding-left:20px; color:#d3e0ee; }
+  .sheet-body li{ margin-bottom:6px; }
+
+  .code-block{ background:#0a2036; border:1px solid var(--blue-line); margin:14px 0; overflow:hidden; }
+  .code-head{
+    display:flex; justify-content:space-between; align-items:center; padding:8px 12px;
+    background:#0d2842; border-bottom:1px solid var(--blue-line);
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:#7fa0c0; letter-spacing:1px;
+  }
+  .code-block pre{ margin:0; padding:14px 16px; overflow-x:auto; font-size:13.5px; color:#e8eef5; }
+  .kw{ color:var(--amber); } .st{ color:var(--cyan); } .cm{ color:#6c8aab; font-style:italic; } .nm{ color:var(--coral); }
+
+  .reveal-btn{
+    display:inline-flex; align-items:center; gap:6px; background:none; border:1px solid var(--amber);
+    color:var(--amber); font-family:'IBM Plex Mono', monospace; font-size:12px; padding:6px 12px;
+    margin:0 0 14px; cursor:pointer; letter-spacing:0.5px;
+  }
+  .reveal-btn:hover{ background:rgba(242,184,75,0.1); }
+  .reveal-btn:focus-visible, summary:focus-visible, .flip-card:focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
+  .output-panel{
+    margin:0 0 16px; border-left:3px solid var(--cyan); background:rgba(127,221,227,0.06);
+    padding:10px 14px; font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--cyan); white-space:pre-wrap;
+  }
+  .output-panel[hidden]{ display:none; }
+
+  .toggle-row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  .toggle-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; padding:7px 14px;
+    background:none; border:1px solid var(--blue-line); color:var(--paper); cursor:pointer;
+  }
+  .toggle-btn.active{ border-color:var(--amber); color:var(--amber); background:rgba(242,184,75,0.08); }
+  .toggle-btn:hover{ border-color:var(--amber); }
+
+  .action-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; padding:7px 13px;
+    background:none; border:1px solid var(--amber); color:var(--amber); cursor:pointer; margin:0 8px 8px 0;
+  }
+  .action-btn:hover{ background:rgba(242,184,75,0.1); }
+  .action-btn.reset{ border-color:var(--coral); color:var(--coral); }
+  .action-btn.reset:hover{ background:rgba(239,138,106,0.1); }
+
+  .num-input{
+    font-family:'IBM Plex Mono', monospace; background:#0a2036; border:1px solid var(--blue-line);
+    color:var(--paper); padding:8px 10px; font-size:13px; width:100px;
+  }
+  .field-label{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:#9fb6cf; margin-right:8px; }
+
+  .trace-panel{
+    background:#08192b; border:1px solid var(--blue-line); font-family:'IBM Plex Mono', monospace;
+    font-size:13px; padding:14px 16px; margin:14px 0; color:#c3d3e4;
+  }
+  .trace-panel .step{ margin-bottom:6px; opacity:0.4; transition:opacity .2s; }
+  .trace-panel .step.active{ opacity:1; color:var(--cyan); }
+  .trace-panel .step .n{ color:var(--amber); margin-right:8px; }
+  .trace-result{ margin-top:10px; padding-top:10px; border-top:1px dashed var(--blue-line); color:var(--green); font-family:'IBM Plex Mono', monospace; font-size:14px; }
+
+  /* ---- before/after duplication demo ---- */
+  .compare-grid{ display:grid; grid-template-columns:1fr; gap:14px; margin-top:14px; }
+  @media (min-width:760px){ .compare-grid{ grid-template-columns:1fr 1fr; } }
+  .compare-card{ border:1px solid var(--blue-line); padding:14px 16px; background:rgba(255,255,255,0.02); }
+  .compare-card h5{ margin:0 0 10px; font-family:'IBM Plex Mono', monospace; color:var(--amber); font-size:12.5px; letter-spacing:1px; }
+  .compare-card.bad h5{ color:var(--coral); }
+  .compare-card.good h5{ color:var(--green); }
+  .dupe-block{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; background:#0a2036; border:1px solid var(--coral);
+    padding:8px 10px; margin-bottom:8px; color:#e8eef5;
+  }
+  .dupe-block .rate{ color:var(--coral); font-weight:600; }
+  .reuse-block{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; background:#0a2036; border:1px solid var(--green);
+    padding:8px 10px; margin-bottom:8px; color:#e8eef5;
+  }
+  .reuse-block .rate{ color:var(--green); font-weight:600; }
+  .badge{ display:inline-block; font-family:'IBM Plex Mono', monospace; font-size:11px; padding:2px 8px; border:1px solid var(--coral); color:var(--coral); margin-top:6px; }
+  .badge.good{ border-color:var(--green); color:var(--green); }
+  .rate-toggle{ text-align:center; margin:16px 0; }
+  .rate-toggle .rate-display{ font-family:'IBM Plex Mono', monospace; font-size:15px; color:var(--amber); margin-bottom:8px; }
+
+  /* ---- pipeline ---- */
+  .pipeline-row{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:16px 0; }
+  .pipe-box{
+    border:1px solid var(--blue-line); background:#0a2036; padding:14px 16px; text-align:center; min-width:140px;
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px;
+  }
+  .pipe-box.active{ border-color:var(--amber); background:rgba(242,184,75,0.1); }
+  .pipe-box .fname{ color:var(--cyan); display:block; margin-bottom:4px; }
+  .pipe-box .fval{ color:var(--paper); font-size:14px; }
+  .pipe-box.active .fval{ color:var(--amber); }
+  .pipe-arrow{ color:#5f83a8; font-size:18px; }
+
+  table.dsref{ width:100%; border-collapse:collapse; margin-top:10px; font-size:14px; }
+  table.dsref th, table.dsref td{ border:1px solid var(--blue-line); padding:8px 10px; text-align:left; vertical-align:top; }
+  table.dsref th{ background:#0d2842; color:var(--amber); font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.5px; text-transform:uppercase; }
+  table.dsref td{ color:#d3e0ee; }
+  table.dsref code{ color:var(--cyan); }
+
+  .recall-grid{ display:grid; gap:14px; grid-template-columns:1fr; margin-top:8px; }
+  @media (min-width:640px){ .recall-grid{ grid-template-columns:1fr 1fr; } }
+  .flip-card{ perspective:1200px; height:150px; cursor:pointer; }
+  .flip-inner{ position:relative; width:100%; height:100%; transition:transform .5s; transform-style:preserve-3d; }
+  .flip-card.flipped .flip-inner{ transform:rotateY(180deg); }
+  .flip-face{ position:absolute; inset:0; backface-visibility:hidden; border:1px solid var(--blue-line); padding:14px 16px; display:flex; flex-direction:column; justify-content:center; }
+  .flip-front{ background:var(--blue-panel); }
+  .flip-front .q-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--amber); letter-spacing:1px; margin-bottom:6px; }
+  .flip-back{ background:#0d2842; transform:rotateY(180deg); color:var(--cyan); }
+  .flip-back .a-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--cyan); letter-spacing:1px; margin-bottom:6px; }
+  .flip-tap{ font-family:'IBM Plex Mono', monospace; font-size:10px; color:#5f83a8; margin-top:8px; }
+
+  footer{
+    max-width:1000px; margin:60px auto 0; padding:20px 24px; border-top:1px solid var(--blue-line);
+    color:#7fa0c0; font-family:'IBM Plex Mono', monospace; font-size:12px;
+  }
+</style>
+</head>
+<body>
+
+<header class="titleblock">
+  <span class="stamp">Sheet Set · Python Fundamentals</span>
+  <h1 class="doc-title">Functions — Basic to Advanced</h1>
+  <p class="doc-sub">// package logic once, call it everywhere</p>
+  <p class="lede">A function is a named, reusable block of logic. This sheet builds from defining and calling a function up through scope, flexible arguments, and the two ideas that make functions worth the syntax in the first place: <strong>modularity</strong> and <strong>reuse</strong>.</p>
+</header>
+
+<div class="schematic-wrap">
+  <div class="schematic-frame">
+    <svg viewBox="0 0 900 210" width="100%" role="img" aria-label="Diagram of a function as a reusable box called from three different places">
+      <rect x="4" y="4" width="892" height="202" fill="none" stroke="#3a6690" stroke-width="1" stroke-dasharray="4 4"/>
+
+      <text x="30" y="35" fill="#7fa0c0" font-size="11">call site 1</text>
+      <text x="30" y="80" fill="#7fa0c0" font-size="11">call site 2</text>
+      <text x="30" y="125" fill="#7fa0c0" font-size="11">call site 3</text>
+      <text x="30" y="28" fill="#e8eef5" font-size="12"> </text>
+
+      <rect x="20" y="15" width="180" height="26" fill="none" stroke="#5f83a8" stroke-width="1"/>
+      <text x="30" y="32" fill="#c3d3e4" font-size="11">calculate_discount(100, "Gold")</text>
+
+      <rect x="20" y="60" width="200" height="26" fill="none" stroke="#5f83a8" stroke-width="1"/>
+      <text x="30" y="77" fill="#c3d3e4" font-size="11">calculate_discount(250, "Platinum")</text>
+
+      <rect x="20" y="105" width="210" height="26" fill="none" stroke="#5f83a8" stroke-width="1"/>
+      <text x="30" y="122" fill="#c3d3e4" font-size="11">calculate_discount(60, "Standard")</text>
+
+      <line x1="230" y1="28" x2="360" y2="90" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3"/>
+      <line x1="230" y1="73" x2="360" y2="100" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3"/>
+      <line x1="230" y1="118" x2="360" y2="110" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3"/>
+
+      <rect x="365" y="70" width="190" height="60" fill="none" stroke="#f2b84b" stroke-width="1.5"/>
+      <text x="460" y="95" fill="#f2b84b" font-size="13" text-anchor="middle" font-weight="600">FUNCTION</text>
+      <text x="460" y="112" fill="#f2b84b" font-size="10" text-anchor="middle">calculate_discount</text>
+
+      <line x1="555" y1="90" x2="650" y2="45" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3"/>
+      <line x1="555" y1="100" x2="650" y2="100" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3"/>
+      <line x1="555" y1="110" x2="650" y2="155" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3"/>
+
+      <rect x="650" y="32" width="130" height="26" fill="none" stroke="#7fdde3" stroke-width="1"/>
+      <text x="715" y="49" fill="#7fdde3" font-size="11" text-anchor="middle">85.0</text>
+      <rect x="650" y="87" width="130" height="26" fill="none" stroke="#7fdde3" stroke-width="1"/>
+      <text x="715" y="104" fill="#7fdde3" font-size="11" text-anchor="middle">200.0</text>
+      <rect x="650" y="142" width="130" height="26" fill="none" stroke="#7fdde3" stroke-width="1"/>
+      <text x="715" y="159" fill="#7fdde3" font-size="11" text-anchor="middle">54.0</text>
+
+      <text x="460" y="185" fill="#5f83a8" font-size="10" text-anchor="middle">// one definition, called from anywhere, doing the same job correctly every time</text>
+    </svg>
+    <p class="schematic-caption">Fig. 1 — the same logic, written once, reused from many call sites</p>
+  </div>
+</div>
+
+<main>
+
+  <div class="section-lede">
+    <p class="eyebrow">Basics</p>
+    <h2>Defining &amp; Calling</h2>
+    <p>Pick a price and a tier, then call the function and watch each line of its body actually execute.</p>
+  </div>
+
+  <details class="sheet" open>
+    <summary>
+      <span class="sheet-num">01</span>
+      <span class="sheet-title">Anatomy of a function — try it live</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <div class="code-block">
+        <div class="code-head"><span>discount.py</span><span>python 3</span></div>
+        <pre><code><span class="kw">def</span> calculate_discount(price, tier):
+    <span class="st">"""Return the discounted price for a given customer tier."""</span>
+    <span class="kw">if</span> tier == <span class="st">"Platinum"</span>:
+        rate = <span class="nm">0.20</span>
+    <span class="kw">elif</span> tier == <span class="st">"Gold"</span>:
+        rate = <span class="nm">0.15</span>
+    <span class="kw">else</span>:
+        rate = <span class="nm">0.10</span>
+    <span class="kw">return</span> <span class="kw">round</span>(price * (<span class="nm">1</span> - rate), <span class="nm">2</span>)</code></pre>
+      </div>
+
+      <span class="field-label">price</span>
+      <input type="number" class="num-input" id="calc-price" value="100">
+      <div class="toggle-row" style="margin-top:10px;">
+        <button class="toggle-btn active" data-tier="Standard">Standard</button>
+        <button class="toggle-btn" data-tier="Gold">Gold</button>
+        <button class="toggle-btn" data-tier="Platinum">Platinum</button>
+      </div>
+      <button class="action-btn" id="calc-run">▸ call calculate_discount()</button>
+
+      <div class="trace-panel" id="calc-trace">
+        <div class="step" data-step="0"><span class="n">1</span>calculate_discount(price, tier) called</div>
+        <div class="step" data-step="1"><span class="n">2</span>checking tier against "Platinum" and "Gold"...</div>
+        <div class="step" data-step="2"><span class="n">3</span>rate assigned</div>
+        <div class="step" data-step="3"><span class="n">4</span>return round(price * (1 - rate), 2)</div>
+        <div class="trace-result" id="calc-result">— run the function to see it evaluate —</div>
+      </div>
+
+      <h4>The four parts, named</h4>
+      <ul>
+        <li><strong>Parameters</strong> — <code>price</code>, <code>tier</code>: placeholders for whatever values get passed in when the function is called.</li>
+        <li><strong>Docstring</strong> — the quoted line documenting what the function does, for the next person reading it.</li>
+        <li><strong>Body</strong> — the indented logic, using any control flow you already know.</li>
+        <li><strong>Return value</strong> — sends a result back to the caller, so it can be stored, printed, or fed into something else.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">02</span>
+      <span class="sheet-title">Positional, default, and keyword arguments</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>A parameter with <code>=</code> in the definition has a default — the caller can leave it out. Click each call style below.</p>
+      <div class="code-block">
+        <div class="code-head"><span>greet.py</span><span>python 3</span></div>
+        <pre><code><span class="kw">def</span> greet(name, greeting=<span class="st">"Hello"</span>):
+    <span class="kw">return</span> <span class="st">f"{greeting}, {name}!"</span></code></pre>
+      </div>
+      <div class="toggle-row" id="greet-buttons"></div>
+      <div class="output-panel" id="greet-output" style="display:block;">click a call style above ↑</div>
+    </div>
+  </details>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">03</span>
+      <span class="sheet-title">return vs. print — a common early mix-up</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p><code>print()</code> shows something on screen. <code>return</code> sends a value back so your program can actually <em>use</code> it. A function with no <code>return</code> hands back <code>None</code>.</p>
+      <div class="code-block">
+        <div class="code-head"><span>return_vs_print.py</span><span>python 3</span></div>
+        <pre><code><span class="kw">def</span> add_printer(a, b):
+    <span class="kw">print</span>(a + b)     <span class="cm"># just displays it — gives nothing back</span>
+
+<span class="kw">def</span> add_returner(a, b):
+    <span class="kw">return</span> a + b   <span class="cm"># hands the value back to the caller</span>
+
+result_a = add_printer(<span class="nm">2</span>, <span class="nm">3</span>)
+result_b = add_returner(<span class="nm">2</span>, <span class="nm">3</span>)
+
+<span class="kw">print</span>(<span class="st">f"result_a = {result_a}"</span>)
+<span class="kw">print</span>(<span class="st">f"result_b = {result_b}"</span>)
+<span class="kw">print</span>(result_b * <span class="nm">10</span>)  <span class="cm"># this works</span>
+<span class="cm"># result_a * 10 would fail — you can't do math on None</span></code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-03">▸ Show output</button>
+      <div class="output-panel" id="out-03" hidden>5
+result_a = None
+result_b = 5
+50</div>
+    </div>
+  </details>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">04</span>
+      <span class="sheet-title">Scope — local vs. global variables</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>A variable created inside a function only exists inside that function. It doesn't leak out, and it doesn't see itself overwriting anything outside.</p>
+      <div class="code-block">
+        <div class="code-head"><span>scope.py</span><span>python 3</span></div>
+        <pre><code>tax_rate = <span class="nm">0.08</span>   <span class="cm"># global — visible everywhere</span>
+
+<span class="kw">def</span> apply_local_discount(price):
+    tax_rate = <span class="nm">0.0</span>   <span class="cm"># local — only exists inside this function</span>
+    <span class="kw">return</span> price * (<span class="nm">1</span> + tax_rate)
+
+<span class="kw">print</span>(apply_local_discount(<span class="nm">100</span>))  <span class="cm"># uses the local tax_rate = 0.0</span>
+<span class="kw">print</span>(tax_rate)                      <span class="cm"># the global one is untouched</span></code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-04">▸ Show output</button>
+      <div class="output-panel" id="out-04" hidden>100.0
+0.08</div>
+      <p>This is a feature, not a bug: it means a function's internal variables can't accidentally corrupt the rest of your program. Each call also gets its own fresh set of local variables.</p>
+    </div>
+  </details>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">05</span>
+      <span class="sheet-title">*args and **kwargs — flexible argument lists</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>Sometimes you don't know in advance how many arguments will be passed. Click to add values and watch the call build up.</p>
+      <div class="code-block">
+        <div class="code-head"><span>args_demo.py</span><span>python 3</span></div>
+        <pre><code><span class="kw">def</span> total_sum(*args):
+    <span class="kw">return</span> <span class="kw">sum</span>(args)</code></pre>
+      </div>
+      <div class="toggle-row">
+        <button class="toggle-btn" id="args-add">add a value</button>
+        <button class="toggle-btn" id="args-reset">reset</button>
+      </div>
+      <div class="output-panel" id="args-output" style="display:block;">total_sum()  →  0</div>
+
+      <h4>**kwargs — collecting named arguments into a dict</h4>
+      <div class="code-block">
+        <div class="code-head"><span>kwargs_demo.py</span><span>python 3</span></div>
+        <pre><code><span class="kw">def</span> build_report(**kwargs):
+    <span class="kw">return</span> kwargs
+
+<span class="kw">print</span>(build_report(region=<span class="st">"West"</span>, quarter=<span class="st">"Q1"</span>, total=<span class="nm">45000</span>))</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-05">▸ Show output</button>
+      <div class="output-panel" id="out-05" hidden>{'region': 'West', 'quarter': 'Q1', 'total': 45000}</div>
+      <p>Whatever keyword arguments the caller passes get collected into a single dictionary named <code>kwargs</code> — useful for functions that accept optional, open-ended settings.</p>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">The payoff</p>
+    <h2>Modularity &amp; Reuse</h2>
+    <p>This is <em>why</em> functions exist. Without them, the same logic gets copy-pasted everywhere it's needed — and every copy is a place a bug can hide. Watch what happens when the discount rate needs to change.</p>
+  </div>
+
+  <details class="sheet" open>
+    <summary>
+      <span class="sheet-num">06</span>
+      <span class="sheet-title">Before/after — duplicated logic vs. one reusable function</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>Both panels compute a Gold-tier discount for three customers. Toggle the rate and see what it takes to update each approach.</p>
+
+      <div class="rate-toggle">
+        <div class="rate-display" id="rate-display">Gold tier rate: 15%</div>
+        <button class="action-btn" id="rate-toggle-btn">change rate to 20% →</button>
+      </div>
+
+      <div class="compare-grid">
+        <div class="compare-card bad">
+          <h5>WITHOUT A FUNCTION — logic copy-pasted 3 times</h5>
+          <div class="dupe-block" id="dupe-1">price1 = 100 * (1 - <span class="rate">0.15</span>) → <strong id="dupe-1-val">85.0</strong></div>
+          <div class="dupe-block" id="dupe-2">price2 = 250 * (1 - <span class="rate">0.15</span>) → <strong id="dupe-2-val">212.5</strong></div>
+          <div class="dupe-block" id="dupe-3">price3 = 60 * (1 - <span class="rate">0.15</span>) → <strong id="dupe-3-val">51.0</strong></div>
+          <span class="badge" id="dupe-badge">not updated yet — someone has to find and edit all 3 spots by hand</span>
+        </div>
+        <div class="compare-card good">
+          <h5>WITH A FUNCTION — one definition, three call sites</h5>
+          <div class="reuse-block">def calculate_discount(price, rate=<span class="rate">0.15</span>): ...</div>
+          <div class="reuse-block">calculate_discount(100) → <strong id="reuse-1-val">85.0</strong></div>
+          <div class="reuse-block">calculate_discount(250) → <strong id="reuse-2-val">212.5</strong></div>
+          <div class="reuse-block">calculate_discount(60) → <strong id="reuse-3-val">51.0</strong></div>
+          <span class="badge good">updates instantly everywhere — one source of truth</span>
+        </div>
+      </div>
+      <button class="action-btn" id="dupe-fix-btn">manually fix all 3 duplicated spots</button>
+      <button class="action-btn reset" id="rate-reset-btn">reset demo ↺</button>
+
+      <h4>What this buys you</h4>
+      <ul>
+        <li><strong>Reuse</strong> — write the logic once, call it from anywhere in your program (or in a different project entirely).</li>
+        <li><strong>Maintainability</strong> — fix a bug or update a rule in one place, and every call site is correct immediately.</li>
+        <li><strong>Readability</strong> — <code>calculate_discount(100)</code> tells the reader what's happening; ten lines of inline math doesn't.</li>
+        <li><strong>Testability</strong> — you can test one function in isolation instead of re-checking the same logic every place it's copied.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">07</span>
+      <span class="sheet-title">Composition — functions calling functions</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>Small functions become building blocks for bigger logic. Step through this pipeline one stage at a time.</p>
+      <div class="code-block">
+        <div class="code-head"><span>pipeline.py</span><span>python 3</span></div>
+        <pre><code><span class="kw">def</span> clean_price(raw):
+    <span class="kw">return</span> <span class="kw">float</span>(raw.replace(<span class="st">"$"</span>, <span class="st">""</span>).replace(<span class="st">","</span>, <span class="st">""</span>))
+
+<span class="kw">def</span> apply_discount(price, rate=<span class="nm">0.10</span>):
+    <span class="kw">return</span> <span class="kw">round</span>(price * (<span class="nm">1</span> - rate), <span class="nm">2</span>)
+
+<span class="kw">def</span> format_currency(value):
+    <span class="kw">return</span> <span class="st">f"${value:,.2f}"</span>
+
+<span class="kw">def</span> process(raw_price):
+    price = clean_price(raw_price)
+    discounted = apply_discount(price)
+    <span class="kw">return</span> format_currency(discounted)</code></pre>
+      </div>
+
+      <div class="pipeline-row" id="pipeline-row"></div>
+      <button class="action-btn" id="pipeline-run">▸ run process("$1,250.00")</button>
+      <button class="action-btn reset" id="pipeline-reset">reset ↺</button>
+      <p style="font-size:13px;color:#9fb6cf;">Each function does one clear job. <code>process()</code> doesn't need to know <em>how</em> cleaning or formatting works — it just trusts each piece to do its part.</p>
+    </div>
+  </details>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">08</span>
+      <span class="sheet-title">Lambda — small, throwaway functions</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>A <code>lambda</code> is a one-line, unnamed function — handy when you need a quick function to pass into something else, like a sort key.</p>
+      <div class="code-block">
+        <div class="code-head"><span>lambda_demo.py</span><span>python 3</span></div>
+        <pre><code>products = [(<span class="st">"Mouse"</span>, <span class="nm">24.99</span>), (<span class="st">"Monitor"</span>, <span class="nm">210.00</span>), (<span class="st">"Cable"</span>, <span class="nm">8.50</span>)]
+
+<span class="cm"># sort by price (the second item in each tuple)</span>
+products.sort(key=<span class="kw">lambda</span> item: item[<span class="nm">1</span>])
+<span class="kw">print</span>(products)</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-08">▸ Show output</button>
+      <div class="output-panel" id="out-08" hidden>[('Cable', 8.5), ('Mouse', 24.99), ('Monitor', 210.0)]</div>
+      <p><code>lambda item: item[1]</code> is equivalent to writing a full <code>def</code> function that returns <code>item[1]</code> — it just isn't worth naming for a one-off use like this.</p>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Active recall</p>
+    <h2>Quick Check</h2>
+    <p>Tap a card to flip it. Try answering before you flip.</p>
+  </div>
+
+  <div class="recall-grid">
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q1</div>
+          <div>What does a function return if it has no <code>return</code> statement?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A1</div>
+          <div><code>None</code> — <code>print()</code> displays a value but doesn't hand it back to the caller.</div>
+        </div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q2</div>
+          <div>Why does fixing a bug inside a function fix it everywhere the function is called?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A2</div>
+          <div>There's only one copy of the logic — every call site runs the same, single definition.</div>
+        </div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q3</div>
+          <div>What does <code>*args</code> let a function do?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A3</div>
+          <div>Accept any number of positional arguments, collected into a tuple.</div>
+        </div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q4</div>
+          <div>A variable created inside a function — can code outside the function see it?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A4</div>
+          <div>No — it's local scope, and disappears once the function returns.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>DRWG BY: Claude &nbsp;·&nbsp; TOPIC: Python functions, basic → advanced &nbsp;·&nbsp; interactive sheet set</footer>
+
+<script>
+  document.querySelectorAll('.reveal-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var panel = document.getElementById(btn.dataset.target);
+      var isHidden = panel.hasAttribute('hidden');
+      if(isHidden){ panel.removeAttribute('hidden'); btn.textContent = '▾ Hide output'; }
+      else { panel.setAttribute('hidden',''); btn.textContent = '▸ Show output'; }
+    });
+  });
+  document.querySelectorAll('.flip-card').forEach(function(card){
+    function toggle(){ card.classList.toggle('flipped'); card.setAttribute('aria-pressed', card.classList.contains('flipped')); }
+    card.addEventListener('click', toggle);
+    card.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); } });
+  });
+
+  // ---------- 01: live function call trace ----------
+  var selectedTier = 'Standard';
+  document.querySelectorAll('[data-tier]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('[data-tier]').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      selectedTier = btn.dataset.tier;
+    });
+  });
+  function calcDiscount(price, tier){
+    var rate = tier === 'Platinum' ? 0.20 : (tier === 'Gold' ? 0.15 : 0.10);
+    return { rate: rate, result: Math.round(price * (1 - rate) * 100) / 100 };
+  }
+  document.getElementById('calc-run').addEventListener('click', function(){
+    var price = parseFloat(document.getElementById('calc-price').value) || 0;
+    var steps = document.querySelectorAll('#calc-trace .step');
+    var resultEl = document.getElementById('calc-result');
+    var calc = calcDiscount(price, selectedTier);
+    steps.forEach(function(s){ s.classList.remove('active'); });
+    resultEl.textContent = '';
+    var i = 0;
+    function nextStep(){
+      if(i < steps.length){
+        steps[i].classList.add('active');
+        i++;
+        setTimeout(nextStep, 350);
+      } else {
+        resultEl.textContent = 'calculate_discount(' + price + ', "' + selectedTier + '")  →  rate=' + calc.rate + '  →  ' + calc.result;
+      }
+    }
+    nextStep();
+  });
+
+  // ---------- 02: greet call styles ----------
+  var greetCalls = [
+    { label:'greet("Sam")', name:'Sam', greeting:'Hello' },
+    { label:'greet("Sam", "Hey")', name:'Sam', greeting:'Hey' },
+    { label:'greet(name="Sam", greeting="Yo")', name:'Sam', greeting:'Yo' },
+    { label:'greet(greeting="Welcome", name="Sam")', name:'Sam', greeting:'Welcome' }
+  ];
+  var greetBtnRow = document.getElementById('greet-buttons');
+  var greetOutput = document.getElementById('greet-output');
+  greetCalls.forEach(function(call){
+    var btn = document.createElement('button');
+    btn.className = 'toggle-btn';
+    btn.textContent = call.label;
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('#greet-buttons .toggle-btn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      greetOutput.textContent = call.label + '  →  "' + call.greeting + ', ' + call.name + '!"';
+    });
+    greetBtnRow.appendChild(btn);
+  });
+
+  // ---------- 05: *args builder ----------
+  var argsValues = [];
+  var possibleVals = [10, 25, 5, 40, 15, 8, 30];
+  var argsOutput = document.getElementById('args-output');
+  document.getElementById('args-add').addEventListener('click', function(){
+    var val = possibleVals[argsValues.length % possibleVals.length];
+    argsValues.push(val);
+    var sum = argsValues.reduce(function(a,b){ return a+b; }, 0);
+    argsOutput.textContent = 'total_sum(' + argsValues.join(', ') + ')  →  ' + sum;
+  });
+  document.getElementById('args-reset').addEventListener('click', function(){
+    argsValues = [];
+    argsOutput.textContent = 'total_sum()  →  0';
+  });
+
+  // ---------- 06: before/after duplication demo ----------
+  var currentRate = 0.15;
+  var dupeRate = 0.15; // the "before" panel only updates when manually fixed
+  var basePrices = [100, 250, 60];
+  var rateDisplay = document.getElementById('rate-display');
+  var rateToggleBtn = document.getElementById('rate-toggle-btn');
+  var dupeBadge = document.getElementById('dupe-badge');
+
+  function fmt(n){ return (Math.round(n*100)/100).toFixed(1).replace(/\.0$/, '.0'); }
+
+  function updateReuseVals(){
+    document.getElementById('reuse-1-val').textContent = fmt(basePrices[0] * (1-currentRate));
+    document.getElementById('reuse-2-val').textContent = fmt(basePrices[1] * (1-currentRate));
+    document.getElementById('reuse-3-val').textContent = fmt(basePrices[2] * (1-currentRate));
+    document.querySelectorAll('.reuse-block .rate').forEach(function(el){ /* no rate span here on purpose */ });
+    document.querySelector('.compare-card.good .reuse-block').innerHTML =
+      'def calculate_discount(price, rate=<span class="rate">' + currentRate + '</span>): ...';
+  }
+  function updateDupeVals(){
+    document.getElementById('dupe-1-val').textContent = fmt(basePrices[0] * (1-dupeRate));
+    document.getElementById('dupe-2-val').textContent = fmt(basePrices[1] * (1-dupeRate));
+    document.getElementById('dupe-3-val').textContent = fmt(basePrices[2] * (1-dupeRate));
+    document.querySelectorAll('.compare-card.bad .dupe-block').forEach(function(block, i){
+      var label = ['price1 = 100', 'price2 = 250', 'price3 = 60'][i];
+      block.innerHTML = label + ' * (1 - <span class="rate">' + dupeRate + '</span>) → <strong>' + fmt(basePrices[i]*(1-dupeRate)) + '</strong>';
+    });
+  }
+  rateToggleBtn.addEventListener('click', function(){
+    currentRate = currentRate === 0.15 ? 0.20 : 0.15;
+    rateDisplay.textContent = 'Gold tier rate: ' + (currentRate*100) + '%';
+    rateToggleBtn.textContent = currentRate === 0.15 ? 'change rate to 20% →' : 'change rate to 15% →';
+    updateReuseVals();
+    dupeBadge.textContent = 'not updated yet — someone has to find and edit all 3 spots by hand';
+    dupeBadge.className = 'badge';
+  });
+  document.getElementById('dupe-fix-btn').addEventListener('click', function(){
+    dupeRate = currentRate;
+    updateDupeVals();
+    dupeBadge.textContent = 'fixed manually — but only because someone remembered all 3 spots';
+    dupeBadge.className = 'badge good';
+  });
+  document.getElementById('rate-reset-btn').addEventListener('click', function(){
+    currentRate = 0.15; dupeRate = 0.15;
+    rateDisplay.textContent = 'Gold tier rate: 15%';
+    rateToggleBtn.textContent = 'change rate to 20% →';
+    updateReuseVals();
+    updateDupeVals();
+    dupeBadge.textContent = 'not updated yet — someone has to find and edit all 3 spots by hand';
+    dupeBadge.className = 'badge';
+  });
+
+  // ---------- 07: pipeline ----------
+  var pipelineStages = [
+    { name: 'clean_price()', value: '"$1,250.00"' },
+    { name: 'clean_price()', value: '1250.0' },
+    { name: 'apply_discount()', value: '1125.0' },
+    { name: 'format_currency()', value: '"$1,125.00"' }
+  ];
+  var pipelineRowEl = document.getElementById('pipeline-row');
+  function renderPipeline(activeIdx){
+    pipelineRowEl.innerHTML = '';
+    pipelineStages.forEach(function(stage, i){
+      if(i > 0){
+        var arrow = document.createElement('div');
+        arrow.className = 'pipe-arrow';
+        arrow.textContent = '→';
+        pipelineRowEl.appendChild(arrow);
+      }
+      var box = document.createElement('div');
+      box.className = 'pipe-box' + (i === activeIdx ? ' active' : '');
+      box.innerHTML = '<span class="fname">' + stage.name + '</span><span class="fval">' + stage.value + '</span>';
+      pipelineRowEl.appendChild(box);
+    });
+  }
+  renderPipeline(-1);
+  document.getElementById('pipeline-run').addEventListener('click', function(){
+    var i = 0;
+    function step(){
+      if(i < pipelineStages.length){
+        renderPipeline(i);
+        i++;
+        setTimeout(step, 500);
+      }
+    }
+    step();
+  });
+  document.getElementById('pipeline-reset').addEventListener('click', function(){ renderPipeline(-1); });
+</script>
+
+</body>
+</html>
