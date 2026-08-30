@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Lists: An Interactive Tutorial</title>
+  <style>
+    :root { --ink:#172433; --navy:#102a43; --blue:#1d5c86; --paper:#fffdf8; --yellow:#f3bd4f; --teal:#0d9488; --coral:#e76f51; --line:#b7cbd8; }
+    * { box-sizing:border-box; } html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--ink); font:16px/1.55 Georgia, serif; background:linear-gradient(135deg, #dcecf2 0%, #f7f2e7 55%, #e6f0e8 100%); }
+    header { color:#fff; background:var(--navy); padding:58px 24px 70px; }
+    .wrap { max-width:1000px; margin:auto; } .tag, code, button, summary, .mono { font-family:Consolas, "Courier New", monospace; }
+    .tag { display:inline-block; border:1px solid var(--yellow); color:var(--yellow); padding:4px 9px; font-size:12px; letter-spacing:1px; text-transform:uppercase; }
+    h1 { font-family:Arial, sans-serif; font-size:clamp(2.2rem, 6vw, 4rem); line-height:1.05; margin:18px 0 12px; }
+    header p { max-width:680px; color:#d8e8ef; font-size:1.1rem; margin:0; }
+    main { max-width:1000px; padding:0 24px 64px; margin:-34px auto 0; }
+    .intro, details { background:var(--paper); border:1px solid var(--line); box-shadow:0 8px 20px rgba(16,42,67,.10); }
+    .intro { padding:24px; border-left:7px solid var(--yellow); } .intro h2, .section-title { margin:0 0 8px; font-family:Arial, sans-serif; font-size:1.5rem; }
+    .section-heading { margin:48px 0 14px; } .section-heading p { margin:0; color:#466174; }
+    details { margin:14px 0; } summary { display:flex; gap:14px; align-items:center; cursor:pointer; padding:17px 18px; color:var(--navy); font-weight:bold; list-style:none; }
+    summary::-webkit-details-marker { display:none; } summary::before { content:"+"; color:var(--paper); background:var(--blue); border-radius:50%; display:grid; place-items:center; width:23px; height:23px; flex:0 0 23px; }
+    details[open] summary::before { content:"-"; background:var(--teal); } .lesson { padding:2px 20px 24px; border-top:1px dashed var(--line); }
+    .list-row { display:flex; flex-wrap:wrap; gap:8px; margin:16px 0; } .cell { min-width:94px; padding:9px 8px; text-align:center; border:2px solid var(--blue); background:#f5fbff; color:var(--navy); cursor:pointer; transition:transform .15s, background .15s; }
+    .cell:hover, .cell.active { transform:translateY(-3px); border-color:var(--coral); background:#fff0e9; } .index { color:#587383; display:block; font:12px Consolas, monospace; } .cell-value { font-family:Consolas, monospace; }
+    .result { min-height:45px; border-left:4px solid var(--teal); background:#e9f8f5; padding:10px 13px; color:#075c55; font-family:Consolas, monospace; white-space:pre-wrap; }
+    pre { margin:16px 0 8px; overflow:auto; padding:15px; background:#102a43; color:#ecf7fb; border:1px solid #315979; font:14px/1.55 Consolas, monospace; }
+    .keyword { color:#ffd166; } .number { color:#ffad8f; } .comment { color:#9cb8c9; }
+    button { appearance:none; border:1px solid var(--teal); background:#fff; color:#08766d; cursor:pointer; padding:8px 12px; font-weight:bold; } button:hover { background:#ddf5f0; }
+    button:focus-visible, summary:focus-visible { outline:3px solid var(--yellow); outline-offset:2px; } .output { margin-top:9px; background:#102a43; color:#d9f6f1; padding:11px; font:14px Consolas, monospace; } .output[hidden] { display:none; }
+    .method-controls { display:flex; flex-wrap:wrap; gap:8px; margin:15px 0; } .method-controls button.reset { border-color:var(--coral); color:#b4442b; }
+    .build { display:grid; grid-template-columns:1fr 1fr; gap:18px; border:1px solid var(--line); padding:16px; background:#f7fbfc; } .build label { display:block; font-family:Consolas, monospace; font-size:.9rem; margin-bottom:6px; }
+    select { width:100%; padding:9px; border:1px solid var(--blue); background:#fff; font:14px Consolas, monospace; } .formula { grid-column:1/-1; padding:11px; background:#102a43; color:#fff; font:14px Consolas, monospace; overflow:auto; }
+    .chips { display:flex; flex-wrap:wrap; gap:7px; margin-top:10px; } .chip { padding:4px 8px; color:#075c55; background:#ddf5f0; border:1px solid #75cfc4; font:13px Consolas, monospace; } .chip.muted { opacity:.4; text-decoration:line-through; }
+    footer { background:var(--navy); color:#cbdce4; padding:22px 24px; text-align:center; font-size:.9rem; } @media (max-width:600px) { .build { grid-template-columns:1fr; } .formula { grid-column:auto; } .cell { min-width:76px; } }
+  </style>
+</head>
+<body>
+  <header><div class="wrap"><span class="tag">Interactive Python Tutorial</span><h1>Python Lists, from first item to clever comprehension.</h1><p>Lists keep data in order, let you change it, and support concise transformations. Open a lesson, click the visuals, and reveal each program's output.</p></div></header>
+  <main>
+    <section class="intro"><h2>A list is an ordered, mutable collection</h2><p><code>fruits = ["apple", "banana", "cherry", "date"]</code>. Each value lives at an index. Unlike a tuple, a list can be changed after it is created.</p></section>
+    <div class="section-heading"><h2 class="section-title">1. Start with indexes</h2><p>Positive indexes start at <code>0</code>; negative indexes count backwards from the end.</p></div>
+    <details open><summary>Click a list slot to inspect its index</summary><div class="lesson"><div class="list-row" id="fruit-cells"></div><div class="result" id="index-result">Choose a list slot above.</div><pre><span class="keyword">print</span>(fruits[<span class="number">0</span>])   <span class="comment"># first item</span>
+<span class="keyword">print</span>(fruits[-<span class="number">1</span>])  <span class="comment"># last item</span></pre><button class="reveal" data-output="index-output">Show output</button><div class="output" id="index-output" hidden>apple<br>date</div></div></details>
+    <div class="section-heading"><h2 class="section-title">2. Change the list</h2><p>These methods mutate the list in place. Try a few, then reset it.</p></div>
+    <details><summary>Use common list methods in a live visual</summary><div class="lesson"><div class="list-row" id="method-cells"></div><div class="method-controls"><button data-method="append">append(4)</button><button data-method="insert">insert(1, 99)</button><button data-method="pop">pop()</button><button data-method="sort">sort()</button><button data-method="reverse">reverse()</button><button class="reset" data-method="reset">Reset</button></div><div class="result" id="method-result">numbers = [5, 3, 8, 1]</div><pre>numbers = [<span class="number">5</span>, <span class="number">3</span>, <span class="number">8</span>, <span class="number">1</span>]
+numbers.<span class="keyword">append</span>(<span class="number">4</span>)</pre></div></details>
+    <div class="section-heading"><h2 class="section-title">3. Slice and loop</h2><p>Slices make a new sub-list. Loops visit each item in order.</p></div>
+    <details><summary>Read pieces of a list and repeat work</summary><div class="lesson"><pre>scores = [<span class="number">82</span>, <span class="number">91</span>, <span class="number">76</span>, <span class="number">95</span>]
+top_two = scores[<span class="number">1</span>:<span class="number">3</span>]  <span class="comment"># [91, 76], stop is excluded</span>
+
+<span class="keyword">for</span> position, score <span class="keyword">in</span> <span class="keyword">enumerate</span>(scores, start=<span class="number">1</span>):
+    <span class="keyword">print</span>(position, score)</pre><button class="reveal" data-output="loop-output">Show output</button><div class="output" id="loop-output" hidden>[91, 76]<br>1 82<br>2 91<br>3 76<br>4 95</div><p><code>enumerate()</code> supplies both the position and item. Use <code>zip()</code> when you need to walk through two lists together.</p></div></details>
+    <div class="section-heading"><h2 class="section-title">4. Build a list with a comprehension</h2><p>A comprehension combines an expression, a loop, and an optional filter in one readable line.</p></div>
+    <details><summary>Configure a comprehension and watch its result</summary><div class="lesson"><div class="build"><div><label for="expression">Transform each n</label><select id="expression"><option value="square">n ** 2 (square)</option><option value="double">n * 2 (double)</option><option value="label">f"item-{n}" (label)</option></select></div><div><label for="filter">Filter values</label><select id="filter"><option value="all">keep every number</option><option value="even">only even numbers</option><option value="greater">only numbers greater than 5</option></select></div><div class="formula" id="formula"></div><div class="chips" id="comprehension-result"></div></div><pre><span class="comment"># Equivalent explicit loop</span>
+result = []
+<span class="keyword">for</span> n <span class="keyword">in</span> numbers:
+    <span class="keyword">if</span> n % <span class="number">2</span> == <span class="number">0</span>:
+        result.<span class="keyword">append</span>(n ** <span class="number">2</span>)</pre></div></details>
+  </main>
+  <footer>Python Lists: ordered, mutable, and ready for practical work.</footer>
+  <script>
+    const fruits = ["apple", "banana", "cherry", "date"];
+    const fruitCells = document.getElementById("fruit-cells");
+    fruits.forEach((fruit, index) => {
+      const cell = document.createElement("button"); cell.className = "cell";
+      cell.innerHTML = `<span class="index">${index} / ${index - fruits.length}</span><span class="cell-value">"${fruit}"</span>`;
+      cell.addEventListener("click", () => { document.querySelectorAll("#fruit-cells .cell").forEach(item => item.classList.remove("active")); cell.classList.add("active"); document.getElementById("index-result").textContent = `fruits[${index}] = "${fruit}"   |   fruits[${index - fruits.length}] = "${fruit}"`; });
+      fruitCells.appendChild(cell);
+    });
+    document.querySelectorAll(".reveal").forEach(button => button.addEventListener("click", () => { const output = document.getElementById(button.dataset.output); output.hidden = !output.hidden; button.textContent = output.hidden ? "Show output" : "Hide output"; }));
+    const originalNumbers = [5, 3, 8, 1]; let numbers = [...originalNumbers];
+    const renderNumbers = message => { const cells = document.getElementById("method-cells"); cells.innerHTML = ""; numbers.forEach((number, index) => cells.innerHTML += `<div class="cell"><span class="index">${index}</span><span class="cell-value">${number}</span></div>`); document.getElementById("method-result").textContent = `${message}\nnumbers = [${numbers.join(", ")}]`; };
+    document.querySelectorAll("[data-method]").forEach(button => button.addEventListener("click", () => { const method = button.dataset.method; let message = ""; if (method === "append") { numbers.push(4); message = "numbers.append(4)"; } if (method === "insert") { numbers.splice(1, 0, 99); message = "numbers.insert(1, 99)"; } if (method === "pop") { message = `numbers.pop() returned ${numbers.pop()}`; } if (method === "sort") { numbers.sort((first, second) => first - second); message = "numbers.sort()"; } if (method === "reverse") { numbers.reverse(); message = "numbers.reverse()"; } if (method === "reset") { numbers = [...originalNumbers]; message = "Reset"; } renderNumbers(message); }));
+    renderNumbers("Starting list");
+    const source = [1, 2, 3, 4, 5, 6, 7, 8];
+    function updateComprehension() { const expression = document.getElementById("expression").value; const filter = document.getElementById("filter").value; const expressionText = { square:"n ** 2", double:"n * 2", label:'f"item-{n}"' }[expression]; const conditionText = { all:"", even:" if n % 2 == 0", greater:" if n > 5" }[filter]; document.getElementById("formula").textContent = `result = [${expressionText} for n in numbers${conditionText}]`; const result = document.getElementById("comprehension-result"); result.innerHTML = ""; source.forEach(number => { const included = filter === "all" || (filter === "even" && number % 2 === 0) || (filter === "greater" && number > 5); const value = expression === "square" ? number ** 2 : expression === "double" ? number * 2 : `item-${number}`; result.innerHTML += `<span class="chip${included ? "" : " muted"}">${value}</span>`; }); }
+    document.getElementById("expression").addEventListener("change", updateComprehension); document.getElementById("filter").addEventListener("change", updateComprehension); updateComprehension();
+  </script>
+</body>
+</html>
