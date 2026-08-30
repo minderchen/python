@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Blueprint — Business Analytics Fundamentals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue-deep:#0e2d4a;
+    --blue-panel:#153c60;
+    --blue-line:#3a6690;
+    --blue-line-soft:#264d70;
+    --paper:#e8eef5;
+    --amber:#f2b84b;
+    --amber-dim:#c98f2d;
+    --cyan:#7fdde3;
+    --coral:#ef8a6a;
+    --radius:2px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background-color:var(--blue-deep);
+    background-image:
+      repeating-linear-gradient(0deg, var(--blue-line-soft) 0px, var(--blue-line-soft) 1px, transparent 1px, transparent 32px),
+      repeating-linear-gradient(90deg, var(--blue-line-soft) 0px, var(--blue-line-soft) 1px, transparent 1px, transparent 32px);
+    color:var(--paper);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.55;
+    padding-bottom:80px;
+  }
+  code, pre, .mono{font-family:'IBM Plex Mono', monospace;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+
+  /* ---------- Header / hero ---------- */
+  header.titleblock{
+    max-width:980px;
+    margin:0 auto;
+    padding:40px 24px 20px;
+  }
+  .stamp{
+    display:inline-block;
+    border:1px solid var(--amber);
+    color:var(--amber);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    padding:4px 10px;
+    margin-bottom:18px;
+  }
+  h1.doc-title{
+    font-size:clamp(28px, 5vw, 46px);
+    margin:0 0 6px;
+    font-weight:700;
+    letter-spacing:-0.5px;
+  }
+  .doc-sub{
+    color:var(--cyan);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:14px;
+    margin:0 0 28px;
+  }
+  .lede{
+    max-width:680px;
+    font-size:16px;
+    color:#cbd9e8;
+    margin-bottom:0;
+  }
+
+  /* ---------- hero schematic ---------- */
+  .schematic-wrap{
+    max-width:980px;
+    margin:20px auto 10px;
+    padding:0 24px;
+  }
+  .schematic-frame{
+    border:1px solid var(--blue-line);
+    background:rgba(255,255,255,0.02);
+    padding:18px 10px 8px;
+  }
+  .schematic-caption{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:#7fa0c0;
+    text-align:center;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    margin:10px 0 0;
+  }
+  svg text{font-family:'IBM Plex Mono', monospace;}
+
+  /* ---------- section shell ---------- */
+  main{
+    max-width:980px;
+    margin:0 auto;
+    padding:0 24px;
+  }
+  .section-lede{
+    margin:56px 0 18px;
+  }
+  .section-lede .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--amber);
+    font-size:12px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    margin:0 0 8px;
+  }
+  .section-lede h2{
+    margin:0 0 8px;
+    font-size:clamp(20px,3vw,28px);
+  }
+  .section-lede p{
+    color:#c3d3e4;
+    max-width:680px;
+    margin:0;
+  }
+
+  /* ---------- sheet (details/summary accordion) ---------- */
+  details.sheet{
+    border:1px solid var(--blue-line);
+    background:var(--blue-panel);
+    margin-bottom:14px;
+  }
+  details.sheet > summary{
+    list-style:none;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:16px 18px;
+    user-select:none;
+  }
+  details.sheet > summary::-webkit-details-marker{display:none;}
+  .sheet-num{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--amber);
+    border:1px solid var(--amber);
+    padding:2px 8px;
+    white-space:nowrap;
+  }
+  .sheet-title{
+    font-weight:600;
+    font-size:17px;
+    flex:1;
+  }
+  .sheet-hint{
+    color:#7fa0c0;
+    font-size:13px;
+    font-family:'IBM Plex Mono', monospace;
+    display:none;
+  }
+  @media (min-width:640px){ .sheet-hint{display:inline;} }
+  .sheet-toggle{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:18px;
+    color:var(--amber);
+    width:20px;
+    text-align:center;
+    transition:transform .15s ease;
+  }
+  details[open] .sheet-toggle{ transform:rotate(45deg); }
+  .sheet-body{
+    padding:4px 20px 22px;
+    border-top:1px dashed var(--blue-line);
+  }
+  .sheet-body p{ color:#d3e0ee; }
+  .sheet-body h4{
+    color:var(--cyan);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    margin:22px 0 8px;
+  }
+  .sheet-body ul{ padding-left:20px; color:#d3e0ee; }
+  .sheet-body li{ margin-bottom:6px; }
+
+  /* ---------- code blocks ---------- */
+  .code-block{
+    background:#0a2036;
+    border:1px solid var(--blue-line);
+    margin:14px 0;
+    overflow:hidden;
+  }
+  .code-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:8px 12px;
+    background:#0d2842;
+    border-bottom:1px solid var(--blue-line);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:#7fa0c0;
+    letter-spacing:1px;
+  }
+  .code-block pre{
+    margin:0;
+    padding:14px 16px;
+    overflow-x:auto;
+    font-size:13.5px;
+    color:#e8eef5;
+  }
+  .kw{color:var(--amber);}
+  .st{color:var(--cyan);}
+  .cm{color:#6c8aab; font-style:italic;}
+  .nm{color:var(--coral);}
+
+  .reveal-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:none;
+    border:1px solid var(--amber);
+    color:var(--amber);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    padding:6px 12px;
+    margin:0 16px 14px;
+    cursor:pointer;
+    letter-spacing:0.5px;
+  }
+  .reveal-btn:hover{ background:rgba(242,184,75,0.1); }
+  .reveal-btn:focus-visible, summary:focus-visible, .flip-card:focus-visible{
+    outline:2px solid var(--cyan);
+    outline-offset:2px;
+  }
+  .output-panel{
+    margin:0 16px 16px;
+    border-left:3px solid var(--cyan);
+    background:rgba(127,221,227,0.06);
+    padding:10px 14px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--cyan);
+    white-space:pre-wrap;
+  }
+  .output-panel[hidden]{display:none;}
+
+  /* ---------- comparison strip (list vs dict lookup) ---------- */
+  .compare-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:12px;
+    margin-top:14px;
+  }
+  @media (min-width:640px){ .compare-grid{ grid-template-columns:1fr 1fr; } }
+  .compare-card{
+    border:1px solid var(--blue-line);
+    padding:14px 16px;
+    background:rgba(255,255,255,0.02);
+  }
+  .compare-card h5{
+    margin:0 0 8px;
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--amber);
+    font-size:13px;
+    letter-spacing:1px;
+  }
+  .badge{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    padding:2px 8px;
+    border:1px solid var(--coral);
+    color:var(--coral);
+    margin-top:8px;
+  }
+  .badge.good{ border-color:var(--cyan); color:var(--cyan); }
+
+  /* ---------- data structure quick-ref table ---------- */
+  table.dsref{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+    font-size:14px;
+  }
+  table.dsref th, table.dsref td{
+    border:1px solid var(--blue-line);
+    padding:8px 10px;
+    text-align:left;
+    vertical-align:top;
+  }
+  table.dsref th{
+    background:#0d2842;
+    color:var(--amber);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+  }
+  table.dsref td{ color:#d3e0ee; }
+  table.dsref code{ color:var(--cyan); }
+
+  /* ---------- recall check (flip cards) ---------- */
+  .recall-grid{
+    display:grid;
+    gap:14px;
+    grid-template-columns:1fr;
+    margin-top:8px;
+  }
+  @media (min-width:640px){ .recall-grid{ grid-template-columns:1fr 1fr; } }
+  .flip-card{
+    perspective:1200px;
+    height:140px;
+    cursor:pointer;
+  }
+  .flip-inner{
+    position:relative;
+    width:100%; height:100%;
+    transition:transform .5s;
+    transform-style:preserve-3d;
+  }
+  .flip-card.flipped .flip-inner{ transform:rotateY(180deg); }
+  .flip-face{
+    position:absolute; inset:0;
+    backface-visibility:hidden;
+    border:1px solid var(--blue-line);
+    padding:14px 16px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+  .flip-front{ background:var(--blue-panel); }
+  .flip-front .q-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--amber);
+    letter-spacing:1px;
+    margin-bottom:6px;
+  }
+  .flip-back{
+    background:#0d2842;
+    transform:rotateY(180deg);
+    color:var(--cyan);
+  }
+  .flip-back .a-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--cyan);
+    letter-spacing:1px;
+    margin-bottom:6px;
+  }
+  .flip-tap{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    color:#5f83a8;
+    margin-top:8px;
+  }
+
+  footer{
+    max-width:980px;
+    margin:60px auto 0;
+    padding:20px 24px;
+    border-top:1px solid var(--blue-line);
+    color:#7fa0c0;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+  }
+</style>
+</head>
+<body>
+
+<header class="titleblock">
+  <span class="stamp">Sheet Set · Python for Business Analytics</span>
+  <h1 class="doc-title">Program = Data Structures + Algorithms</h1>
+  <p class="doc-sub">// a working blueprint for beginners — build the vocabulary, then the logic</p>
+  <p class="lede">Every Python program you'll write for analytics — cleaning a sales file, flagging top customers, building a forecast — is really just two things working together: <strong>how you organize your data</strong>, and <strong>the steps you use to act on it</strong>. This tutorial builds both, piece by piece, using business examples throughout.</p>
+</header>
+
+<div class="schematic-wrap">
+  <div class="schematic-frame">
+    <svg viewBox="0 0 900 260" width="100%" role="img" aria-label="Diagram showing Program equals Data Structures plus Algorithms, combining into a Solution">
+      <!-- dashed border -->
+      <rect x="4" y="4" width="892" height="252" fill="none" stroke="#3a6690" stroke-width="1" stroke-dasharray="4 4"/>
+
+      <!-- PROGRAM box -->
+      <rect x="30" y="100" width="150" height="60" fill="none" stroke="#f2b84b" stroke-width="1.5"/>
+      <text x="105" y="135" fill="#f2b84b" font-size="15" text-anchor="middle" font-weight="600">PROGRAM</text>
+
+      <!-- equals -->
+      <text x="205" y="138" fill="#e8eef5" font-size="20" text-anchor="middle">=</text>
+
+      <!-- DATA STRUCTURES box -->
+      <rect x="240" y="45" width="220" height="60" fill="none" stroke="#7fdde3" stroke-width="1.5"/>
+      <text x="350" y="72" fill="#7fdde3" font-size="13" text-anchor="middle" font-weight="600">DATA STRUCTURES</text>
+      <text x="350" y="90" fill="#7fa0c0" font-size="10" text-anchor="middle">list · tuple · set · dict</text>
+
+      <!-- plus -->
+      <text x="490" y="138" fill="#e8eef5" font-size="20" text-anchor="middle">+</text>
+
+      <!-- ALGORITHMS box -->
+      <rect x="520" y="155" width="220" height="60" fill="none" stroke="#ef8a6a" stroke-width="1.5"/>
+      <text x="630" y="182" fill="#ef8a6a" font-size="13" text-anchor="middle" font-weight="600">ALGORITHMS</text>
+      <text x="630" y="200" fill="#7fa0c0" font-size="10" text-anchor="middle">control flow · functions</text>
+
+      <!-- connecting lines from PROGRAM to both -->
+      <line x1="180" y1="115" x2="240" y2="80" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3"/>
+      <line x1="180" y1="145" x2="520" y2="185" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3"/>
+
+      <!-- SOLUTION box -->
+      <rect x="770" y="100" width="105" height="60" fill="none" stroke="#e8eef5" stroke-width="1.5"/>
+      <text x="822" y="135" fill="#e8eef5" font-size="13" text-anchor="middle" font-weight="600">INSIGHT</text>
+
+      <line x1="460" y1="75" x2="770" y2="118" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3"/>
+      <line x1="740" y1="185" x2="770" y2="142" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3"/>
+
+      <!-- annotation -->
+      <text x="350" y="230" fill="#5f83a8" font-size="10" text-anchor="middle">// how information is organized</text>
+      <text x="630" y="235" fill="#5f83a8" font-size="10" text-anchor="middle">// the steps applied to it</text>
+    </svg>
+    <p class="schematic-caption">Fig. 1 — Niklaus Wirth's formula, applied to a business analytics program</p>
+  </div>
+</div>
+
+<main>
+
+  <div class="section-lede">
+    <p class="eyebrow">Foundation</p>
+    <h2>Variables &amp; Data Types</h2>
+    <p>Variables are labeled containers for values. The <em>data type</em> tells Python (and you) what kind of value is inside, and what operations make sense on it. Click a sheet below to unroll it.</p>
+  </div>
+
+  <details class="sheet" open>
+    <summary>
+      <span class="sheet-num">01</span>
+      <span class="sheet-title">Variables &amp; the four core data types</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>A variable is created the moment you assign it a value with <code>=</code>. Python figures out the type automatically — this is called <strong>dynamic typing</strong>.</p>
+
+      <div class="code-block">
+        <div class="code-head"><span>sales_basics.py</span><span>python 3</span></div>
+        <pre><code><span class="cm"># four core types, framed as a sales record</span>
+product_name = <span class="st">"Wireless Mouse"</span>   <span class="cm"># str  — text</span>
+unit_price   = <span class="nm">24.99</span>               <span class="cm"># float — decimal number</span>
+units_sold   = <span class="nm">318</span>                 <span class="cm"># int   — whole number</span>
+in_stock     = <span class="kw">True</span>                <span class="cm"># bool  — True / False</span>
+
+revenue = unit_price * units_sold
+<span class="kw">print</span>(<span class="st">f"Revenue for {product_name}: ${revenue:,.2f}"</span>)</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-01">▸ Show output</button>
+      <div class="output-panel" id="out-01" hidden>Revenue for Wireless Mouse: $7,946.82</div>
+
+      <h4>Why it matters here</h4>
+      <ul>
+        <li><strong>str</strong> — product names, customer IDs, region labels. Anything that's text, even if it looks numeric (a ZIP code stored as text won't accidentally get summed).</li>
+        <li><strong>int / float</strong> — units sold, prices, revenue. Use <code>float</code> whenever decimals matter (money, percentages).</li>
+        <li><strong>bool</strong> — flags like <code>in_stock</code>, <code>is_returning_customer</code> — the output of a comparison, and the fuel for control flow (next section).</li>
+      </ul>
+
+      <h4>Type conversion — a real gotcha</h4>
+      <p>Data imported from a CSV or web form often arrives as <strong>strings</strong>, even when it "looks like" a number. You have to convert it explicitly:</p>
+      <div class="code-block">
+        <div class="code-head"><span>type_conversion.py</span><span>python 3</span></div>
+        <pre><code>raw_price = <span class="st">"24.99"</span>       <span class="cm"># came from a spreadsheet cell — it's a string</span>
+price = <span class="kw">float</span>(raw_price)   <span class="cm"># now it's a real number you can do math with</span>
+<span class="kw">print</span>(price * <span class="nm">2</span>)</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-01b">▸ Show output</button>
+      <div class="output-panel" id="out-01b" hidden>49.98
+&#10;# Without float(): raw_price * 2 would give "24.9924.99" (string repetition), not math!</div>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Logic</p>
+    <h2>Control Flow</h2>
+    <p>Control flow is how a program makes decisions and repeats work — the "algorithm" side of the formula. Two building blocks cover almost everything: <strong>conditionals</strong> (branch) and <strong>loops</strong> (repeat).</p>
+  </div>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">02</span>
+      <span class="sheet-title">if / elif / else — branching decisions</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>Indentation is not a style choice in Python — it <em>is</em> the syntax that defines which lines belong to which branch.</p>
+      <div class="code-block">
+        <div class="code-head"><span>customer_tier.py</span><span>python 3</span></div>
+        <pre><code>lifetime_value = <span class="nm">18500</span>
+
+<span class="kw">if</span> lifetime_value >= <span class="nm">20000</span>:
+    tier = <span class="st">"Platinum"</span>
+<span class="kw">elif</span> lifetime_value >= <span class="nm">10000</span>:
+    tier = <span class="st">"Gold"</span>
+<span class="kw">else</span>:
+    tier = <span class="st">"Standard"</span>
+
+<span class="kw">print</span>(<span class="st">f"Customer tier: {tier}"</span>)</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-02">▸ Show output</button>
+      <div class="output-panel" id="out-02" hidden>Customer tier: Gold</div>
+      <p>Python checks conditions top to bottom and stops at the first <code>True</code> one — so order matters. Comparison operators (<code>==</code>, <code>!=</code>, <code>&gt;=</code>, <code>&lt;</code>...) and logical operators (<code>and</code>, <code>or</code>, <code>not</code>) are what you build these conditions from.</p>
+    </div>
+  </details>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">03</span>
+      <span class="sheet-title">for / while — repeating over data</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p><code>for</code> loops step through a known collection (a list of monthly sales, a set of customer IDs). <code>while</code> loops repeat until a condition becomes false — useful when you don't know the count in advance.</p>
+      <div class="code-block">
+        <div class="code-head"><span>monthly_growth.py</span><span>python 3</span></div>
+        <pre><code>monthly_sales = [<span class="nm">12000</span>, <span class="nm">15500</span>, <span class="nm">13800</span>, <span class="nm">17200</span>]
+
+<span class="kw">for</span> i, month_total <span class="kw">in</span> <span class="kw">enumerate</span>(monthly_sales, start=<span class="nm">1</span>):
+    flag = <span class="st">"⚠ dip"</span> <span class="kw">if</span> month_total &lt; <span class="nm">14000</span> <span class="kw">else</span> <span class="st">"ok"</span>
+    <span class="kw">print</span>(<span class="st">f"Month {i}: ${month_total:,}  ({flag})"</span>)</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-03">▸ Show output</button>
+      <div class="output-panel" id="out-03" hidden>Month 1: $12,000  (⚠ dip)
+Month 2: $15,500  (ok)
+Month 3: $13,800  (⚠ dip)
+Month 4: $17,200  (ok)</div>
+      <p>Notice the loop combines <em>both</em> halves of the formula: <code>monthly_sales</code> is the data structure (a list); the <code>for</code> loop + inline <code>if/else</code> is the algorithm operating on it.</p>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Organization</p>
+    <h2>Built-in Data Structures</h2>
+    <p>This is the "data structures" half of the formula made concrete. Python ships with four core containers. Picking the right one is often what makes an analytics script fast, correct, and readable — instead of slow and buggy.</p>
+  </div>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">04</span>
+      <span class="sheet-title">list, tuple, set, dict — quick reference</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <table class="dsref">
+        <tr>
+          <th>Structure</th><th>Ordered?</th><th>Changeable?</th><th>Duplicates?</th><th>Business analytics use</th>
+        </tr>
+        <tr>
+          <td><code>list</code></td><td>Yes</td><td>Yes</td><td>Yes</td>
+          <td>A time series of monthly revenue; rows read from a file, in order.</td>
+        </tr>
+        <tr>
+          <td><code>tuple</code></td><td>Yes</td><td>No</td><td>Yes</td>
+          <td>A fixed record that shouldn't change, e.g. <code>("Q1", 2026)</code> as a reporting period key.</td>
+        </tr>
+        <tr>
+          <td><code>set</code></td><td>No</td><td>Yes</td><td><strong>No</strong></td>
+          <td>Deduplicating customer IDs; fast membership checks ("has this customer ordered before?").</td>
+        </tr>
+        <tr>
+          <td><code>dict</code></td><td>Yes*</td><td>Yes</td><td>Keys: no</td>
+          <td>A customer record looked up by ID — <code>{"name": ..., "region": ..., "ltv": ...}</code>.</td>
+        </tr>
+      </table>
+      <p style="font-size:12px;color:#7fa0c0;">*Since Python 3.7, dicts preserve insertion order — but you still look items up by key, not position.</p>
+
+      <div class="code-block">
+        <div class="code-head"><span>containers.py</span><span>python 3</span></div>
+        <pre><code><span class="cm"># list — ordered, indexable, mutable</span>
+monthly_sales = [<span class="nm">12000</span>, <span class="nm">15500</span>, <span class="nm">13800</span>]
+
+<span class="cm"># tuple — fixed record, cannot be changed after creation</span>
+reporting_period = (<span class="st">"Q1"</span>, <span class="nm">2026</span>)
+
+<span class="cm"># set — unique values only, great for dedup</span>
+unique_customers = {<span class="st">"Acme"</span>, <span class="st">"Globex"</span>, <span class="st">"Acme"</span>}
+<span class="kw">print</span>(unique_customers)
+
+<span class="cm"># dict — key → value lookup</span>
+customer = {
+    <span class="st">"name"</span>: <span class="st">"Acme Corp"</span>,
+    <span class="st">"region"</span>: <span class="st">"West"</span>,
+    <span class="st">"ltv"</span>: <span class="nm">125000</span>
+}
+<span class="kw">print</span>(customer[<span class="st">"region"</span>])</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-04">▸ Show output</button>
+      <div class="output-panel" id="out-04" hidden>{'Acme', 'Globex'}
+West</div>
+    </div>
+  </details>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">05</span>
+      <span class="sheet-title">Why the choice of structure changes the algorithm</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>This is the heart of Wirth's formula: the same task — "find this customer's record" — needs a completely different algorithm depending on how the data is stored.</p>
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h5>CUSTOMERS STORED AS A LIST</h5>
+          <p style="margin:0 0 6px;">Python has to scan every record, one at a time, until it finds a match.</p>
+          <div class="code-block" style="margin:8px 0 0;">
+            <pre style="padding:10px 12px;font-size:12.5px;"><code><span class="kw">for</span> c <span class="kw">in</span> customer_list:
+    <span class="kw">if</span> c[<span class="st">"id"</span>] == <span class="st">"C1042"</span>:
+        <span class="kw">return</span> c</code></pre>
+          </div>
+          <span class="badge">Scans up to 10,000 records — O(n)</span>
+        </div>
+        <div class="compare-card">
+          <h5>CUSTOMERS STORED AS A DICT (keyed by ID)</h5>
+          <p style="margin:0 0 6px;">Python jumps straight to the record using a hash lookup.</p>
+          <div class="code-block" style="margin:8px 0 0;">
+            <pre style="padding:10px 12px;font-size:12.5px;"><code>customer_dict[<span class="st">"C1042"</span>]</code></pre>
+          </div>
+          <span class="badge good">One direct lookup — O(1)</span>
+        </div>
+      </div>
+      <p style="margin-top:14px;">For 100 customers, this barely matters. For 500,000 transaction rows, it's the difference between a script that runs in a second and one that times out. <strong>The data structure you choose is part of the algorithm's performance</strong> — that's exactly why Wirth wrote the formula as an equation, not two separate topics.</p>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Reusability</p>
+    <h2>Functions</h2>
+    <p>A function packages a piece of logic so you can reuse it, test it once, and name it clearly. This is how small pieces of control flow become a real, maintainable analytics script.</p>
+  </div>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">06</span>
+      <span class="sheet-title">Defining and calling functions</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <div class="code-block">
+        <div class="code-head"><span>discount.py</span><span>python 3</span></div>
+        <pre><code><span class="kw">def</span> calculate_discount(price, tier, rate=<span class="nm">0.10</span>):
+    <span class="st">"""Return the discounted price for a given customer tier."""</span>
+    <span class="kw">if</span> tier == <span class="st">"Platinum"</span>:
+        rate = <span class="nm">0.20</span>
+    <span class="kw">elif</span> tier == <span class="st">"Gold"</span>:
+        rate = <span class="nm">0.15</span>
+    <span class="kw">return</span> <span class="kw">round</span>(price * (<span class="nm">1</span> - rate), <span class="nm">2</span>)
+
+<span class="kw">print</span>(calculate_discount(<span class="nm">100</span>, <span class="st">"Gold"</span>))
+<span class="kw">print</span>(calculate_discount(<span class="nm">100</span>, <span class="st">"Standard"</span>))</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-06">▸ Show output</button>
+      <div class="output-panel" id="out-06" hidden>85.0
+90.0</div>
+      <h4>The four parts, named</h4>
+      <ul>
+        <li><strong>Parameters</strong> — <code>price</code>, <code>tier</code>, <code>rate</code>: the inputs the function needs. <code>rate=0.10</code> is a <em>default</em>, used only if the caller doesn't supply one.</li>
+        <li><strong>Docstring</strong> — the quoted line right after <code>def</code>; documents what the function does for the next person (often future-you).</li>
+        <li><strong>Body</strong> — the indented logic, which can use any control flow you've already learned.</li>
+        <li><strong>Return value</strong> — <code>return</code> sends a result back to wherever the function was called, so you can store it, print it, or feed it into another function.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">07</span>
+      <span class="sheet-title">A few things worth knowing early</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <h4>f-strings for readable output</h4>
+      <p><code>f"Revenue: ${revenue:,.2f}"</code> — the <code>f</code> prefix lets you drop variables directly into a string, and <code>:,.2f</code> formats a number with commas and two decimals. You'll use this constantly in reports.</p>
+
+      <h4>Comments</h4>
+      <p>Anything after <code>#</code> is ignored by Python — use it to explain <em>why</em>, not just what, especially around business logic that isn't obvious from the code alone.</p>
+
+      <h4>List comprehensions (a Python signature move)</h4>
+      <div class="code-block">
+        <div class="code-head"><span>comprehension.py</span><span>python 3</span></div>
+        <pre><code>prices = [<span class="nm">9.99</span>, <span class="nm">24.99</span>, <span class="nm">150.00</span>, <span class="nm">5.50</span>]
+high_value = [p <span class="kw">for</span> p <span class="kw">in</span> prices <span class="kw">if</span> p > <span class="nm">20</span>]
+<span class="kw">print</span>(high_value)</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-07">▸ Show output</button>
+      <div class="output-panel" id="out-07" hidden>[24.99, 150.0]</div>
+      <p>Read it as: "give me <code>p</code>, for each <code>p</code> in <code>prices</code>, but only if <code>p &gt; 20</code>." It's a loop and a filter condensed into one line — you'll see this constantly in real analytics code.</p>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Active recall</p>
+    <h2>Quick Check</h2>
+    <p>Tap a card to flip it. Try answering before you flip.</p>
+  </div>
+
+  <div class="recall-grid">
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q1</div>
+          <div>Which data type stores a value like <code>True</code>/<code>False</code>, e.g. <code>in_stock</code>?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A1</div>
+          <div><code>bool</code> — and it's what powers <code>if</code> conditions.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q2</div>
+          <div>You need to store 50,000 unique customer emails with zero duplicates. Which structure?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A2</div>
+          <div>A <code>set</code> — duplicates are automatically dropped.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q3</div>
+          <div>Looking up one customer among 500,000 by ID — list or dict, and why?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A3</div>
+          <div><code>dict</code> — O(1) hash lookup vs. scanning every record in a list.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q4</div>
+          <div>What keyword sends a value back out of a function?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A4</div>
+          <div><code>return</code> — without it, the function gives back <code>None</code>.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  DRWG BY: Claude &nbsp;·&nbsp; SCALE: beginner &nbsp;·&nbsp; REV: Wirth's formula, applied to business analytics
+</footer>
+
+<script>
+  // reveal-output buttons
+  document.querySelectorAll('.reveal-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var panel = document.getElementById(btn.dataset.target);
+      var isHidden = panel.hasAttribute('hidden');
+      if(isHidden){
+        panel.removeAttribute('hidden');
+        btn.textContent = '▾ Hide output';
+      } else {
+        panel.setAttribute('hidden','');
+        btn.textContent = '▸ Show output';
+      }
+    });
+  });
+
+  // flip cards
+  document.querySelectorAll('.flip-card').forEach(function(card){
+    function toggle(){
+      card.classList.toggle('flipped');
+      card.setAttribute('aria-pressed', card.classList.contains('flipped'));
+    }
+    card.addEventListener('click', toggle);
+    card.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); }
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Python Dictionary — Basic to Advanced (Interactive)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue-deep:#0e2d4a;
+    --blue-panel:#153c60;
+    --blue-line:#3a6690;
+    --blue-line-soft:#264d70;
+    --paper:#e8eef5;
+    --amber:#f2b84b;
+    --cyan:#7fdde3;
+    --coral:#ef8a6a;
+    --green:#8fd48a;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background-color:var(--blue-deep);
+    background-image:
+      repeating-linear-gradient(0deg, var(--blue-line-soft) 0px, var(--blue-line-soft) 1px, transparent 1px, transparent 32px),
+      repeating-linear-gradient(90deg, var(--blue-line-soft) 0px, var(--blue-line-soft) 1px, transparent 1px, transparent 32px);
+    color:var(--paper);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.55;
+    padding-bottom:80px;
+  }
+  code, pre, .mono{font-family:'IBM Plex Mono', monospace;}
+  @media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important;} }
+
+  header.titleblock{ max-width:1000px; margin:0 auto; padding:40px 24px 10px; }
+  .stamp{
+    display:inline-block; border:1px solid var(--amber); color:var(--amber);
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:2px;
+    text-transform:uppercase; padding:4px 10px; margin-bottom:18px;
+  }
+  h1.doc-title{ font-size:clamp(26px,5vw,42px); margin:0 0 6px; font-weight:700; letter-spacing:-0.5px; }
+  .doc-sub{ color:var(--cyan); font-family:'IBM Plex Mono', monospace; font-size:14px; margin:0 0 20px; }
+  .lede{ max-width:680px; font-size:16px; color:#cbd9e8; margin-bottom:0; }
+
+  .schematic-wrap{ max-width:1000px; margin:16px auto 10px; padding:0 24px; }
+  .schematic-frame{ border:1px solid var(--blue-line); background:rgba(255,255,255,0.02); padding:16px 10px 6px; }
+  .schematic-caption{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:#7fa0c0; text-align:center;
+    letter-spacing:1.5px; text-transform:uppercase; margin:8px 0 0;
+  }
+  svg text{ font-family:'IBM Plex Mono', monospace; }
+
+  main{ max-width:1000px; margin:0 auto; padding:0 24px; }
+  .section-lede{ margin:52px 0 16px; }
+  .section-lede .eyebrow{
+    font-family:'IBM Plex Mono', monospace; color:var(--amber); font-size:12px;
+    letter-spacing:2px; text-transform:uppercase; margin:0 0 8px;
+  }
+  .section-lede h2{ margin:0 0 8px; font-size:clamp(20px,3vw,27px); }
+  .section-lede p{ color:#c3d3e4; max-width:700px; margin:0; }
+
+  details.sheet{ border:1px solid var(--blue-line); background:var(--blue-panel); margin-bottom:14px; }
+  details.sheet > summary{
+    list-style:none; cursor:pointer; display:flex; align-items:center; gap:14px; padding:16px 18px; user-select:none;
+  }
+  details.sheet > summary::-webkit-details-marker{ display:none; }
+  .sheet-num{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--amber);
+    border:1px solid var(--amber); padding:2px 8px; white-space:nowrap;
+  }
+  .sheet-title{ font-weight:600; font-size:17px; flex:1; }
+  .sheet-hint{ color:#7fa0c0; font-size:13px; font-family:'IBM Plex Mono', monospace; display:none; }
+  @media (min-width:640px){ .sheet-hint{ display:inline; } }
+  .sheet-toggle{ font-family:'IBM Plex Mono', monospace; font-size:18px; color:var(--amber); width:20px; text-align:center; transition:transform .15s ease; }
+  details[open] .sheet-toggle{ transform:rotate(45deg); }
+  .sheet-body{ padding:4px 20px 24px; border-top:1px dashed var(--blue-line); }
+  .sheet-body p{ color:#d3e0ee; }
+  .sheet-body h4{ color:var(--cyan); font-family:'IBM Plex Mono', monospace; font-size:13px; letter-spacing:1px; text-transform:uppercase; margin:22px 0 8px; }
+  .sheet-body ul{ padding-left:20px; color:#d3e0ee; }
+  .sheet-body li{ margin-bottom:6px; }
+
+  .code-block{ background:#0a2036; border:1px solid var(--blue-line); margin:14px 0; overflow:hidden; }
+  .code-head{
+    display:flex; justify-content:space-between; align-items:center; padding:8px 12px;
+    background:#0d2842; border-bottom:1px solid var(--blue-line);
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:#7fa0c0; letter-spacing:1px;
+  }
+  .code-block pre{ margin:0; padding:14px 16px; overflow-x:auto; font-size:13.5px; color:#e8eef5; }
+  .kw{ color:var(--amber); } .st{ color:var(--cyan); } .cm{ color:#6c8aab; font-style:italic; } .nm{ color:var(--coral); }
+
+  .reveal-btn{
+    display:inline-flex; align-items:center; gap:6px; background:none; border:1px solid var(--amber);
+    color:var(--amber); font-family:'IBM Plex Mono', monospace; font-size:12px; padding:6px 12px;
+    margin:0 0 14px; cursor:pointer; letter-spacing:0.5px;
+  }
+  .reveal-btn:hover{ background:rgba(242,184,75,0.1); }
+  .reveal-btn:focus-visible, summary:focus-visible, .flip-card:focus-visible, .kv-row:focus-visible{
+    outline:2px solid var(--cyan); outline-offset:2px;
+  }
+  .output-panel{
+    margin:0 0 16px; border-left:3px solid var(--cyan); background:rgba(127,221,227,0.06);
+    padding:10px 14px; font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--cyan); white-space:pre-wrap;
+  }
+  .output-panel[hidden]{ display:none; }
+
+  /* ---- key-value visual ---- */
+  .kv-stack{ display:flex; flex-direction:column; gap:8px; margin:14px 0; max-width:420px; }
+  .kv-row{
+    display:flex; align-items:center; gap:10px; border:1px solid var(--blue-line); background:#0a2036;
+    padding:10px 14px; cursor:pointer; font-family:'IBM Plex Mono', monospace; font-size:13.5px;
+  }
+  .kv-row .k{ color:var(--amber); min-width:110px; }
+  .kv-row .arrow{ color:#5f83a8; }
+  .kv-row .v{ color:var(--paper); }
+  .kv-row.active{ border-color:var(--cyan); background:rgba(127,221,227,0.08); }
+  .kv-row.active .v{ color:var(--cyan); }
+
+  .code-line{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; background:#0a2036;
+    border-left:3px solid var(--cyan); padding:9px 12px; color:var(--cyan); min-height:18px; margin:10px 0;
+  }
+  .toggle-row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  .toggle-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; padding:7px 14px;
+    background:none; border:1px solid var(--blue-line); color:var(--paper); cursor:pointer;
+  }
+  .toggle-btn.active{ border-color:var(--amber); color:var(--amber); background:rgba(242,184,75,0.08); }
+  .toggle-btn:hover{ border-color:var(--amber); }
+
+  /* ---- console / method playground (dict state as chips) ---- */
+  .dict-chip-row{ display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+  .dict-chip{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; padding:7px 12px;
+    border:1px solid var(--blue-line); background:#0a2036; color:var(--paper);
+  }
+  .dict-chip .k{ color:var(--amber); }
+  .dict-chip .sep{ color:#5f83a8; margin:0 2px; }
+  .dict-chip .v{ color:var(--cyan); }
+  .dict-chip.empty-note{ color:#6d90b3; border:1px dashed var(--blue-line); }
+
+  .console{
+    background:#08192b; border:1px solid var(--blue-line); font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px; padding:12px 14px; max-height:220px; overflow-y:auto; margin:14px 0; color:#c3d3e4;
+  }
+  .console .line{ margin-bottom:6px; }
+  .console .prompt{ color:var(--amber); margin-right:6px; }
+  .console .result{ color:var(--cyan); padding-left:20px; }
+  .action-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; padding:7px 13px;
+    background:none; border:1px solid var(--amber); color:var(--amber); cursor:pointer; margin:0 8px 8px 0;
+  }
+  .action-btn:hover{ background:rgba(242,184,75,0.1); }
+  .action-btn.reset{ border-color:var(--coral); color:var(--coral); }
+  .action-btn.reset:hover{ background:rgba(239,138,106,0.1); }
+
+  /* ---- membership check ---- */
+  .membership-feedback{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; min-height:20px; margin:10px 0; padding:8px 12px;
+    border-left:3px solid var(--blue-line); background:rgba(255,255,255,0.02);
+  }
+  .membership-feedback.is-true{ border-color:var(--green); color:var(--green); }
+  .membership-feedback.is-false{ border-color:var(--coral); color:var(--coral); }
+
+  /* ---- word-frequency stepper ---- */
+  .word-queue{ display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; min-height:36px; }
+  .word-chip{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; padding:6px 12px; border:1px solid var(--blue-line); color:#9fb6cf;
+  }
+  .word-chip.used{ opacity:0.35; }
+  .word-chip.current{ border-color:var(--amber); color:var(--amber); }
+
+  /* ---- nested dict ---- */
+  .customer-picker{ display:flex; gap:8px; flex-wrap:wrap; margin:12px 0; }
+  .customer-chip{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; padding:8px 14px;
+    border:1px solid var(--blue-line); background:#0a2036; cursor:pointer; color:var(--paper);
+  }
+  .customer-chip.active{ border-color:var(--amber); color:var(--amber); background:rgba(242,184,75,0.1); }
+  .nested-record{ border:1px solid var(--cyan); background:rgba(127,221,227,0.05); padding:6px; margin:12px 0; max-width:420px; }
+
+  /* ---- comprehension builder ---- */
+  .comp-builder{ border:1px solid var(--blue-line); background:rgba(255,255,255,0.02); padding:16px; margin:14px 0; }
+  .comp-row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-family:'IBM Plex Mono', monospace; font-size:15px; margin-bottom:12px; }
+  .comp-row .part{ padding:4px 8px; border-radius:2px; }
+  .comp-row .p-expr{ background:rgba(242,184,75,0.15); color:var(--amber); }
+  .comp-row .p-for{ background:rgba(127,221,227,0.15); color:var(--cyan); }
+  .comp-row .p-if{ background:rgba(239,138,106,0.15); color:var(--coral); }
+  .comp-check{ display:flex; align-items:center; gap:8px; font-size:13px; color:#c3d3e4; margin-bottom:12px; font-family:'IBM Plex Mono', monospace; }
+  .comp-check input{ accent-color:var(--amber); width:16px; height:16px; }
+  .comp-result-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+  .comp-result-item{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; padding:6px 12px;
+    border:1px solid var(--cyan); background:rgba(127,221,227,0.1); color:var(--cyan);
+  }
+  .comp-result-item.excluded{ border-color:#3a5570; color:#5d7a99; background:none; text-decoration:line-through; opacity:0.5; }
+
+  table.dsref{ width:100%; border-collapse:collapse; margin-top:10px; font-size:14px; }
+  table.dsref th, table.dsref td{ border:1px solid var(--blue-line); padding:8px 10px; text-align:left; vertical-align:top; }
+  table.dsref th{ background:#0d2842; color:var(--amber); font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.5px; text-transform:uppercase; }
+  table.dsref td{ color:#d3e0ee; }
+  table.dsref code{ color:var(--cyan); }
+
+  .recall-grid{ display:grid; gap:14px; grid-template-columns:1fr; margin-top:8px; }
+  @media (min-width:640px){ .recall-grid{ grid-template-columns:1fr 1fr; } }
+  .flip-card{ perspective:1200px; height:150px; cursor:pointer; }
+  .flip-inner{ position:relative; width:100%; height:100%; transition:transform .5s; transform-style:preserve-3d; }
+  .flip-card.flipped .flip-inner{ transform:rotateY(180deg); }
+  .flip-face{ position:absolute; inset:0; backface-visibility:hidden; border:1px solid var(--blue-line); padding:14px 16px; display:flex; flex-direction:column; justify-content:center; }
+  .flip-front{ background:var(--blue-panel); }
+  .flip-front .q-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--amber); letter-spacing:1px; margin-bottom:6px; }
+  .flip-back{ background:#0d2842; transform:rotateY(180deg); color:var(--cyan); }
+  .flip-back .a-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--cyan); letter-spacing:1px; margin-bottom:6px; }
+  .flip-tap{ font-family:'IBM Plex Mono', monospace; font-size:10px; color:#5f83a8; margin-top:8px; }
+
+  footer{
+    max-width:1000px; margin:60px auto 0; padding:20px 24px; border-top:1px solid var(--blue-line);
+    color:#7fa0c0; font-family:'IBM Plex Mono', monospace; font-size:12px;
+  }
+</style>
+</head>
+<body>
+
+<header class="titleblock">
+  <span class="stamp">Sheet Set · Python Data Structures</span>
+  <h1 class="doc-title">The Dictionary — Basic to Advanced</h1>
+  <p class="doc-sub">// key → value lookup — the structure you'll reach for most in real analytics work</p>
+  <p class="lede">A dictionary stores information by <strong>name</strong>, not position. Instead of remembering "the third item," you ask for <code>customer["region"]</code>. This sheet builds from creating a dict up through looping patterns and comprehensions — every diagram is live.</p>
+</header>
+
+<div class="schematic-wrap">
+  <div class="schematic-frame">
+    <svg viewBox="0 0 900 190" width="100%" role="img" aria-label="Diagram of a dictionary as keys pointing to values">
+      <rect x="4" y="4" width="892" height="182" fill="none" stroke="#3a6690" stroke-width="1" stroke-dasharray="4 4"/>
+      <text x="30" y="35" fill="#f2b84b" font-size="14" font-weight="600">product = {"name": "Mouse", "price": 24.99, "in_stock": True}</text>
+
+      <g font-size="12">
+        <rect x="40" y="60" width="120" height="36" fill="none" stroke="#f2b84b" stroke-width="1.5"/>
+        <text x="100" y="83" fill="#f2b84b" text-anchor="middle">"name"</text>
+        <line x1="160" y1="78" x2="280" y2="78" stroke="#5f83a8" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#arrow)"/>
+        <rect x="280" y="60" width="140" height="36" fill="none" stroke="#7fdde3" stroke-width="1.5"/>
+        <text x="350" y="83" fill="#7fdde3" text-anchor="middle">"Mouse"</text>
+
+        <rect x="40" y="110" width="120" height="36" fill="none" stroke="#f2b84b" stroke-width="1.5"/>
+        <text x="100" y="133" fill="#f2b84b" text-anchor="middle">"price"</text>
+        <line x1="160" y1="128" x2="280" y2="128" stroke="#5f83a8" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#arrow)"/>
+        <rect x="280" y="110" width="140" height="36" fill="none" stroke="#7fdde3" stroke-width="1.5"/>
+        <text x="350" y="133" fill="#7fdde3" text-anchor="middle">24.99</text>
+
+        <rect x="470" y="85" width="140" height="36" fill="none" stroke="#f2b84b" stroke-width="1.5"/>
+        <text x="540" y="108" fill="#f2b84b" text-anchor="middle">"in_stock"</text>
+        <line x1="610" y1="103" x2="700" y2="103" stroke="#5f83a8" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#arrow)"/>
+        <rect x="700" y="85" width="120" height="36" fill="none" stroke="#7fdde3" stroke-width="1.5"/>
+        <text x="760" y="108" fill="#7fdde3" text-anchor="middle">True</text>
+      </g>
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#5f83a8"/>
+        </marker>
+      </defs>
+      <text x="450" y="165" fill="#5f83a8" font-size="10" text-anchor="middle">// each key points to exactly one value — no position, only name</text>
+    </svg>
+    <p class="schematic-caption">Fig. 1 — a dictionary maps keys to values; you look up by name, not index</p>
+  </div>
+</div>
+
+<main>
+
+  <div class="section-lede">
+    <p class="eyebrow">Basics</p>
+    <h2>Creating &amp; Accessing</h2>
+    <p>Click a row below to see the exact expression that reaches that value.</p>
+  </div>
+
+  <details class="sheet" open>
+    <summary>
+      <span class="sheet-num">01</span>
+      <span class="sheet-title">Key access, and the safer .get()</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <div class="kv-stack" id="product-kv"></div>
+      <div class="code-line" id="product-code">click a row above ↑</div>
+
+      <div class="code-block">
+        <div class="code-head"><span>access.py</span><span>python 3</span></div>
+        <pre><code>product = {<span class="st">"name"</span>: <span class="st">"Mouse"</span>, <span class="st">"price"</span>: <span class="nm">24.99</span>, <span class="st">"in_stock"</span>: <span class="kw">True</span>}
+
+<span class="kw">print</span>(product[<span class="st">"price"</span>])   <span class="cm"># 24.99</span>
+<span class="kw">print</span>(product[<span class="st">"discount"</span>]) <span class="cm"># KeyError! "discount" doesn't exist</span></code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-01">▸ Show output</button>
+      <div class="output-panel" id="out-01" hidden>24.99
+KeyError: 'discount'</div>
+
+      <h4>.get() — look up without risking a crash</h4>
+      <p>Try both buttons below — one key exists, one doesn't.</p>
+      <div class="toggle-row">
+        <button class="toggle-btn" id="get-existing">product.get("price")</button>
+        <button class="toggle-btn" id="get-missing">product.get("discount", "N/A")</button>
+      </div>
+      <div class="membership-feedback" id="get-feedback">click a button above ↑</div>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Changing state</p>
+    <h2>Adding, Updating &amp; Removing</h2>
+    <p>Dictionaries are mutable. Click the buttons and watch the live console track every change to the underlying dict.</p>
+  </div>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">02</span>
+      <span class="sheet-title">Playground — assignment, update, pop, del, setdefault</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>Starting dict: <code>inventory = {"mouse": 50, "keyboard": 30, "monitor": 12}</code></p>
+      <div class="dict-chip-row" id="method-chips"></div>
+      <div>
+        <button class="action-btn" data-action="add">inventory["headphones"] = 25</button>
+        <button class="action-btn" data-action="update">inventory["mouse"] = 45</button>
+        <button class="action-btn" data-action="bulk">inventory.update({"speaker": 18})</button>
+        <button class="action-btn" data-action="pop">inventory.pop("keyboard")</button>
+        <button class="action-btn" data-action="del">del inventory["monitor"]</button>
+        <button class="action-btn" data-action="setdefault">inventory.setdefault("cable", 15)</button>
+        <button class="action-btn reset" data-action="reset">reset ↺</button>
+      </div>
+      <div class="console" id="method-console"></div>
+      <h4>Method cheat sheet</h4>
+      <table class="dsref">
+        <tr><th>Operation</th><th>What it does</th></tr>
+        <tr><td><code>d[key] = value</code></td><td>Adds the key if new, or overwrites it if it already exists.</td></tr>
+        <tr><td><code>d.update({...})</code></td><td>Adds or overwrites several keys at once from another dict.</td></tr>
+        <tr><td><code>d.pop(key)</code></td><td>Removes the key and <em>returns</em> its value.</td></tr>
+        <tr><td><code>del d[key]</code></td><td>Removes the key. Raises <code>KeyError</code> if it isn't there.</td></tr>
+        <tr><td><code>d.setdefault(key, val)</code></td><td>Returns the value if the key exists; otherwise inserts it with <code>val</code> first.</td></tr>
+      </table>
+    </div>
+  </details>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">03</span>
+      <span class="sheet-title">Checking membership with "in"</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p><code>in</code> checks a dictionary's <strong>keys</strong> by default — not its values. Try both.</p>
+      <div class="toggle-row">
+        <button class="toggle-btn" id="mem-key-btn">"price" in product</button>
+        <button class="toggle-btn" id="mem-missing-btn">"discount" in product</button>
+        <button class="toggle-btn" id="mem-value-btn">24.99 in product.values()</button>
+      </div>
+      <div class="membership-feedback" id="mem-feedback">click a check above ↑</div>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Repetition</p>
+    <h2>Looping Over a Dictionary</h2>
+    <p>This is where dictionaries earn their keep in real scripts — accumulating totals, counting occurrences, transforming records. Three views cover everything: <code>.keys()</code>, <code>.values()</code>, <code>.items()</code>.</p>
+  </div>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">04</span>
+      <span class="sheet-title">.keys() / .values() / .items() — the three loop views</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <div class="code-block">
+        <div class="code-head"><span>loop_views.py</span><span>python 3</span></div>
+        <pre><code>prices = {<span class="st">"mouse"</span>: <span class="nm">24.99</span>, <span class="st">"keyboard"</span>: <span class="nm">59.00</span>, <span class="st">"monitor"</span>: <span class="nm">210.00</span>}
+
+<span class="kw">for</span> item <span class="kw">in</span> prices.keys():
+    <span class="kw">print</span>(item)
+
+<span class="kw">for</span> cost <span class="kw">in</span> prices.values():
+    <span class="kw">print</span>(cost)
+
+<span class="kw">for</span> item, cost <span class="kw">in</span> prices.items():
+    <span class="kw">print</span>(<span class="st">f"{item}: ${cost}"</span>)</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-04">▸ Show output</button>
+      <div class="output-panel" id="out-04" hidden>mouse
+keyboard
+monitor
+24.99
+59.0
+210.0
+mouse: $24.99
+keyboard: $59.0
+monitor: $210.0</div>
+      <p><code>.items()</code> is the one you'll use most — it gives you the key and value together in one pass, which is exactly what most real loops need.</p>
+
+      <h4>Accumulating a total while looping</h4>
+      <div class="code-block">
+        <div class="code-head"><span>accumulate.py</span><span>python 3</span></div>
+        <pre><code>inventory_value = <span class="nm">0</span>
+<span class="kw">for</span> item, cost <span class="kw">in</span> prices.items():
+    inventory_value += cost
+
+<span class="kw">print</span>(<span class="st">f"Total: ${inventory_value:.2f}"</span>)</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-04b">▸ Show output</button>
+      <div class="output-panel" id="out-04b" hidden>Total: $293.99</div>
+    </div>
+  </details>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">05</span>
+      <span class="sheet-title">Live pattern — building a word/customer frequency counter</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>This is one of the most common dict + loop patterns in analytics: counting how often each value appears. Step through it one item at a time.</p>
+      <p><code>orders = ["Acme", "Globex", "Acme", "Initech", "Acme", "Globex"]</code></p>
+      <div class="word-queue" id="freq-queue"></div>
+      <div class="dict-chip-row" id="freq-chips"></div>
+      <div class="code-line" id="freq-code">counts = {}</div>
+      <button class="action-btn" id="freq-next">step forward →</button>
+      <button class="action-btn reset" id="freq-reset">reset ↺</button>
+
+      <div class="code-block">
+        <div class="code-head"><span>frequency_counter.py</span><span>python 3</span></div>
+        <pre><code>orders = [<span class="st">"Acme"</span>, <span class="st">"Globex"</span>, <span class="st">"Acme"</span>, <span class="st">"Initech"</span>, <span class="st">"Acme"</span>, <span class="st">"Globex"</span>]
+
+counts = {}
+<span class="kw">for</span> customer <span class="kw">in</span> orders:
+    counts[customer] = counts.get(customer, <span class="nm">0</span>) + <span class="nm">1</span>
+
+<span class="kw">print</span>(counts)</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-05">▸ Show output</button>
+      <div class="output-panel" id="out-05" hidden>{'Acme': 3, 'Globex': 2, 'Initech': 1}</div>
+      <p><code>.get(customer, 0)</code> is the trick: it returns the current count, or <code>0</code> if we haven't seen this customer yet — so the same line works whether the key exists or not.</p>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Advanced</p>
+    <h2>Nested Dictionaries &amp; Comprehensions</h2>
+    <p>Real-world data is rarely flat — and dicts can hold other dicts as values, one level deep or many.</p>
+  </div>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">06</span>
+      <span class="sheet-title">Nested dicts — a dict of records</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>Click a customer ID to look up their record, then a field inside it.</p>
+      <div class="customer-picker" id="customer-picker"></div>
+      <div class="nested-record" id="nested-record"><div class="kv-stack" id="nested-kv" style="margin:8px;"></div></div>
+      <div class="code-line" id="nested-code">click a customer above ↑</div>
+
+      <div class="code-block">
+        <div class="code-head"><span>nested_dict.py</span><span>python 3</span></div>
+        <pre><code>customers = {
+    <span class="st">"C001"</span>: {<span class="st">"name"</span>: <span class="st">"Acme Corp"</span>,  <span class="st">"region"</span>: <span class="st">"West"</span>, <span class="st">"ltv"</span>: <span class="nm">125000</span>},
+    <span class="st">"C002"</span>: {<span class="st">"name"</span>: <span class="st">"Globex Inc"</span>, <span class="st">"region"</span>: <span class="st">"East"</span>, <span class="st">"ltv"</span>: <span class="nm">87000</span>}
+}
+
+<span class="kw">print</span>(customers[<span class="st">"C002"</span>][<span class="st">"region"</span>])  <span class="cm"># East — chain the keys</span></code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-06">▸ Show output</button>
+      <div class="output-panel" id="out-06" hidden>East</div>
+    </div>
+  </details>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">07</span>
+      <span class="sheet-title">Dictionary comprehensions</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>Base data: <code>numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code>. Toggle the filter and watch the comprehension — and its resulting dict — update live.</p>
+
+      <div class="comp-builder">
+        <div class="comp-row">
+          <span class="mono">squares =</span>
+          <span class="part p-expr">n: n**2</span>
+          <span class="part p-for">for n in numbers</span>
+          <span class="part p-if" id="comp-if-part" style="display:none;">if n % 2 == 0</span>
+        </div>
+        <div class="comp-check">
+          <input type="checkbox" id="comp-filter-toggle">
+          <label for="comp-filter-toggle">add filter: only even numbers</label>
+        </div>
+        <div class="comp-result-row" id="comp-result"></div>
+      </div>
+
+      <h4>Equivalent, written as a plain loop</h4>
+      <div class="code-block">
+        <div class="code-head"><span>equivalent_loop.py</span><span>python 3</span></div>
+        <pre id="comp-equiv-code"><code><span class="kw">squares = {}
+for</span> n <span class="kw">in</span> numbers:
+    squares[n] = n**<span class="nm">2</span></code></pre>
+      </div>
+      <p style="font-size:13px;color:#9fb6cf;">Same idea as a list comprehension, just with <code>key: value</code> instead of a single expression — and curly braces instead of square brackets.</p>
+    </div>
+  </details>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">08</span>
+      <span class="sheet-title">When a dict is (and isn't) the right choice</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <ul>
+        <li><strong>Reach for a dict</strong> when you look things up by name or ID — a customer record, a product catalog, a lookup table of exchange rates.</li>
+        <li><strong>Keys must be unique</strong> — assigning to an existing key overwrites it silently, it doesn't create a duplicate.</li>
+        <li><strong>Keys must be hashable</strong> — strings, numbers, and tuples work as keys; lists and other dicts do not.</li>
+        <li><strong>Reach for a list instead</strong> when order and position matter more than lookup-by-name — a sequence of transactions in the order they happened.</li>
+        <li>Looking up a record in a dict by ID is <code>O(1)</code> — instant, regardless of size. Scanning a list of records for a matching ID is <code>O(n)</code> — it gets slower as your data grows.</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Active recall</p>
+    <h2>Quick Check</h2>
+    <p>Tap a card to flip it. Try answering before you flip.</p>
+  </div>
+
+  <div class="recall-grid">
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q1</div>
+          <div>What happens if you access a missing key with <code>d[key]</code> instead of <code>.get()</code>?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A1</div>
+          <div>Python raises a <code>KeyError</code> and the program crashes — <code>.get()</code> returns <code>None</code> or a default instead.</div>
+        </div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q2</div>
+          <div>Which loop view gives you both the key and value together?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A2</div>
+          <div><code>.items()</code> — used as <code>for key, value in d.items():</code></div>
+        </div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q3</div>
+          <div>What does <code>counts.get(word, 0) + 1</code> accomplish in a frequency counter?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A3</div>
+          <div>Starts a new word at 1 instead of crashing, and increments an existing word's count — one line handles both cases.</div>
+        </div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q4</div>
+          <div>Can a list be used as a dictionary key?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A4</div>
+          <div>No — lists are mutable and unhashable. Keys must be hashable (strings, numbers, tuples).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>DRWG BY: Claude &nbsp;·&nbsp; TOPIC: Python dict, basic → advanced &nbsp;·&nbsp; interactive sheet set</footer>
+
+<script>
+  document.querySelectorAll('.reveal-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var panel = document.getElementById(btn.dataset.target);
+      var isHidden = panel.hasAttribute('hidden');
+      if(isHidden){ panel.removeAttribute('hidden'); btn.textContent = '▾ Hide output'; }
+      else { panel.setAttribute('hidden',''); btn.textContent = '▸ Show output'; }
+    });
+  });
+
+  document.querySelectorAll('.flip-card').forEach(function(card){
+    function toggle(){ card.classList.toggle('flipped'); card.setAttribute('aria-pressed', card.classList.contains('flipped')); }
+    card.addEventListener('click', toggle);
+    card.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); } });
+  });
+
+  // ---------- 01: key access ----------
+  var product = { name:'"Mouse"', price:'24.99', in_stock:'True' };
+  var productKvEl = document.getElementById('product-kv');
+  var productCodeEl = document.getElementById('product-code');
+  Object.keys(product).forEach(function(key){
+    var row = document.createElement('div');
+    row.className = 'kv-row';
+    row.tabIndex = 0;
+    row.innerHTML = '<span class="k">"' + key + '"</span><span class="arrow">→</span><span class="v">' + product[key] + '</span>';
+    row.addEventListener('click', function(){
+      document.querySelectorAll('#product-kv .kv-row').forEach(function(r){ r.classList.remove('active'); });
+      row.classList.add('active');
+      productCodeEl.textContent = 'product["' + key + '"]  →  ' + product[key];
+    });
+    productKvEl.appendChild(row);
+  });
+
+  var getFeedback = document.getElementById('get-feedback');
+  document.getElementById('get-existing').addEventListener('click', function(){
+    document.querySelectorAll('#product-kv + .code-line').length; // no-op, keep simple
+    getFeedback.textContent = 'product.get("price")  →  24.99';
+  });
+  document.getElementById('get-missing').addEventListener('click', function(){
+    getFeedback.textContent = 'product.get("discount", "N/A")  →  N/A   (no crash, uses the fallback)';
+  });
+
+  // ---------- 02: method playground ----------
+  var initialInventory = { mouse:50, keyboard:30, monitor:12 };
+  var inventory = Object.assign({}, initialInventory);
+  var chipsEl = document.getElementById('method-chips');
+  var consoleEl = document.getElementById('method-console');
+
+  function renderChips(obj, container){
+    container.innerHTML = '';
+    var keys = Object.keys(obj);
+    if(keys.length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'dict-chip empty-note';
+      empty.textContent = '(empty)';
+      container.appendChild(empty);
+      return;
+    }
+    keys.forEach(function(k){
+      var chip = document.createElement('div');
+      chip.className = 'dict-chip';
+      chip.innerHTML = '<span class="k">' + k + '</span><span class="sep">:</span><span class="v">' + obj[k] + '</span>';
+      container.appendChild(chip);
+    });
+  }
+  function logConsole(code, resultText){
+    var line = document.createElement('div');
+    line.className = 'line';
+    line.innerHTML = '<span class="prompt">&gt;&gt;&gt;</span>' + code;
+    consoleEl.appendChild(line);
+    if(resultText){
+      var res = document.createElement('div');
+      res.className = 'result';
+      res.textContent = resultText;
+      consoleEl.appendChild(res);
+    }
+    consoleEl.scrollTop = consoleEl.scrollHeight;
+  }
+  renderChips(inventory, chipsEl);
+
+  document.querySelectorAll('#method-console ~ *').length; // noop
+  document.querySelectorAll('.action-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var action = btn.dataset.action;
+      if(action === 'add'){
+        inventory.headphones = 25;
+        logConsole('inventory["headphones"] = 25', 'inventory is now ' + JSON.stringify(inventory));
+      } else if(action === 'update'){
+        inventory.mouse = 45;
+        logConsole('inventory["mouse"] = 45', 'inventory is now ' + JSON.stringify(inventory));
+      } else if(action === 'bulk'){
+        inventory.speaker = 18;
+        logConsole('inventory.update({"speaker": 18})', 'inventory is now ' + JSON.stringify(inventory));
+      } else if(action === 'pop'){
+        if('keyboard' in inventory){
+          var val = inventory.keyboard;
+          delete inventory.keyboard;
+          logConsole('inventory.pop("keyboard")', '→ ' + val + '   |   inventory is now ' + JSON.stringify(inventory));
+        } else {
+          logConsole('inventory.pop("keyboard")', 'KeyError: \'keyboard\'');
+        }
+      } else if(action === 'del'){
+        if('monitor' in inventory){
+          delete inventory.monitor;
+          logConsole('del inventory["monitor"]', 'inventory is now ' + JSON.stringify(inventory));
+        } else {
+          logConsole('del inventory["monitor"]', 'KeyError: \'monitor\'');
+        }
+      } else if(action === 'setdefault'){
+        if(!('cable' in inventory)){ inventory.cable = 15; }
+        logConsole('inventory.setdefault("cable", 15)', '→ ' + inventory.cable + '   |   inventory is now ' + JSON.stringify(inventory));
+      } else if(action === 'reset'){
+        inventory = Object.assign({}, initialInventory);
+        consoleEl.innerHTML = '';
+        logConsole('# reset', 'inventory is now ' + JSON.stringify(inventory));
+      }
+      renderChips(inventory, chipsEl);
+    });
+  });
+
+  // ---------- 03: membership ----------
+  var memFeedback = document.getElementById('mem-feedback');
+  function setMem(text, isTrue){
+    memFeedback.textContent = text;
+    memFeedback.className = 'membership-feedback ' + (isTrue ? 'is-true' : 'is-false');
+  }
+  document.getElementById('mem-key-btn').addEventListener('click', function(){ setMem('"price" in product  →  True', true); });
+  document.getElementById('mem-missing-btn').addEventListener('click', function(){ setMem('"discount" in product  →  False', false); });
+  document.getElementById('mem-value-btn').addEventListener('click', function(){ setMem('24.99 in product.values()  →  True  (checks values, not keys)', true); });
+
+  // ---------- 05: frequency counter stepper ----------
+  var orders = ['"Acme"', '"Globex"', '"Acme"', '"Initech"', '"Acme"', '"Globex"'];
+  var freqStep = 0;
+  var counts = {};
+  var freqQueueEl = document.getElementById('freq-queue');
+  var freqChipsEl = document.getElementById('freq-chips');
+  var freqCodeEl = document.getElementById('freq-code');
+
+  function renderFreqQueue(){
+    freqQueueEl.innerHTML = '';
+    orders.forEach(function(val, i){
+      var chip = document.createElement('div');
+      chip.className = 'word-chip' + (i < freqStep ? ' used' : '') + (i === freqStep ? ' current' : '');
+      chip.textContent = val;
+      freqQueueEl.appendChild(chip);
+    });
+  }
+  renderFreqQueue();
+  renderChips(counts, freqChipsEl);
+
+  document.getElementById('freq-next').addEventListener('click', function(){
+    if(freqStep >= orders.length) return;
+    var raw = orders[freqStep].replace(/"/g,'');
+    var before = counts[raw] || 0;
+    counts[raw] = before + 1;
+    freqCodeEl.textContent = 'counts[' + orders[freqStep] + '] = counts.get(' + orders[freqStep] + ', 0) + 1   →   ' + counts[raw];
+    freqStep++;
+    renderFreqQueue();
+    renderChips(counts, freqChipsEl);
+  });
+  document.getElementById('freq-reset').addEventListener('click', function(){
+    freqStep = 0; counts = {};
+    freqCodeEl.textContent = 'counts = {}';
+    renderFreqQueue();
+    renderChips(counts, freqChipsEl);
+  });
+
+  // ---------- 06: nested dict ----------
+  var customers = {
+    C001: { name:'"Acme Corp"', region:'"West"', ltv:'125000' },
+    C002: { name:'"Globex Inc"', region:'"East"', ltv:'87000' },
+    C003: { name:'"Initech"', region:'"North"', ltv:'42000' }
+  };
+  var pickerEl = document.getElementById('customer-picker');
+  var nestedKvEl = document.getElementById('nested-kv');
+  var nestedCodeEl = document.getElementById('nested-code');
+
+  Object.keys(customers).forEach(function(id){
+    var chip = document.createElement('div');
+    chip.className = 'customer-chip';
+    chip.textContent = 'customers["' + id + '"]';
+    chip.addEventListener('click', function(){
+      document.querySelectorAll('.customer-chip').forEach(function(c){ c.classList.remove('active'); });
+      chip.classList.add('active');
+      nestedCodeEl.textContent = 'click a field below ↓';
+      nestedKvEl.innerHTML = '';
+      var record = customers[id];
+      Object.keys(record).forEach(function(field){
+        var row = document.createElement('div');
+        row.className = 'kv-row';
+        row.tabIndex = 0;
+        row.innerHTML = '<span class="k">"' + field + '"</span><span class="arrow">→</span><span class="v">' + record[field] + '</span>';
+        row.addEventListener('click', function(e){
+          e.stopPropagation();
+          document.querySelectorAll('#nested-kv .kv-row').forEach(function(r){ r.classList.remove('active'); });
+          row.classList.add('active');
+          nestedCodeEl.textContent = 'customers["' + id + '"]["' + field + '"]  →  ' + record[field];
+        });
+        nestedKvEl.appendChild(row);
+      });
+    });
+    pickerEl.appendChild(chip);
+  });
+
+  // ---------- 07: comprehension builder ----------
+  var baseNumbers = [1,2,3,4,5,6,7,8,9,10];
+  var compIfPart = document.getElementById('comp-if-part');
+  var compToggle = document.getElementById('comp-filter-toggle');
+  var compResultEl = document.getElementById('comp-result');
+  var compEquivCode = document.getElementById('comp-equiv-code');
+
+  function renderComp(){
+    var filterOn = compToggle.checked;
+    compIfPart.style.display = filterOn ? 'inline-block' : 'none';
+    compResultEl.innerHTML = '';
+    baseNumbers.forEach(function(n){
+      var included = filterOn ? (n % 2 === 0) : true;
+      var item = document.createElement('div');
+      item.className = 'comp-result-item' + (included ? '' : ' excluded');
+      item.textContent = included ? (n + ': ' + (n*n)) : (n + ' →  skipped');
+      compResultEl.appendChild(item);
+    });
+    if(filterOn){
+      compEquivCode.innerHTML = '<code><span class="kw">squares = {}\nfor</span> n <span class="kw">in</span> numbers:\n    <span class="kw">if</span> n % <span class="nm">2</span> == <span class="nm">0</span>:\n        squares[n] = n**<span class="nm">2</span></code>';
+    } else {
+      compEquivCode.innerHTML = '<code><span class="kw">squares = {}\nfor</span> n <span class="kw">in</span> numbers:\n    squares[n] = n**<span class="nm">2</span></code>';
+    }
+  }
+  compToggle.addEventListener('change', renderComp);
+  renderComp();
+</script>
+
+</body>
+</html>

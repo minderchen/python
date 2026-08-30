@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Types &amp; Built-in Data Structures — Interactive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue-deep:#0e2d4a;
+    --blue-panel:#153c60;
+    --blue-line:#3a6690;
+    --blue-line-soft:#264d70;
+    --paper:#e8eef5;
+    --amber:#f2b84b;
+    --cyan:#7fdde3;
+    --coral:#ef8a6a;
+    --green:#8fd48a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background-color:var(--blue-deep);
+    background-image:
+      repeating-linear-gradient(0deg, var(--blue-line-soft) 0px, var(--blue-line-soft) 1px, transparent 1px, transparent 32px),
+      repeating-linear-gradient(90deg, var(--blue-line-soft) 0px, var(--blue-line-soft) 1px, transparent 1px, transparent 32px);
+    color:var(--paper);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.55;
+    padding-bottom:70px;
+  }
+  code, .mono{font-family:'IBM Plex Mono', monospace;}
+  @media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important;} }
+
+  header{ max-width:960px; margin:0 auto; padding:40px 24px 10px; }
+  .stamp{
+    display:inline-block; border:1px solid var(--amber); color:var(--amber);
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:2px;
+    text-transform:uppercase; padding:4px 10px; margin-bottom:16px;
+  }
+  h1{ font-size:clamp(24px,4.5vw,38px); margin:0 0 8px; letter-spacing:-0.5px; }
+  .lede{ color:#c3d3e4; max-width:680px; margin:0 0 10px; }
+
+  main{ max-width:960px; margin:0 auto; padding:0 24px; }
+  .section-lede{ margin:48px 0 16px; }
+  .section-lede .eyebrow{
+    font-family:'IBM Plex Mono', monospace; color:var(--amber); font-size:12px;
+    letter-spacing:2px; text-transform:uppercase; margin:0 0 6px;
+  }
+  .section-lede h2{ margin:0 0 6px; font-size:clamp(19px,3vw,26px); }
+  .section-lede p{ color:#c3d3e4; max-width:680px; margin:0; }
+
+  .panel{
+    border:1px solid var(--blue-line);
+    background:var(--blue-panel);
+    padding:20px;
+    margin-bottom:20px;
+  }
+  .panel h3{
+    margin:0 0 4px; font-size:15px; font-family:'IBM Plex Mono', monospace;
+    color:var(--cyan); letter-spacing:0.5px;
+  }
+  .panel .desc{ color:#c3d3e4; font-size:13.5px; margin:0 0 14px; }
+
+  /* ---- data type cards ---- */
+  .type-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+  @media (max-width:600px){ .type-grid{ grid-template-columns:1fr; } }
+  .type-card{
+    border:1px solid var(--blue-line);
+    background:rgba(255,255,255,0.02);
+    padding:14px 16px;
+    cursor:pointer;
+  }
+  .type-card .chip{
+    display:inline-block; font-family:'IBM Plex Mono', monospace; font-size:11px;
+    padding:2px 8px; border-radius:2px; margin-bottom:8px; font-weight:600;
+  }
+  .chip.int{ background:rgba(242,184,75,0.15); color:var(--amber); border:1px solid var(--amber); }
+  .chip.float{ background:rgba(127,221,227,0.15); color:var(--cyan); border:1px solid var(--cyan); }
+  .chip.str{ background:rgba(239,138,106,0.15); color:var(--coral); border:1px solid var(--coral); }
+  .chip.bool{ background:rgba(143,212,138,0.15); color:var(--green); border:1px solid var(--green); }
+  .type-card .val{ font-family:'IBM Plex Mono', monospace; font-size:16px; margin-bottom:4px; }
+  .type-card .note{ font-size:12.5px; color:#9fb6cf; display:none; margin-top:8px; border-top:1px dashed var(--blue-line); padding-top:8px;}
+  .type-card.open .note{ display:block; }
+  .type-card .hint{ font-size:11px; color:#6d90b3; font-family:'IBM Plex Mono', monospace; }
+
+  /* ---- type detective ---- */
+  .detective-value{
+    font-family:'IBM Plex Mono', monospace; font-size:22px; text-align:center;
+    background:#0a2036; border:1px solid var(--blue-line); padding:20px; margin-bottom:14px;
+  }
+  .detective-btns{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:12px; }
+  .det-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; padding:8px 16px;
+    background:none; border:1px solid var(--blue-line); color:var(--paper); cursor:pointer;
+  }
+  .det-btn:hover{ border-color:var(--amber); color:var(--amber); }
+  .det-feedback{
+    text-align:center; font-family:'IBM Plex Mono', monospace; font-size:13px;
+    min-height:20px; margin-bottom:10px;
+  }
+  .det-feedback.correct{ color:var(--green); }
+  .det-feedback.wrong{ color:var(--coral); }
+  .det-next{
+    display:block; margin:0 auto; font-family:'IBM Plex Mono', monospace; font-size:12px;
+    background:none; border:1px solid var(--amber); color:var(--amber); padding:6px 14px; cursor:pointer;
+  }
+
+  /* ---- list / tuple boxes ---- */
+  .box-row{ display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; }
+  .box{
+    border:1px solid var(--blue-line); background:#0a2036; min-width:64px;
+    text-align:center; padding:10px 6px; cursor:pointer; position:relative;
+  }
+  .box.locked{ cursor:not-allowed; }
+  .box .idx{ font-family:'IBM Plex Mono', monospace; font-size:10px; color:#6d90b3; margin-bottom:4px; }
+  .box .v{ font-family:'IBM Plex Mono', monospace; font-size:14px; color:var(--paper); }
+  .box.active{ border-color:var(--amber); background:rgba(242,184,75,0.1); }
+  .box.active .v{ color:var(--amber); }
+  .lock-icon{ font-size:11px; color:var(--coral); }
+
+  .code-line{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; background:#0a2036;
+    border-left:3px solid var(--cyan); padding:8px 12px; color:var(--cyan); min-height:18px;
+    margin:10px 0;
+  }
+  .action-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; padding:7px 14px;
+    background:none; border:1px solid var(--amber); color:var(--amber); cursor:pointer; margin-right:8px;
+  }
+  .action-btn:hover{ background:rgba(242,184,75,0.1); }
+  .error-line{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; background:rgba(239,138,106,0.08);
+    border-left:3px solid var(--coral); padding:8px 12px; color:var(--coral); margin-top:10px; display:none;
+  }
+  .error-line.show{ display:block; }
+
+  /* ---- set demo ---- */
+  .chip-queue{ display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; min-height:38px; }
+  .queue-chip{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; padding:6px 12px;
+    border:1px solid var(--blue-line); color:#9fb6cf;
+  }
+  .queue-chip.used{ opacity:0.3; text-decoration:line-through; }
+  .set-box{
+    border:1px dashed var(--cyan); min-height:50px; padding:10px; display:flex; gap:8px; flex-wrap:wrap;
+    align-items:center; margin:10px 0;
+  }
+  .set-box .empty-note{ color:#6d90b3; font-family:'IBM Plex Mono', monospace; font-size:12px; }
+  .set-item{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; padding:6px 12px;
+    background:rgba(127,221,227,0.12); border:1px solid var(--cyan); color:var(--cyan);
+  }
+  .rejected-msg{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--coral); min-height:16px; margin-bottom:6px; }
+
+  /* ---- dict demo ---- */
+  .dict-wrap{ display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start; margin:12px 0; }
+  .key-col{ display:flex; flex-direction:column; gap:8px; }
+  .key-chip{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; padding:8px 14px;
+    border:1px solid var(--blue-line); background:#0a2036; cursor:pointer; color:var(--paper);
+  }
+  .key-chip.active{ border-color:var(--amber); color:var(--amber); background:rgba(242,184,75,0.1); }
+  .value-display{
+    flex:1; min-width:180px; border:1px solid var(--cyan); background:rgba(127,221,227,0.06);
+    padding:16px; font-family:'IBM Plex Mono', monospace; color:var(--cyan); font-size:15px;
+  }
+
+  /* ---- python code blocks ---- */
+  .code-block{
+    background:#0a2036;
+    border:1px solid var(--blue-line);
+    margin:14px 0 0;
+    overflow:hidden;
+  }
+  .code-head{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:7px 12px; background:#0d2842; border-bottom:1px solid var(--blue-line);
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:#7fa0c0; letter-spacing:1px;
+  }
+  .code-block pre{ margin:0; padding:14px 16px; overflow-x:auto; font-size:13.5px; color:#e8eef5; }
+  .kw{ color:var(--amber); }
+  .st{ color:var(--cyan); }
+  .cm{ color:#6c8aab; font-style:italic; }
+  .nm{ color:var(--coral); }
+
+  /* ---- ref table ---- */
+  table.dsref{ width:100%; border-collapse:collapse; margin-top:6px; font-size:13.5px; }
+  table.dsref th, table.dsref td{ border:1px solid var(--blue-line); padding:8px 10px; text-align:left; }
+  table.dsref th{ background:#0d2842; color:var(--amber); font-family:'IBM Plex Mono', monospace; font-size:11.5px; text-transform:uppercase; }
+  table.dsref td{ color:#d3e0ee; }
+  table.dsref code{ color:var(--cyan); }
+
+  footer{
+    max-width:960px; margin:50px auto 0; padding:20px 24px; border-top:1px solid var(--blue-line);
+    color:#7fa0c0; font-family:'IBM Plex Mono', monospace; font-size:12px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="stamp">Interactive Sheet · Python Fundamentals</span>
+  <h1>Data Types &amp; Built-in Data Structures</h1>
+  <p class="lede">Click, tap, and try things below — every diagram here responds. Data <strong>types</strong> describe a single value; data <strong>structures</strong> are containers that hold many values, often built from those types.</p>
+</header>
+
+<main>
+
+  <div class="section-lede">
+    <p class="eyebrow">Single values</p>
+    <h2>Data Types</h2>
+    <p>Click any card to reveal what it's used for. Each one is a different "shape" of value.</p>
+  </div>
+
+  <div class="type-grid">
+    <div class="type-card" data-note="Whole numbers — counts, quantities. No decimal point.">
+      <span class="chip int">int</span>
+      <div class="val">units_sold = 318</div>
+      <div class="hint">click to reveal use ▾</div>
+      <div class="note">Used for: quantities, counts, ages, IDs stored as numbers. <code>type(318)</code> → <code>&lt;class 'int'&gt;</code></div>
+    </div>
+    <div class="type-card" data-note="Decimal numbers — always use this for money and percentages.">
+      <span class="chip float">float</span>
+      <div class="val">unit_price = 24.99</div>
+      <div class="hint">click to reveal use ▾</div>
+      <div class="note">Used for: prices, revenue, growth rates — anything with a decimal. <code>type(24.99)</code> → <code>&lt;class 'float'&gt;</code></div>
+    </div>
+    <div class="type-card" data-note="Text — always wrapped in quotes, even if it looks like a number.">
+      <span class="chip str">str</span>
+      <div class="val">product = "Wireless Mouse"</div>
+      <div class="hint">click to reveal use ▾</div>
+      <div class="note">Used for: names, labels, ZIP codes, IDs that shouldn't be summed. <code>type("Mouse")</code> → <code>&lt;class 'str'&gt;</code></div>
+    </div>
+    <div class="type-card" data-note="True or False — the output of comparisons, and the fuel for if statements.">
+      <span class="chip bool">bool</span>
+      <div class="val">in_stock = True</div>
+      <div class="hint">click to reveal use ▾</div>
+      <div class="note">Used for: flags like <code>is_returning_customer</code>, and every <code>if</code> condition you write. <code>type(True)</code> → <code>&lt;class 'bool'&gt;</code></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>// TYPE DETECTIVE</h3>
+    <p class="desc">Guess the data type of the value shown, then check yourself.</p>
+    <div class="detective-value" id="det-value">"24.99"</div>
+    <div class="detective-btns">
+      <button class="det-btn" data-guess="str">str</button>
+      <button class="det-btn" data-guess="int">int</button>
+      <button class="det-btn" data-guess="float">float</button>
+      <button class="det-btn" data-guess="bool">bool</button>
+    </div>
+    <div class="det-feedback" id="det-feedback"></div>
+    <button class="det-next" id="det-next">next value →</button>
+
+    <div class="code-block">
+      <div class="code-head"><span>data_types.py</span><span>python 3</span></div>
+      <pre><code>units_sold   = <span class="nm">318</span>                 <span class="cm"># int</span>
+unit_price   = <span class="nm">24.99</span>               <span class="cm"># float</span>
+product_name = <span class="st">"Wireless Mouse"</span>   <span class="cm"># str</span>
+in_stock     = <span class="kw">True</span>                <span class="cm"># bool</span>
+
+<span class="kw">print</span>(<span class="kw">type</span>(units_sold))     <span class="cm"># &lt;class 'int'&gt;</span>
+<span class="kw">print</span>(<span class="kw">type</span>(unit_price))     <span class="cm"># &lt;class 'float'&gt;</span>
+<span class="kw">print</span>(<span class="kw">type</span>(product_name))   <span class="cm"># &lt;class 'str'&gt;</span>
+<span class="kw">print</span>(<span class="kw">type</span>(in_stock))       <span class="cm"># &lt;class 'bool'&gt;</span></code></pre>
+    </div>
+  </div>
+
+  <div class="section-lede">
+    <p class="eyebrow">Collections</p>
+    <h2>Built-in Data Structures</h2>
+    <p>Four containers, four different jobs. Try interacting with each one below.</p>
+  </div>
+
+  <div class="panel">
+    <h3>// LIST — ordered, changeable, allows duplicates</h3>
+    <p class="desc">Click a box to see how indexing works. Then try appending a new value.</p>
+    <div class="box-row" id="list-boxes"></div>
+    <div class="code-line" id="list-code">click a box above ↑</div>
+    <button class="action-btn" id="list-append">monthly_sales.append(19000)</button>
+
+    <div class="code-block">
+      <div class="code-head"><span>list_demo.py</span><span>python 3</span></div>
+      <pre><code>monthly_sales = [<span class="nm">12000</span>, <span class="nm">15500</span>, <span class="nm">13800</span>, <span class="nm">17200</span>]
+
+<span class="kw">print</span>(monthly_sales[<span class="nm">0</span>])   <span class="cm"># 12000 — first item, index starts at 0</span>
+
+monthly_sales.append(<span class="nm">19000</span>)   <span class="cm"># add a new month to the end</span>
+<span class="kw">print</span>(monthly_sales)
+<span class="cm"># [12000, 15500, 13800, 17200, 19000]</span></code></pre>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>// TUPLE — ordered, but immutable (locked after creation)</h3>
+    <p class="desc">Same shape as a list — but try to edit it.</p>
+    <div class="box-row" id="tuple-boxes"></div>
+    <button class="action-btn" id="tuple-edit">reporting_period[0] = "Q2"</button>
+    <div class="error-line" id="tuple-error">TypeError: 'tuple' object does not support item assignment</div>
+
+    <div class="code-block">
+      <div class="code-head"><span>tuple_demo.py</span><span>python 3</span></div>
+      <pre><code>reporting_period = (<span class="st">"Q1"</span>, <span class="nm">2026</span>)
+
+<span class="kw">print</span>(reporting_period[<span class="nm">0</span>])   <span class="cm"># Q1</span>
+
+reporting_period[<span class="nm">0</span>] = <span class="st">"Q2"</span>
+<span class="cm"># TypeError: 'tuple' object does not support item assignment</span></code></pre>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>// SET — unordered, no duplicates allowed</h3>
+    <p class="desc">Step through adding customers one at a time. Watch what happens to the repeat.</p>
+    <div class="chip-queue" id="set-queue"></div>
+    <div class="rejected-msg" id="set-msg"></div>
+    <div class="set-box" id="set-box"><span class="empty-note">customers = set() — empty so far</span></div>
+    <button class="action-btn" id="set-next">add next customer →</button>
+    <button class="action-btn" id="set-reset" style="display:none;">reset demo ↺</button>
+
+    <div class="code-block">
+      <div class="code-head"><span>set_demo.py</span><span>python 3</span></div>
+      <pre><code>customers = {<span class="st">"Acme"</span>, <span class="st">"Globex"</span>, <span class="st">"Acme"</span>, <span class="st">"Initech"</span>}
+<span class="kw">print</span>(customers)
+<span class="cm"># {'Acme', 'Globex', 'Initech'} — the second "Acme" was dropped</span>
+
+<span class="kw">print</span>(<span class="st">"Acme"</span> <span class="kw">in</span> customers)   <span class="cm"># True — fast membership check</span></code></pre>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>// DICT — key → value lookup</h3>
+    <p class="desc">Click a key to look up its value, the way <code>customer["region"]</code> works.</p>
+    <div class="dict-wrap">
+      <div class="key-col" id="dict-keys"></div>
+      <div class="value-display" id="dict-value">click a key ←</div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-head"><span>dict_demo.py</span><span>python 3</span></div>
+      <pre><code>customer = {
+    <span class="st">"name"</span>: <span class="st">"Acme Corp"</span>,
+    <span class="st">"region"</span>: <span class="st">"West"</span>,
+    <span class="st">"ltv"</span>: <span class="nm">125000</span>
+}
+
+<span class="kw">print</span>(customer[<span class="st">"region"</span>])   <span class="cm"># West</span>
+customer[<span class="st">"ltv"</span>] = <span class="nm">130000</span>     <span class="cm"># update a value by key</span>
+<span class="kw">print</span>(customer)</code></pre>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>// QUICK REFERENCE</h3>
+    <table class="dsref">
+      <tr><th>Structure</th><th>Ordered?</th><th>Changeable?</th><th>Duplicates?</th><th>Syntax</th></tr>
+      <tr><td>list</td><td>Yes</td><td>Yes</td><td>Yes</td><td><code>[1, 2, 3]</code></td></tr>
+      <tr><td>tuple</td><td>Yes</td><td>No</td><td>Yes</td><td><code>(1, 2, 3)</code></td></tr>
+      <tr><td>set</td><td>No</td><td>Yes</td><td>No</td><td><code>{1, 2, 3}</code></td></tr>
+      <tr><td>dict</td><td>Yes*</td><td>Yes</td><td>Keys: no</td><td><code>{"k": "v"}</code></td></tr>
+    </table>
+  </div>
+
+</main>
+
+<footer>DRWG BY: Claude &nbsp;·&nbsp; TOPIC: data types &amp; structures &nbsp;·&nbsp; interactive sheet</footer>
+
+<script>
+  // ---- type cards ----
+  document.querySelectorAll('.type-card').forEach(function(card){
+    card.addEventListener('click', function(){ card.classList.toggle('open'); });
+  });
+
+  // ---- type detective ----
+  var detItems = [
+    { display:'"24.99"', type:'str' },
+    { display:'318', type:'int' },
+    { display:'24.99', type:'float' },
+    { display:'True', type:'bool' },
+    { display:'"318"', type:'str' },
+    { display:'0.15', type:'float' },
+    { display:'False', type:'bool' },
+    { display:'42', type:'int' }
+  ];
+  var detIdx = 0;
+  var detValueEl = document.getElementById('det-value');
+  var detFeedback = document.getElementById('det-feedback');
+
+  function loadDet(){
+    detValueEl.textContent = detItems[detIdx].display;
+    detFeedback.textContent = '';
+    detFeedback.className = 'det-feedback';
+  }
+  document.querySelectorAll('.det-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var guess = btn.dataset.guess;
+      var correct = detItems[detIdx].type;
+      if(guess === correct){
+        detFeedback.textContent = '✓ correct — type(' + detItems[detIdx].display + ') is ' + correct;
+        detFeedback.className = 'det-feedback correct';
+      } else {
+        detFeedback.textContent = '✗ not quite — it\'s actually ' + correct;
+        detFeedback.className = 'det-feedback wrong';
+      }
+    });
+  });
+  document.getElementById('det-next').addEventListener('click', function(){
+    detIdx = (detIdx + 1) % detItems.length;
+    loadDet();
+  });
+  loadDet();
+
+  // ---- list demo ----
+  var monthlySales = [12000, 15500, 13800, 17200];
+  var listBoxesEl = document.getElementById('list-boxes');
+  var listCodeEl = document.getElementById('list-code');
+
+  function renderList(){
+    listBoxesEl.innerHTML = '';
+    monthlySales.forEach(function(val, i){
+      var box = document.createElement('div');
+      box.className = 'box';
+      box.innerHTML = '<div class="idx">[' + i + ']</div><div class="v">' + val + '</div>';
+      box.addEventListener('click', function(){
+        document.querySelectorAll('#list-boxes .box').forEach(function(b){ b.classList.remove('active'); });
+        box.classList.add('active');
+        listCodeEl.textContent = 'monthly_sales[' + i + ']  →  ' + val;
+      });
+      listBoxesEl.appendChild(box);
+    });
+  }
+  renderList();
+  document.getElementById('list-append').addEventListener('click', function(){
+    monthlySales.push(19000);
+    renderList();
+    listCodeEl.textContent = 'appended → monthly_sales is now length ' + monthlySales.length;
+  });
+
+  // ---- tuple demo ----
+  var reportingPeriod = ['"Q1"', '2026'];
+  var tupleBoxesEl = document.getElementById('tuple-boxes');
+  reportingPeriod.forEach(function(val, i){
+    var box = document.createElement('div');
+    box.className = 'box locked';
+    box.innerHTML = '<div class="idx">[' + i + '] <span class="lock-icon">&#128274;</span></div><div class="v">' + val + '</div>';
+    tupleBoxesEl.appendChild(box);
+  });
+  document.getElementById('tuple-edit').addEventListener('click', function(){
+    document.getElementById('tuple-error').classList.add('show');
+  });
+
+  // ---- set demo ----
+  var setQueue = ['"Acme"', '"Globex"', '"Acme"', '"Initech"'];
+  var setStep = 0;
+  var setResult = [];
+  var setQueueEl = document.getElementById('set-queue');
+  var setBoxEl = document.getElementById('set-box');
+  var setMsgEl = document.getElementById('set-msg');
+  var setNextBtn = document.getElementById('set-next');
+  var setResetBtn = document.getElementById('set-reset');
+
+  function renderQueue(){
+    setQueueEl.innerHTML = '';
+    setQueue.forEach(function(val, i){
+      var chip = document.createElement('div');
+      chip.className = 'queue-chip' + (i < setStep ? ' used' : '');
+      chip.textContent = val;
+      setQueueEl.appendChild(chip);
+    });
+  }
+  function renderSetBox(){
+    if(setResult.length === 0){
+      setBoxEl.innerHTML = '<span class="empty-note">customers = set() — empty so far</span>';
+      return;
+    }
+    setBoxEl.innerHTML = '';
+    setResult.forEach(function(v){
+      var el = document.createElement('div');
+      el.className = 'set-item';
+      el.textContent = v;
+      setBoxEl.appendChild(el);
+    });
+  }
+  renderQueue();
+  renderSetBox();
+
+  setNextBtn.addEventListener('click', function(){
+    if(setStep >= setQueue.length){ return; }
+    var val = setQueue[setStep];
+    setStep++;
+    renderQueue();
+    if(setResult.indexOf(val) === -1){
+      setResult.push(val);
+      setMsgEl.textContent = 'added ' + val;
+      setMsgEl.style.color = 'var(--green)';
+    } else {
+      setMsgEl.textContent = val + ' rejected — already in the set (no duplicates allowed)';
+      setMsgEl.style.color = 'var(--coral)';
+    }
+    renderSetBox();
+    if(setStep >= setQueue.length){
+      setNextBtn.style.display = 'none';
+      setResetBtn.style.display = 'inline-block';
+    }
+  });
+  setResetBtn.addEventListener('click', function(){
+    setStep = 0; setResult = []; setMsgEl.textContent = '';
+    renderQueue(); renderSetBox();
+    setNextBtn.style.display = 'inline-block';
+    setResetBtn.style.display = 'none';
+  });
+
+  // ---- dict demo ----
+  var customer = { name: '"Acme Corp"', region: '"West"', ltv: '125000' };
+  var dictKeysEl = document.getElementById('dict-keys');
+  var dictValueEl = document.getElementById('dict-value');
+  Object.keys(customer).forEach(function(key){
+    var chip = document.createElement('div');
+    chip.className = 'key-chip';
+    chip.textContent = 'customer["' + key + '"]';
+    chip.addEventListener('click', function(){
+      document.querySelectorAll('.key-chip').forEach(function(c){ c.classList.remove('active'); });
+      chip.classList.add('active');
+      dictValueEl.textContent = customer[key];
+    });
+    dictKeysEl.appendChild(chip);
+  });
+</script>
+
+</body>
+</html>
