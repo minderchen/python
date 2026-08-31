@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Programs = Data Structures + Algorithms — a Python field guide for Business Analytics</title>
+<style>
+  :root {
+    --paper: #faf9f6;
+    --paper-2: #f0efe9;
+    --ink: #1f2733;
+    --ink-soft: #565f6c;
+    --line: #dad5c8;
+    --data: #34548a;
+    --data-bg: #e4e9f2;
+    --algo: #b0552a;
+    --algo-bg: #f5e5d9;
+    --ui: #3f7a52;
+    --ui-bg: #e2eee5;
+    --code-bg: #1f2733;
+    --code-ink: #e8e4d8;
+    --code-line: #34445a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+  }
+  h1, h2, h3 { font-family: Georgia, "Iowan Old Style", "Times New Roman", serif; font-weight: 400; margin: 0 0 0.4em; }
+  code, pre, .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
+  a { color: inherit; }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 0 24px 120px; }
+
+  .hero { padding: 72px 24px 44px; border-bottom: 1px solid var(--line); }
+  .hero-inner { max-width: 940px; margin: 0 auto; }
+  .hero .kicker { font-size: 15px; color: var(--ink-soft); margin-bottom: 14px; }
+  .hero h1 { font-size: 34px; line-height: 1.3; max-width: 22ch; }
+  .hero p.lede { font-size: 17px; color: var(--ink-soft); max-width: 64ch; margin-top: 16px; }
+
+  .equation {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    margin-top: 28px; padding: 18px 22px; background: var(--paper-2); border-radius: 10px; max-width: 64ch;
+    font-family: Georgia, serif; font-size: 19px;
+  }
+  .eq-term { padding: 5px 12px; border-radius: 6px; }
+  .eq-term.data { background: var(--data-bg); color: var(--data); }
+  .eq-term.algo { background: var(--algo-bg); color: var(--algo); }
+  .eq-op { color: var(--ink-soft); font-size: 16px; }
+
+  .legend { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 24px; }
+  .legend a {
+    text-decoration: none; display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px 8px 10px; border-radius: 999px; border: 1px solid var(--line);
+    font-size: 14px; background: var(--paper);
+  }
+  .legend a:hover { border-color: var(--ink-soft); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .dot.data { background: var(--data); }
+  .dot.algo { background: var(--algo); }
+  .dot.ui { background: var(--ui); }
+
+  .toc-rail {
+    position: sticky; top: 0; background: rgba(250,249,246,0.92); backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--line); z-index: 10;
+  }
+  .toc-inner { max-width: 940px; margin: 0 auto; display: flex; gap: 4px; overflow-x: auto; padding: 10px 24px; scrollbar-width: none; }
+  .toc-inner::-webkit-scrollbar { display: none; }
+  .toc-inner a { white-space: nowrap; font-size: 13px; text-decoration: none; color: var(--ink-soft); padding: 7px 12px; border-radius: 6px; }
+  .toc-inner a:hover { background: var(--paper-2); color: var(--ink); }
+
+  section.chapter { padding: 60px 0 8px; border-bottom: 1px solid var(--line); }
+  section.chapter:last-of-type { border-bottom: none; }
+  .chapter-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 8px; }
+  .chapter-tag { font-size: 12px; padding: 3px 10px; border-radius: 5px; font-family: Georgia, serif; }
+  .tag-data { background: var(--data-bg); color: var(--data); }
+  .tag-algo { background: var(--algo-bg); color: var(--algo); }
+  .tag-ui { background: var(--ui-bg); color: var(--ui); }
+  .chapter h2 { font-size: 27px; }
+  .chapter .dek { font-size: 16px; color: var(--ink-soft); max-width: 64ch; margin-bottom: 28px; }
+
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; align-items: start; margin-bottom: 26px; }
+  @media (max-width: 720px) { .split { grid-template-columns: 1fr; } }
+  .panel-label { font-size: 12px; color: var(--ink-soft); margin-bottom: 8px; font-family: Georgia, serif; font-style: italic; }
+
+  .codebox { background: var(--code-bg); color: var(--code-ink); border-radius: 8px; overflow: hidden; }
+  .codebox pre { margin: 0; padding: 16px 18px; font-size: 13.3px; line-height: 1.65; overflow-x: auto; white-space: pre; }
+  .codebox .kw { color: #e6a565; }
+  .codebox .fn { color: #79b0e0; }
+  .codebox .str { color: #9ecf8c; }
+  .codebox .cm { color: #7d8a9a; font-style: italic; }
+  .codebox .num { color: #d69a7a; }
+  .codebox .bool { color: #d78cc4; }
+
+  .run-row { display: flex; align-items: center; justify-content: space-between; background: #17202b; padding: 8px 14px; border-top: 1px solid var(--code-line); }
+  .run-row span { font-size: 11px; color: #8b96a3; }
+  .run-btn { background: transparent; border: 1px solid #465468; color: var(--code-ink); font-size: 12.5px; padding: 5px 12px; border-radius: 5px; cursor: pointer; font-family: inherit; }
+  .run-btn:hover { background: #263344; }
+  .output { display: none; background: #121a23; padding: 14px 18px; font-size: 13px; color: #d9e5d0; border-top: 1px dashed var(--code-line); white-space: pre-wrap; }
+  .output.show { display: block; }
+  .output .prompt { color: #6b8ca6; }
+
+  .diagram-card { background: var(--paper-2); border-radius: 8px; padding: 18px; min-height: 190px; display: flex; align-items: center; justify-content: center; }
+  .diagram-card svg { width: 100%; height: auto; }
+
+  details.expand { border: 1px solid var(--line); border-radius: 8px; margin: 18px 0; background: var(--paper); overflow: hidden; }
+  details.expand > summary { list-style: none; cursor: pointer; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; font-size: 15px; font-family: Georgia, serif; }
+  details.expand > summary::-webkit-details-marker { display: none; }
+  details.expand > summary .chevron { font-family: -apple-system, sans-serif; color: var(--ink-soft); transition: transform 0.18s ease; font-size: 13px; }
+  details.expand[open] > summary .chevron { transform: rotate(90deg); }
+  details.expand > .expand-body { padding: 4px 18px 20px; border-top: 1px solid var(--line); font-size: 15px; color: var(--ink-soft); }
+  details.expand > .expand-body p { margin: 12px 0; }
+
+  table.rec-table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 14px 0; }
+  table.rec-table th, table.rec-table td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); }
+  table.rec-table th { color: var(--ink-soft); font-weight: 400; font-family: Georgia, serif; font-style: italic; }
+  table.rec-table td.num { text-align: right; font-family: monospace; }
+
+  /* group-by tracer */
+  .tracer { background: var(--paper-2); border-radius: 8px; padding: 20px; }
+  .tracer-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; font-family: monospace; font-size: 13px; }
+  .tracer-item {
+    padding: 7px 12px; border-radius: 6px; background: var(--paper); border: 1px solid var(--line); opacity: 0.35;
+    transition: opacity 0.2s ease, border-color 0.2s ease;
+  }
+  .tracer-item.active { opacity: 1; border-color: var(--algo); background: var(--algo-bg); }
+  .tracer-buckets { display: flex; gap: 14px; margin-top: 16px; }
+  .bucket {
+    flex: 1; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 12px;
+    text-align: center; transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .bucket.flash { border-color: var(--data); background: var(--data-bg); }
+  .bucket .bucket-label { font-family: Georgia, serif; font-style: italic; font-size: 12px; color: var(--ink-soft); }
+  .bucket .bucket-val { font-family: monospace; font-size: 18px; margin-top: 4px; }
+  .tracer-controls { display: flex; align-items: center; gap: 10px; margin-top: 16px; }
+  .tracer-controls button {
+    background: var(--ink); color: var(--paper); border: none; padding: 8px 16px; border-radius: 6px;
+    font-size: 13px; cursor: pointer; font-family: inherit;
+  }
+  .tracer-controls button:hover { opacity: 0.85; }
+  .tracer-status { font-family: monospace; font-size: 13px; color: var(--ink-soft); }
+
+  /* app model diagram */
+  .app-model { display: flex; gap: 14px; align-items: stretch; }
+  .app-col {
+    flex: 1; border-radius: 10px; padding: 18px; text-align: center;
+  }
+  .app-col h3 { font-size: 16px; margin-bottom: 6px; }
+  .app-col p { font-size: 13px; color: var(--ink-soft); margin: 0; }
+  .app-col.data-col { background: var(--data-bg); }
+  .app-col.data-col h3 { color: var(--data); }
+  .app-col.algo-col { background: var(--algo-bg); }
+  .app-col.algo-col h3 { color: var(--algo); }
+  .app-col.ui-col { background: var(--ui-bg); }
+  .app-col.ui-col h3 { color: var(--ui); }
+  .app-plus { display: flex; align-items: center; font-family: Georgia, serif; font-size: 22px; color: var(--ink-soft); }
+  @media (max-width: 720px) { .app-model { flex-direction: column; } .app-plus { justify-content: center; } }
+
+  /* mini terminal for the combined app */
+  .terminal {
+    background: var(--code-bg); border-radius: 8px; padding: 16px 18px; font-family: monospace; font-size: 13px; color: var(--code-ink);
+  }
+  .terminal .in { color: #79b0e0; }
+  .terminal .out { color: #d9e5d0; }
+
+  footer { text-align: center; color: var(--ink-soft); font-size: 13px; padding: 40px 24px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="kicker">A field guide for Business Analytics with Python</div>
+    <h1>Every program is a shape for your data, plus a set of steps that act on it.</h1>
+    <p class="lede">Business analytics work — sales reports, customer segments, revenue dashboards — is really just this equation applied over and over. Get comfortable with it, and reading (or writing) analytics code stops feeling like memorizing syntax.</p>
+
+    <div class="equation">
+      <span>Program</span>
+      <span class="eq-op">=</span>
+      <span class="eq-term data">Data Structures</span>
+      <span class="eq-op">+</span>
+      <span class="eq-term algo">Algorithms</span>
+    </div>
+
+    <div class="legend">
+      <a href="#data"><span class="dot data"></span>Data structures</a>
+      <a href="#algorithms"><span class="dot algo"></span>Algorithms</a>
+      <a href="#combine">Combining them</a>
+      <a href="#extend"><span class="dot ui"></span>Extending to applications</a>
+    </div>
+  </div>
+</div>
+
+<div class="toc-rail">
+  <div class="toc-inner">
+    <a href="#data">01 Data structures</a>
+    <a href="#algorithms">02 Algorithms</a>
+    <a href="#combine">03 Combining them</a>
+    <a href="#groupby">04 Advanced: group-by</a>
+    <a href="#extend">05 Application = Data + Process + UI</a>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ DATA STRUCTURES ============ -->
+  <section class="chapter" id="data">
+    <div class="chapter-head">
+      <span class="chapter-tag tag-data">01</span>
+      <h2>Data structures: shaping your business data</h2>
+    </div>
+    <p class="dek">A data structure is just a way of organizing values so an algorithm can work with them. In analytics, you'll live in three shapes: a list of numbers, a record (one row), and a list of records (a table).</p>
+
+    <div class="split">
+      <div>
+        <div class="panel-label">a list of numbers</div>
+        <div class="codebox">
+          <pre><span class="kw">sales</span> = [<span class="num">1200</span>, <span class="num">950</span>, <span class="num">1600</span>, <span class="num">800</span>]</pre>
+        </div>
+      </div>
+      <div>
+        <div class="panel-label">a record (one row of data)</div>
+        <div class="codebox">
+          <pre><span class="kw">sale</span> = {
+    <span class="str">"customer"</span>: <span class="str">"Acme Corp"</span>,
+    <span class="str">"amount"</span>: <span class="num">1200</span>,
+    <span class="str">"region"</span>: <span class="str">"West"</span>,
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-label">a list of records — this is your "table"</div>
+    <div class="codebox">
+      <pre><span class="kw">sales</span> = [
+    {<span class="str">"customer"</span>: <span class="str">"Acme Corp"</span>, <span class="str">"amount"</span>: <span class="num">1200</span>, <span class="str">"region"</span>: <span class="str">"West"</span>},
+    {<span class="str">"customer"</span>: <span class="str">"Beta LLC"</span>,  <span class="str">"amount"</span>: <span class="num">950</span>,  <span class="str">"region"</span>: <span class="str">"East"</span>},
+    {<span class="str">"customer"</span>: <span class="str">"Acme Corp"</span>, <span class="str">"amount"</span>: <span class="num">1600</span>, <span class="str">"region"</span>: <span class="str">"West"</span>},
+    {<span class="str">"customer"</span>: <span class="str">"Delta Inc"</span>, <span class="str">"amount"</span>: <span class="num">800</span>,  <span class="str">"region"</span>: <span class="str">"East"</span>},
+]</pre>
+      <div class="run-row">
+        <span>sales_table.py</span>
+        <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run &#9656;</button>
+      </div>
+      <div class="output"><span class="prompt">&gt;&gt;&gt; </span>4 records loaded, one per row</div>
+    </div>
+
+    <table class="rec-table">
+      <tr><th>customer</th><th>amount</th><th>region</th></tr>
+      <tr><td>Acme Corp</td><td class="num">1200</td><td>West</td></tr>
+      <tr><td>Beta LLC</td><td class="num">950</td><td>East</td></tr>
+      <tr><td>Acme Corp</td><td class="num">1600</td><td>West</td></tr>
+      <tr><td>Delta Inc</td><td class="num">800</td><td>East</td></tr>
+    </table>
+
+    <details class="expand">
+      <summary>Why a list of dictionaries, and not something fancier?<span class="chevron">&#9656;</span></summary>
+      <div class="expand-body">
+        <p>A <code>list</code> of <code>dict</code> records is exactly how a spreadsheet or database table looks once it's loaded into Python — each dictionary is one row, each key is a column name. It's plain enough to reason about by hand, but shaped just like what tools such as <code>pandas</code> build on top of once your analysis grows.</p>
+        <p>The choice of data structure always follows the shape of the real-world thing you're modeling. A single sale is naturally "one record with named fields" — a dictionary. A day's worth of sales is naturally "many of those" — a list.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ ALGORITHMS ============ -->
+  <section class="chapter" id="algorithms">
+    <div class="chapter-head">
+      <span class="chapter-tag tag-algo">02</span>
+      <h2>Algorithms: steps that produce an answer</h2>
+    </div>
+    <p class="dek">An algorithm is just a sequence of steps for turning your data into an answer: a total, a filtered subset, a ranked list. In analytics, three patterns cover most of the work.</p>
+
+    <div class="split">
+      <div>
+        <div class="panel-label">aggregate — total revenue</div>
+        <div class="codebox">
+          <pre><span class="kw">total</span> = <span class="num">0</span>
+<span class="kw">for</span> sale <span class="kw">in</span> sales:
+    total += sale[<span class="str">"amount"</span>]
+
+<span class="fn">print</span>(total)</pre>
+          <div class="run-row">
+            <span>aggregate.py</span>
+            <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run &#9656;</button>
+          </div>
+          <div class="output"><span class="prompt">&gt;&gt;&gt; </span>4550</div>
+        </div>
+      </div>
+      <div>
+        <div class="panel-label">flow</div>
+        <div class="diagram-card">
+          <svg viewBox="0 0 240 190" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="10" width="200" height="38" rx="8" fill="#f5e5d9" stroke="#b0552a" stroke-width="1.2"/>
+            <text x="120" y="34" text-anchor="middle" font-family="monospace" font-size="12" fill="#b0552a">total = 0</text>
+            <line x1="120" y1="48" x2="120" y2="72" stroke="#b0552a" stroke-width="1.5" marker-end="url(#aa)"/>
+            <rect x="20" y="72" width="200" height="42" rx="8" fill="#b0552a"/>
+            <text x="120" y="98" text-anchor="middle" font-family="monospace" font-size="12" fill="#fff">total += sale["amount"]</text>
+            <path d="M220 93 C 250 93 250 30 220 30" fill="none" stroke="#b0552a" stroke-width="1.5" marker-end="url(#aa)"/>
+            <text x="228" y="60" font-size="10" fill="#b0552a">next row</text>
+            <line x1="120" y1="114" x2="120" y2="140" stroke="#b0552a" stroke-width="1.5" marker-end="url(#aa)"/>
+            <text x="150" y="130" font-size="10" fill="#b0552a">done</text>
+            <rect x="20" y="140" width="200" height="38" rx="8" fill="#f5e5d9" stroke="#b0552a" stroke-width="1.2"/>
+            <text x="120" y="164" text-anchor="middle" font-family="monospace" font-size="12" fill="#b0552a">4550</text>
+            <defs><marker id="aa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#b0552a" stroke-width="1.5"/></marker></defs>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="split">
+      <div>
+        <div class="panel-label">filter — West region only</div>
+        <div class="codebox">
+          <pre><span class="kw">west_sales</span> = [
+    s <span class="kw">for</span> s <span class="kw">in</span> sales
+    <span class="kw">if</span> s[<span class="str">"region"</span>] == <span class="str">"West"</span>
+]
+<span class="fn">print</span>(<span class="fn">len</span>(west_sales))</pre>
+          <div class="run-row">
+            <span>filter.py</span>
+            <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run &#9656;</button>
+          </div>
+          <div class="output"><span class="prompt">&gt;&gt;&gt; </span>2</div>
+        </div>
+      </div>
+      <div>
+        <div class="panel-label">sort — biggest sale first</div>
+        <div class="codebox">
+          <pre><span class="kw">ranked</span> = <span class="fn">sorted</span>(
+    sales,
+    key=<span class="kw">lambda</span> s: s[<span class="str">"amount"</span>],
+    reverse=<span class="bool">True</span>,
+)
+<span class="fn">print</span>(ranked[<span class="num">0</span>][<span class="str">"customer"</span>])</pre>
+          <div class="run-row">
+            <span>sort.py</span>
+            <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run &#9656;</button>
+          </div>
+          <div class="output"><span class="prompt">&gt;&gt;&gt; </span>Acme Corp</div>
+        </div>
+      </div>
+    </div>
+
+    <details class="expand">
+      <summary>Aggregate, filter, sort — why these three cover so much<span class="chevron">&#9656;</span></summary>
+      <div class="expand-body">
+        <p>Almost every business question decomposes into one or more of these: "What's our total revenue?" is aggregate. "Which sales were in the West?" is filter. "Who are our top customers?" is sort (usually followed by taking the first few). Chain them and you get real reports: filter to a region, then aggregate, then sort the results.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ COMBINING ============ -->
+  <section class="chapter" id="combine">
+    <div class="chapter-head">
+      <span class="chapter-tag" style="background:var(--paper-2); color:var(--ink-soft);">03</span>
+      <h2>Combining data structures and algorithms</h2>
+    </div>
+    <p class="dek">Neither half does anything alone. The data structure holds the shape; the algorithm walks that shape to produce an answer. A real report is just several algorithms run over the same data structure.</p>
+
+    <div class="codebox">
+      <pre><span class="kw">def</span> <span class="fn">top_customer_in_region</span>(sales, region):
+    matches = [s <span class="kw">for</span> s <span class="kw">in</span> sales <span class="kw">if</span> s[<span class="str">"region"</span>] == region]
+    ranked = <span class="fn">sorted</span>(matches, key=<span class="kw">lambda</span> s: s[<span class="str">"amount"</span>], reverse=<span class="bool">True</span>)
+    <span class="kw">return</span> ranked[<span class="num">0</span>] <span class="kw">if</span> ranked <span class="kw">else</span> <span class="bool">None</span>
+
+<span class="fn">print</span>(top_customer_in_region(sales, <span class="str">"West"</span>))</pre>
+      <div class="run-row">
+        <span>combine.py</span>
+        <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run &#9656;</button>
+      </div>
+      <div class="output"><span class="prompt">&gt;&gt;&gt; </span>{'customer': 'Acme Corp', 'amount': 1600, 'region': 'West'}</div>
+    </div>
+
+    <details class="expand">
+      <summary>Reading this function as "data structure + algorithm"<span class="chevron">&#9656;</span></summary>
+      <div class="expand-body">
+        <p><code>sales</code> is the data structure — unchanged, just passed in. Everything inside the function is the algorithm: filter down to one region, sort what's left, hand back the first (largest) one. The function's <em>name</em> describes the business question; its <em>body</em> is the sequence of steps that answers it.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ ADVANCED: GROUP BY ============ -->
+  <section class="chapter" id="groupby">
+    <div class="chapter-head">
+      <span class="chapter-tag tag-algo">04</span>
+      <h2>Advanced: grouping and aggregating together</h2>
+    </div>
+    <p class="dek">The workhorse of real analytics: revenue by region, orders by customer, counts by category. This nests a dictionary (the data structure) inside a loop (the algorithm) to build up several totals at once.</p>
+
+    <div class="split">
+      <div>
+        <div class="panel-label">code</div>
+        <div class="codebox">
+          <pre><span class="kw">revenue_by_region</span> = {}
+
+<span class="kw">for</span> sale <span class="kw">in</span> sales:
+    region = sale[<span class="str">"region"</span>]
+    revenue_by_region[region] = (
+        revenue_by_region.get(region, <span class="num">0</span>)
+        + sale[<span class="str">"amount"</span>]
+    )
+
+<span class="fn">print</span>(revenue_by_region)</pre>
+          <div class="run-row">
+            <span>group_by.py</span>
+            <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run &#9656;</button>
+          </div>
+          <div class="output"><span class="prompt">&gt;&gt;&gt; </span>{'West': 2800, 'East': 1750}</div>
+        </div>
+      </div>
+      <div>
+        <div class="panel-label">watch it accumulate</div>
+        <div class="tracer">
+          <div class="tracer-row" id="tracerRow"></div>
+          <div class="tracer-buckets" id="tracerBuckets">
+            <div class="bucket" id="bucketWest"><div class="bucket-label">West</div><div class="bucket-val">0</div></div>
+            <div class="bucket" id="bucketEast"><div class="bucket-label">East</div><div class="bucket-val">0</div></div>
+          </div>
+          <div class="tracer-controls">
+            <button id="groupByBtn" onclick="stepGroupBy()">Step &#9656;</button>
+            <span class="tracer-status" id="groupByStatus">ready</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <details class="expand">
+      <summary>Why <code>.get(region, 0)</code> instead of <code>revenue_by_region[region]</code>?<span class="chevron">&#9656;</span></summary>
+      <div class="expand-body">
+        <p>The first time a region appears, there's no entry for it yet — direct lookup with <code>[region]</code> would raise a <code>KeyError</code>. <code>.get(region, 0)</code> asks for the current total but falls back to <code>0</code> if the key doesn't exist yet, so the very first sale for a region still adds correctly instead of crashing.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ EXTEND: APPLICATION MODEL ============ -->
+  <section class="chapter" id="extend">
+    <div class="chapter-head">
+      <span class="chapter-tag tag-ui">05</span>
+      <h2>Extending the model: Application = Data + Process + UI</h2>
+    </div>
+    <p class="dek">A script that runs once and prints an answer is a program. A tool that other people open, interact with, and get answers back from is an application — and it needs one more ingredient.</p>
+
+    <div class="equation" style="margin-bottom:28px;">
+      <span>Application</span>
+      <span class="eq-op">=</span>
+      <span class="eq-term data">Data</span>
+      <span class="eq-op">+</span>
+      <span class="eq-term algo">Process</span>
+      <span class="eq-op">+</span>
+      <span class="eq-term" style="background:var(--ui-bg); color:var(--ui);">UI</span>
+    </div>
+
+    <div class="app-model">
+      <div class="app-col data-col">
+        <h3>Data</h3>
+        <p>The sales records. What the app knows.</p>
+      </div>
+      <div class="app-plus">+</div>
+      <div class="app-col algo-col">
+        <h3>Process</h3>
+        <p>The algorithms. What the app can compute — filter, aggregate, rank.</p>
+      </div>
+      <div class="app-plus">+</div>
+      <div class="app-col ui-col">
+        <h3>UI</h3>
+        <p>How a person asks for something, and how the answer comes back.</p>
+      </div>
+    </div>
+
+    <p style="margin-top:24px; color:var(--ink-soft); max-width:64ch;">"UI" doesn't have to mean buttons and windows. In a script, <code>input()</code> and <code>print()</code> already form a minimal UI — a person types a question, the process runs, an answer is printed back.</p>
+
+    <div class="panel-label" style="margin-top:8px;">code — same data, same process, now with a UI layer</div>
+    <div class="codebox">
+      <pre><span class="kw">def</span> <span class="fn">generate_report</span>(sales, region_filter=<span class="bool">None</span>):        <span class="cm"># Process</span>
+    <span class="kw">if</span> region_filter:
+        sales = [s <span class="kw">for</span> s <span class="kw">in</span> sales <span class="kw">if</span> s[<span class="str">"region"</span>] == region_filter]
+    total = <span class="fn">sum</span>(s[<span class="str">"amount"</span>] <span class="kw">for</span> s <span class="kw">in</span> sales)
+    <span class="fn">print</span>(<span class="str">f"Report for region: {region_filter or 'All'}"</span>)     <span class="cm"># UI (output)</span>
+    <span class="fn">print</span>(<span class="str">f"Total revenue: ${total}"</span>)
+
+region = <span class="fn">input</span>(<span class="str">"Enter region (or press Enter for all): "</span>)  <span class="cm"># UI (input)</span>
+generate_report(sales, region <span class="kw">or</span> <span class="bool">None</span>)               <span class="cm"># Data passed in</span></pre>
+      <div class="run-row">
+        <span>mini_app.py</span>
+        <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run &#9656;</button>
+      </div>
+      <div class="output"><span class="prompt">&gt;&gt;&gt; </span>python mini_app.py</div>
+    </div>
+
+    <div class="panel-label" style="margin-top:18px;">simulated terminal session</div>
+    <div class="terminal">
+<span class="out">Enter region (or press Enter for all): </span><span class="in">West</span>
+<span class="out">Report for region: West
+Total revenue: $2800</span>
+    </div>
+
+    <details class="expand">
+      <summary>Same three-part shape, whether it's a script or a real dashboard<span class="chevron">&#9656;</span></summary>
+      <div class="expand-body">
+        <p>Swap <code>input()</code> for a dropdown filter, and <code>print()</code> for a chart on a webpage, and the Data and Process layers barely change — you'd still pass the same <code>sales</code> list into the same <code>generate_report</code> logic. This is why separating the three matters: the UI is the part most likely to change (terminal today, web dashboard tomorrow), while Data and Process stay stable underneath it.</p>
+        <p>This is also the mental model behind tools like spreadsheets and BI dashboards: a data table underneath, a set of formulas or queries as the process, and charts or filters as the UI layer on top.</p>
+      </div>
+    </details>
+
+    <details class="expand">
+      <summary>Where this goes next<span class="chevron">&#9656;</span></summary>
+      <div class="expand-body">
+        <p>The next step for business analytics work is usually swapping hand-built lists of dictionaries for <code>pandas</code> DataFrames — same Data + Algorithm idea, but the data structure gains built-in aggregate, filter, and sort operations (<code>.groupby()</code>, <code>.sort_values()</code>) so you write less of the loop yourself. The mental model here transfers directly.</p>
+      </div>
+    </details>
+  </section>
+
+</div>
+
+<footer>Data structures hold the shape. Algorithms produce the answer. A UI is just how a person asks the question and hears the answer back.</footer>
+
+<script>
+  // Build the group-by tracer row from the sales data
+  const salesData = [
+    { customer: "Acme Corp", amount: 1200, region: "West" },
+    { customer: "Beta LLC", amount: 950, region: "East" },
+    { customer: "Acme Corp", amount: 1600, region: "West" },
+    { customer: "Delta Inc", amount: 800, region: "East" },
+  ];
+
+  const tracerRow = document.getElementById('tracerRow');
+  const items = [];
+  salesData.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'tracer-item';
+    div.textContent = `${s.region}: ${s.amount}`;
+    tracerRow.appendChild(div);
+    items.push(div);
+  });
+
+  const bucketWestVal = document.querySelector('#bucketWest .bucket-val');
+  const bucketEastVal = document.querySelector('#bucketEast .bucket-val');
+  const bucketWest = document.getElementById('bucketWest');
+  const bucketEast = document.getElementById('bucketEast');
+  const groupByBtn = document.getElementById('groupByBtn');
+  const groupByStatus = document.getElementById('groupByStatus');
+
+  let gStep = -1;
+  let totals = { West: 0, East: 0 };
+
+  function stepGroupBy() {
+    if (gStep >= 0 && gStep < items.length) {
+      items[gStep].classList.remove('active');
+    }
+    bucketWest.classList.remove('flash');
+    bucketEast.classList.remove('flash');
+
+    gStep++;
+    if (gStep >= items.length) {
+      resetGroupBy();
+      return;
+    }
+    items[gStep].classList.add('active');
+    const s = salesData[gStep];
+    totals[s.region] += s.amount;
+    if (s.region === 'West') {
+      bucketWestVal.textContent = totals.West;
+      bucketWest.classList.add('flash');
+    } else {
+      bucketEastVal.textContent = totals.East;
+      bucketEast.classList.add('flash');
+    }
+    groupByStatus.textContent = `row ${gStep + 1} / ${items.length}: ${s.customer} — ${s.region}, ${s.amount}`;
+    if (gStep === items.length - 1) {
+      groupByBtn.textContent = 'Reset';
+      groupByBtn.onclick = resetGroupBy;
+    }
+  }
+
+  function resetGroupBy() {
+    items.forEach(it => it.classList.remove('active'));
+    bucketWest.classList.remove('flash');
+    bucketEast.classList.remove('flash');
+    bucketWestVal.textContent = '0';
+    bucketEastVal.textContent = '0';
+    totals = { West: 0, East: 0 };
+    gStep = -1;
+    groupByStatus.textContent = 'ready';
+    groupByBtn.textContent = 'Step';
+    groupByBtn.onclick = stepGroupBy;
+  }
+</script>
+
+</body>
+</html>
