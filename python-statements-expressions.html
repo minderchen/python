@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statements and expressions — a Python field guide</title>
+<style>
+  :root {
+    --paper: #faf9f6;
+    --paper-2: #f1efe8;
+    --ink: #1e2a38;
+    --ink-soft: #4a5666;
+    --line: #d9d5c9;
+    --expr: #1f6f8b;
+    --expr-bg: #e2eef2;
+    --logic: #b5711f;
+    --logic-bg: #f7ecd9;
+    --stmt: #6b4e71;
+    --stmt-bg: #eee6ef;
+    --code-bg: #1e2a38;
+    --code-ink: #e7e3d8;
+    --code-line: #33465a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+  }
+  h1, h2, h3 { font-family: Georgia, "Iowan Old Style", "Times New Roman", serif; font-weight: 400; margin: 0 0 0.4em; }
+  code, pre, .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
+  a { color: inherit; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 24px 120px; }
+
+  .hero { padding: 72px 24px 48px; border-bottom: 1px solid var(--line); }
+  .hero-inner { max-width: 920px; margin: 0 auto; }
+  .hero .kicker { font-size: 15px; color: var(--ink-soft); margin-bottom: 14px; }
+  .hero h1 { font-size: 38px; line-height: 1.28; max-width: 20ch; }
+  .hero p.lede { font-size: 17px; color: var(--ink-soft); max-width: 62ch; margin-top: 16px; }
+  .hero .rule {
+    font-family: Georgia, serif; font-style: italic; font-size: 18px;
+    margin-top: 22px; padding: 16px 20px; background: var(--paper-2); border-radius: 8px; max-width: 62ch;
+  }
+  .legend { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 26px; }
+  .legend a {
+    text-decoration: none; display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px 8px 10px; border-radius: 999px; border: 1px solid var(--line);
+    font-size: 14px; background: var(--paper);
+  }
+  .legend a:hover { border-color: var(--ink-soft); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .dot.expr { background: var(--expr); }
+  .dot.logic { background: var(--logic); }
+  .dot.stmt { background: var(--stmt); }
+
+  .toc-rail {
+    position: sticky; top: 0; background: rgba(250,249,246,0.92); backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--line); z-index: 10;
+  }
+  .toc-inner { max-width: 920px; margin: 0 auto; display: flex; gap: 4px; overflow-x: auto; padding: 10px 24px; scrollbar-width: none; }
+  .toc-inner::-webkit-scrollbar { display: none; }
+  .toc-inner a { white-space: nowrap; font-size: 13px; text-decoration: none; color: var(--ink-soft); padding: 7px 12px; border-radius: 6px; }
+  .toc-inner a:hover { background: var(--paper-2); color: var(--ink); }
+
+  section.chapter { padding: 64px 0 8px; border-bottom: 1px solid var(--line); }
+  section.chapter:last-of-type { border-bottom: none; }
+  .chapter-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 8px; }
+  .chapter-tag { font-size: 12px; padding: 3px 10px; border-radius: 5px; font-family: Georgia, serif; }
+  .tag-expr { background: var(--expr-bg); color: var(--expr); }
+  .tag-logic { background: var(--logic-bg); color: var(--logic); }
+  .tag-stmt { background: var(--stmt-bg); color: var(--stmt); }
+  .chapter h2 { font-size: 28px; }
+  .chapter .dek { font-size: 16px; color: var(--ink-soft); max-width: 62ch; margin-bottom: 28px; }
+
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; margin-bottom: 28px; }
+  @media (max-width: 720px) { .split { grid-template-columns: 1fr; } }
+  .panel-label { font-size: 12px; color: var(--ink-soft); margin-bottom: 8px; font-family: Georgia, serif; font-style: italic; }
+
+  .codebox { background: var(--code-bg); color: var(--code-ink); border-radius: 8px; overflow: hidden; }
+  .codebox pre { margin: 0; padding: 16px 18px; font-size: 13.5px; line-height: 1.65; overflow-x: auto; white-space: pre; }
+  .codebox .kw { color: #e8a15a; }
+  .codebox .fn { color: #7bb0e8; }
+  .codebox .str { color: #9fd08c; }
+  .codebox .cm { color: #7b8a9c; font-style: italic; }
+  .codebox .num { color: #d3987a; }
+  .codebox .bool { color: #d98cc0; }
+
+  .run-row { display: flex; align-items: center; justify-content: space-between; background: #16202c; padding: 8px 14px; border-top: 1px solid var(--code-line); }
+  .run-row span { font-size: 11px; color: #8b96a3; }
+  .run-btn { background: transparent; border: 1px solid #445266; color: var(--code-ink); font-size: 12.5px; padding: 5px 12px; border-radius: 5px; cursor: pointer; font-family: inherit; }
+  .run-btn:hover { background: #263344; }
+  .output { display: none; background: #10171f; padding: 14px 18px; font-size: 13px; color: #d7e6d0; border-top: 1px dashed var(--code-line); white-space: pre-wrap; }
+  .output.show { display: block; }
+  .output .prompt { color: #6b8ca6; }
+
+  .diagram-card { background: var(--paper-2); border-radius: 8px; padding: 18px; min-height: 200px; display: flex; align-items: center; justify-content: center; }
+  .diagram-card svg { width: 100%; height: auto; }
+
+  details.expand { border: 1px solid var(--line); border-radius: 8px; margin: 18px 0; background: var(--paper); overflow: hidden; }
+  details.expand > summary { list-style: none; cursor: pointer; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; font-size: 15px; font-family: Georgia, serif; }
+  details.expand > summary::-webkit-details-marker { display: none; }
+  details.expand > summary .chevron { font-family: -apple-system, sans-serif; color: var(--ink-soft); transition: transform 0.18s ease; font-size: 13px; }
+  details.expand[open] > summary .chevron { transform: rotate(90deg); }
+  details.expand > .expand-body { padding: 4px 18px 20px; border-top: 1px solid var(--line); font-size: 15px; color: var(--ink-soft); }
+  details.expand > .expand-body p { margin: 12px 0; }
+
+  table.optable { width: 100%; border-collapse: collapse; font-size: 14px; margin: 18px 0; }
+  table.optable th, table.optable td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+  table.optable th { color: var(--ink-soft); font-weight: 400; font-family: Georgia, serif; font-style: italic; }
+  table.optable td.code { font-family: monospace; }
+  table.optable td.result { text-align: right; font-family: monospace; }
+
+  .breakdown-table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 18px 0; }
+  .breakdown-table th, .breakdown-table td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .breakdown-table th { color: var(--ink-soft); font-weight: 400; font-family: Georgia, serif; font-style: italic; text-align: left; }
+  .breakdown-table td.code { font-family: monospace; white-space: nowrap; }
+  .type-pill { display: inline-block; font-size: 11.5px; padding: 2px 8px; border-radius: 999px; }
+  .type-pill.expr { background: var(--expr-bg); color: var(--expr); }
+  .type-pill.logic { background: var(--logic-bg); color: var(--logic); }
+  .type-pill.stmt { background: var(--stmt-bg); color: var(--stmt); }
+
+  .pipeline { background: var(--paper-2); border-radius: 8px; padding: 22px; }
+  .pipe-stage {
+    display: flex; align-items: center; gap: 14px; padding: 12px 14px; border-radius: 8px;
+    background: var(--paper); border: 1px solid var(--line); margin-bottom: 10px; opacity: 0.35; transition: opacity 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  }
+  .pipe-stage.active { opacity: 1; border-color: var(--stmt); background: var(--stmt-bg); }
+  .pipe-stage .pipe-label { font-family: Georgia, serif; font-style: italic; font-size: 12px; color: var(--ink-soft); min-width: 110px; }
+  .pipe-stage .pipe-value { font-family: monospace; font-size: 14px; }
+  .pipe-arrow { text-align: center; color: var(--ink-soft); font-size: 13px; margin: -4px 0 6px; }
+  .pipe-controls { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
+  .pipe-controls button {
+    background: var(--ink); color: var(--paper); border: none; padding: 8px 16px; border-radius: 6px;
+    font-size: 13px; cursor: pointer; font-family: inherit;
+  }
+  .pipe-controls button:hover { opacity: 0.85; }
+
+  footer { text-align: center; color: var(--ink-soft); font-size: 13px; padding: 40px 24px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="kicker">A field guide to Python's grammar</div>
+    <h1>Everything you write either produces a value, or does something.</h1>
+    <p class="lede">That's the entire split between expressions and statements. Once it clicks, reading any line of Python becomes a matter of asking one question: is this being evaluated, or is this an instruction?</p>
+    <div class="rule">An expression produces a value. A statement tells Python to do something.</div>
+    <div class="legend">
+      <a href="#math"><span class="dot expr"></span>Math expressions</a>
+      <a href="#logic"><span class="dot logic"></span>Logical expressions</a>
+      <a href="#statements"><span class="dot stmt"></span>Statements</a>
+      <a href="#together"><span class="dot" style="background:var(--ink-soft)"></span>Putting it together</a>
+    </div>
+  </div>
+</div>
+
+<div class="toc-rail">
+  <div class="toc-inner">
+    <a href="#math">01 Math expressions</a>
+    <a href="#logic">02 Logical expressions</a>
+    <a href="#statements">03 Statements</a>
+    <a href="#contains">04 Statements contain expressions</a>
+    <a href="#together">05 Putting it together</a>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <section class="chapter" id="math">
+    <div class="chapter-head">
+      <span class="chapter-tag tag-expr">01</span>
+      <h2>Mathematical expressions</h2>
+    </div>
+    <p class="dek">A math expression combines values, variables, and operators into something Python can evaluate down to a single number.</p>
+
+    <div class="split">
+      <div>
+        <div class="panel-label">evaluation</div>
+        <div class="diagram-card">
+          <svg viewBox="0 0 260 180" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="15" width="100" height="42" rx="8" fill="#e2eef2" stroke="#1f6f8b" stroke-width="1.2"/>
+            <text x="70" y="41" text-anchor="middle" font-family="monospace" font-size="13" fill="#1f6f8b">units=10</text>
+            <rect x="140" y="15" width="100" height="42" rx="8" fill="#e2eef2" stroke="#1f6f8b" stroke-width="1.2"/>
+            <text x="190" y="41" text-anchor="middle" font-family="monospace" font-size="13" fill="#1f6f8b">price=25</text>
+            <line x1="70" y1="57" x2="130" y2="90" stroke="#1f6f8b" stroke-width="1.5" marker-end="url(#am)"/>
+            <line x1="190" y1="57" x2="150" y2="90" stroke="#1f6f8b" stroke-width="1.5" marker-end="url(#am)"/>
+            <rect x="60" y="90" width="140" height="42" rx="8" fill="#1f6f8b"/>
+            <text x="130" y="116" text-anchor="middle" font-family="monospace" font-size="13" fill="#fff">units * price</text>
+            <line x1="130" y1="132" x2="130" y2="150" stroke="#1f6f8b" stroke-width="1.5" marker-end="url(#am)"/>
+            <text x="130" y="170" text-anchor="middle" font-family="monospace" font-size="14" fill="#1e2a38">250</text>
+            <defs><marker id="am" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#1f6f8b" stroke-width="1.5"/></marker></defs>
+          </svg>
+        </div>
+      </div>
+      <div>
+        <div class="panel-label">code</div>
+        <div class="codebox">
+          <pre><span class="kw">units</span> = <span class="num">10</span>
+<span class="kw">price</span> = <span class="num">25</span>
+
+units * price</pre>
+          <div class="run-row">
+            <span>math_expr.py</span>
+            <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run &#9656;</button>
+          </div>
+          <div class="output"><span class="prompt">&gt;&gt;&gt; </span>250</div>
+        </div>
+      </div>
+    </div>
+
+    <table class="optable">
+      <tr><th>Operator</th><th>Meaning</th><th>Example</th><th style="text-align:right">Result</th></tr>
+      <tr><td class="code">+</td><td>Addition</td><td class="code">10 + 5</td><td class="result">15</td></tr>
+      <tr><td class="code">-</td><td>Subtraction</td><td class="code">10 - 5</td><td class="result">5</td></tr>
+      <tr><td class="code">*</td><td>Multiplication</td><td class="code">10 * 5</td><td class="result">50</td></tr>
+      <tr><td class="code">/</td><td>Division</td><td class="code">10 / 5</td><td class="result">2.0</td></tr>
+      <tr><td class="code">**</td><td>Exponentiation</td><td class="code">10 ** 2</td><td class="result">100</td></tr>
+      <tr><td class="code">%</td><td>Remainder</td><td class="code">10 % 3</td><td class="result">1</td></tr>
+      <tr><td class="code">//</td><td>Floor division</td><td class="code">10 // 3</td><td class="result">3</td></tr>
+    </table>
+
+    <details class="expand">
+      <summary>Why does <code>10 / 5</code> give <code>2.0</code>, not <code>2</code>?<span class="chevron">&#9656;</span></summary>
+      <div class="expand-body">
+        <p><code>/</code> always produces a <code>float</code> in Python, even when the division is exact — this keeps the result type predictable regardless of the inputs. If you specifically want an integer result, use floor division <code>//</code> instead, which drops the remainder.</p>
+        <div class="codebox" style="margin-top:12px">
+          <pre>10 / 5&nbsp;&nbsp;<span class="cm"># 2.0 — a float</span>
+10 // 5&nbsp;<span class="cm"># 2   — an int</span></pre>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <section class="chapter" id="logic">
+    <div class="chapter-head">
+      <span class="chapter-tag tag-logic">02</span>
+      <h2>Logical expressions</h2>
+    </div>
+    <p class="dek">A logical (Boolean) expression is just an expression whose value happens to be <code>True</code> or <code>False</code>. Comparison operators are the most common way to build one.</p>
+
+    <div class="split">
+      <div>
+        <div class="panel-label">evaluation</div>
+        <div class="diagram-card">
+          <svg viewBox="0 0 260 150" xmlns="http://www.w3.org/2000/svg">
+            <rect x="30" y="15" width="200" height="42" rx="8" fill="#f7ecd9" stroke="#b5711f" stroke-width="1.2"/>
+            <text x="130" y="41" text-anchor="middle" font-family="monospace" font-size="13" fill="#b5711f">sales = 12000</text>
+            <line x1="130" y1="57" x2="130" y2="85" stroke="#b5711f" stroke-width="1.5" marker-end="url(#al)"/>
+            <rect x="10" y="85" width="240" height="42" rx="8" fill="#b5711f"/>
+            <text x="130" y="111" text-anchor="middle" font-family="monospace" font-size="13" fill="#fff">sales &gt;= 10000</text>
+            <text x="130" y="145" text-anchor="middle" font-family="monospace" font-size="14" fill="#1e2a38">True</text>
+            <defs><marker id="al" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#b5711f" stroke-width="1.5"/></marker></defs>
+          </svg>
+        </div>
+      </div>
+      <div>
+        <div class="panel-label">code</div>
+        <div class="codebox">
+          <pre><span class="kw">sales</span> = <span class="num">12000</span>
+
+sales &gt;= <span class="num">10000</span></pre>
+          <div class="run-row">
+            <span>logical_expr.py</span>
+            <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run &#9656;</button>
+          </div>
+          <div class="output"><span class="prompt">&gt;&gt;&gt; </span><span style="color:#d98cc0">True</span></div>
+        </div>
+      </div>
+    </div>
+
+    <table class="optable">
+      <tr><th>Operator</th><th>Meaning</th><th>Example</th></tr>
+      <tr><td class="code">==</td><td>Equal to</td><td class="code">sales == 10000</td></tr>
+      <tr><td class="code">!=</td><td>Not equal to</td><td class="code">sales != 10000</td></tr>
+      <tr><td class="code">&gt;</td><td>Greater than</td><td class="code">sales &gt; 10000</td></tr>
+      <tr><td class="code">&lt;</td><td>Less than</td><td class="code">sales &lt; 10000</td></tr>
+      <tr><td class="code">&gt;=</td><td>Greater than or equal to</td><td class="code">sales &gt;= 10000</td></tr>
+      <tr><td class="code">&lt;=</td><td>Less than or equal to</td><td class="code">sales &lt;= 10000</td></tr>
+    </table>
+
+    <details class="expand">
+      <summary>Combining conditions with <code>and</code>, <code>or</code>, <code>not</code><span class="chevron">&#9656;</span></summary>
+      <div class="expand-body">
+        <p>Each side of <code>and</code> / <code>or</code> is itself a logical expression, and Python collapses the whole thing down to one <code>True</code> or <code>False</code>. <code>and</code> needs both sides true; <code>or</code> needs at least one; <code>not</code> flips a single value.</p>
+        <div class="codebox" style="margin-top:12px">
+          <pre><span class="kw">sales</span> = <span class="num">12000</span>
+<span class="kw">profit</span> = <span class="num">2500</span>
+
+sales &gt;= <span class="num">10000</span> <span class="kw">and</span> profit &gt; <span class="num">2000</span></pre>
+          <div class="run-row">
+            <span>combined_logic.py</span>
+            <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run &#9656;</button>
+          </div>
+          <div class="output"><span class="prompt">&gt;&gt;&gt; </span><span style="color:#d98cc0">True</span></div>
+        </div>
+      </div>
+    </details>
+
+    <details class="expand">
+      <summary>A logical expression is still just an expression — you can store it</summary>
+      <div class="expand-body">
+        <p>Because it produces a value, nothing stops you from assigning it to a variable, same as any math expression.</p>
+        <div class="codebox" style="margin-top:12px">
+          <pre><span class="kw">target_hit</span> = sales &gt;= <span class="num">10000</span>
+<span class="fn">print</span>(target_hit)
+<span class="fn">print</span>(<span class="fn">type</span>(target_hit))</pre>
+          <div class="run-row">
+            <span>store_bool.py</span>
+            <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run &#9656;</button>
+          </div>
+          <div class="output"><span class="prompt">&gt;&gt;&gt; </span><span style="color:#d98cc0">True</span>
+&lt;class 'bool'&gt;</div>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <section class="chapter" id="statements">
+    <div class="chapter-head">
+      <span class="chapter-tag tag-stmt">03</span>
+      <h2>Statements</h2>
+    </div>
+    <p class="dek">A statement doesn't produce a value for you to use — it's an instruction. Python executes it and moves on.</p>
+
+    <div class="split">
+      <div>
+        <div class="panel-label">assignment statement</div>
+        <div class="codebox">
+          <pre><span class="kw">sales</span> = <span class="num">12000</span></pre>
+          <div class="run-row">
+            <span>assignment.py</span>
+            <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run &#9656;</button>
+          </div>
+          <div class="output"><span class="prompt">&gt;&gt;&gt; </span><span class="cm"># no output — sales now holds 12000</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="panel-label">control statement</div>
+        <div class="codebox">
+          <pre><span class="kw">if</span> sales &gt;= <span class="num">10000</span>:
+    <span class="fn">print</span>(<span class="str">"Target achieved!"</span>)</pre>
+          <div class="run-row">
+            <span>control.py</span>
+            <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run &#9656;</button>
+          </div>
+          <div class="output"><span class="prompt">&gt;&gt;&gt; </span>Target achieved!</div>
+        </div>
+      </div>
+    </div>
+
+    <details class="expand">
+      <summary>Other statements you'll run into<span class="chevron">&#9656;</span></summary>
+      <div class="expand-body">
+        <p>Beyond assignment and <code>if</code>, Python's other common statements all share the same trait — none of them hand back a value you can use in an expression:</p>
+        <div class="codebox" style="margin-top:12px">
+          <pre><span class="kw">for</span> sale <span class="kw">in</span> sales:
+    <span class="fn">print</span>(sale)
+
+<span class="kw">while</span> pending:
+    process()
+
+<span class="kw">def</span> <span class="fn">apply_discount</span>(price):
+    <span class="kw">return</span> price * <span class="num">0.9</span>
+
+<span class="kw">import</span> math
+<span class="kw">break</span>
+<span class="kw">continue</span>
+<span class="kw">pass</span></pre>
+        </div>
+        <p>Try writing <code>x = (for i in range(3): print(i))</code> and Python refuses — a <code>for</code> statement has nothing to assign, because it doesn't evaluate to anything.</p>
+      </div>
+    </details>
+  </section>
+
+  <section class="chapter" id="contains">
+    <div class="chapter-head">
+      <span class="chapter-tag" style="background:var(--paper-2); color:var(--ink-soft);">04</span>
+      <h2>Statements often contain expressions</h2>
+    </div>
+    <p class="dek">This is the relationship that ties the two together: a statement is the outer instruction, and an expression usually supplies the value it acts on.</p>
+
+    <div class="panel-label">click to reveal each layer</div>
+    <div class="diagram-card" style="flex-direction:column; align-items:stretch; gap:0;">
+      <div class="codebox" style="margin-bottom: 0;">
+        <pre><span class="kw">revenue</span> = units * price</pre>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:12px;">
+        <button class="run-btn" style="color:var(--ink); border-color:var(--line)" onclick="document.getElementById('layerStmt1').classList.toggle('show')">Show: whole line &#9656;</button>
+        <button class="run-btn" style="color:var(--ink); border-color:var(--line)" onclick="document.getElementById('layerExpr1').classList.toggle('show')">Show: the expression &#9656;</button>
+      </div>
+      <div id="layerStmt1" class="output" style="margin-top:10px; border-radius:6px; border-top:none; color:#e7e3d8;">
+<span class="prompt">assignment statement</span> — the whole line <code>revenue = units * price</code> tells Python to store a value. It never evaluates to anything itself.</div>
+      <div id="layerExpr1" class="output" style="margin-top:10px; border-radius:6px; border-top:none; color:#e7e3d8;">
+<span class="prompt">mathematical expression</span> — <code>units * price</code> is evaluated first, producing <code>250</code>. The assignment statement then stores that value in <code>revenue</code>.</div>
+    </div>
+
+    <div class="panel-label" style="margin-top:26px;">the same split inside an <code>if</code></div>
+    <div class="diagram-card" style="flex-direction:column; align-items:stretch; gap:0;">
+      <div class="codebox" style="margin-bottom: 0;">
+        <pre><span class="kw">if</span> sales &gt;= <span class="num">10000</span>:
+    <span class="fn">print</span>(<span class="str">"Target achieved!"</span>)</pre>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
+        <button class="run-btn" style="color:var(--ink); border-color:var(--line)" onclick="document.getElementById('layerStmt2').classList.toggle('show')">Show: the if statement &#9656;</button>
+        <button class="run-btn" style="color:var(--ink); border-color:var(--line)" onclick="document.getElementById('layerExpr2').classList.toggle('show')">Show: the logical expression &#9656;</button>
+      </div>
+      <div id="layerStmt2" class="output" style="margin-top:10px; border-radius:6px; border-top:none;">
+<span class="prompt">if statement</span> — decides whether to run the indented block, based on whatever the condition evaluates to.</div>
+      <div id="layerExpr2" class="output" style="margin-top:10px; border-radius:6px; border-top:none;">
+<span class="prompt">logical expression</span> — <code>sales &gt;= 10000</code> evaluates to <code>True</code> or <code>False</code> before the <code>if</code> statement ever makes its decision.</div>
+    </div>
+  </section>
+
+  <section class="chapter" id="together">
+    <div class="chapter-head">
+      <span class="chapter-tag" style="background:var(--paper-2); color:var(--ink-soft);">05</span>
+      <h2>Putting it together</h2>
+    </div>
+    <p class="dek">A full example, and every line labeled by what it actually is.</p>
+
+    <div class="codebox">
+      <pre><span class="kw">units</span> = <span class="num">120</span>
+<span class="kw">price</span> = <span class="num">25</span>
+
+<span class="kw">revenue</span> = units * price
+
+<span class="kw">if</span> revenue &gt;= <span class="num">2500</span>:
+    <span class="fn">print</span>(<span class="str">"Sales target achieved!"</span>)</pre>
+      <div class="run-row">
+        <span>full_example.py</span>
+        <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run &#9656;</button>
+      </div>
+      <div class="output"><span class="prompt">&gt;&gt;&gt; </span>Sales target achieved!</div>
+    </div>
+
+    <table class="breakdown-table">
+      <tr><th>Code</th><th>Type</th><th>Purpose</th></tr>
+      <tr><td class="code">units = 120</td><td><span class="type-pill stmt">assignment statement</span></td><td>Stores a value</td></tr>
+      <tr><td class="code">price = 25</td><td><span class="type-pill stmt">assignment statement</span></td><td>Stores a value</td></tr>
+      <tr><td class="code">units * price</td><td><span class="type-pill expr">math expression</span></td><td>Calculates revenue</td></tr>
+      <tr><td class="code">revenue = units * price</td><td><span class="type-pill stmt">assignment statement</span></td><td>Stores calculated revenue</td></tr>
+      <tr><td class="code">revenue &gt;= 2500</td><td><span class="type-pill logic">logical expression</span></td><td>Produces True or False</td></tr>
+      <tr><td class="code">if revenue &gt;= 2500:</td><td><span class="type-pill stmt">if statement</span></td><td>Makes a decision</td></tr>
+      <tr><td class="code">print(...)</td><td><span class="type-pill stmt">statement</span></td><td>Displays a message</td></tr>
+    </table>
+
+    <div class="panel-label">walk the pipeline</div>
+    <div class="pipeline">
+      <div class="pipe-stage" data-i="0">
+        <span class="pipe-label">math expression</span>
+        <span class="pipe-value">units * price</span>
+      </div>
+      <div class="pipe-arrow">&darr;</div>
+      <div class="pipe-stage" data-i="1">
+        <span class="pipe-label">value</span>
+        <span class="pipe-value">3000</span>
+      </div>
+      <div class="pipe-arrow">&darr;</div>
+      <div class="pipe-stage" data-i="2">
+        <span class="pipe-label">logical expression</span>
+        <span class="pipe-value">revenue &gt;= 2500</span>
+      </div>
+      <div class="pipe-arrow">&darr;</div>
+      <div class="pipe-stage" data-i="3">
+        <span class="pipe-label">condition result</span>
+        <span class="pipe-value">True</span>
+      </div>
+      <div class="pipe-arrow">&darr;</div>
+      <div class="pipe-stage" data-i="4">
+        <span class="pipe-label">if statement</span>
+        <span class="pipe-value">executes the block</span>
+      </div>
+      <div class="pipe-arrow">&darr;</div>
+      <div class="pipe-stage" data-i="5">
+        <span class="pipe-label">output</span>
+        <span class="pipe-value">"Sales target achieved!"</span>
+      </div>
+      <div class="pipe-controls">
+        <button id="pipeBtn" onclick="stepPipe()">Step &#9656;</button>
+        <span class="tracer-status" id="pipeStatus" style="font-family:monospace; font-size:13px; color:var(--ink-soft);"></span>
+      </div>
+    </div>
+
+    <details class="expand">
+      <summary>The beginner mental model, in three lines<span class="chevron">&#9656;</span></summary>
+      <div class="expand-body">
+        <p><strong>Mathematical expression &rarr; calculate.</strong> <strong>Logical expression &rarr; evaluate a condition.</strong> <strong>Statement &rarr; take an action, or control execution.</strong></p>
+        <div class="codebox" style="margin-top:12px">
+          <pre><span class="kw">profit</span> = revenue - cost&nbsp;&nbsp;&nbsp;<span class="cm"># calculate</span>
+profit &gt; <span class="num">10000</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm"># evaluate &rarr; True/False</span>
+
+<span class="kw">if</span> profit &gt; <span class="num">10000</span>:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm"># decide</span>
+    <span class="fn">print</span>(<span class="str">"High profit"</span>)&nbsp;&nbsp;<span class="cm"># act</span></pre>
+        </div>
+        <p>This is also the bridge to control structures: a logical expression supplies the condition, a control statement like <code>if</code> makes the decision, and indentation marks the code block that decision governs.</p>
+      </div>
+    </details>
+  </section>
+
+</div>
+
+<footer>Expressions calculate. Statements act. Most interesting lines of Python are a statement wrapped around an expression.</footer>
+
+<script>
+  const stages = document.querySelectorAll('.pipe-stage');
+  const pipeBtn = document.getElementById('pipeBtn');
+  const pipeStatus = document.getElementById('pipeStatus');
+  let pipeStep = -1;
+  pipeStatus.textContent = `0 / ${stages.length}`;
+
+  function stepPipeline() {
+    pipeStep++;
+    if (pipeStep >= stages.length) {
+      resetPipe();
+      return;
+    }
+    stages[pipeStep].classList.add('active');
+    pipeStatus.textContent = `${pipeStep + 1} / ${stages.length}`;
+    if (pipeStep === stages.length - 1) {
+      pipeBtn.textContent = 'Reset';
+      pipeBtn.onclick = resetPipe;
+    }
+  }
+
+  function resetPipe() {
+    stages.forEach(s => s.classList.remove('active'));
+    pipeStep = -1;
+    pipeStatus.textContent = `0 / ${stages.length}`;
+    pipeBtn.textContent = 'Step';
+    pipeBtn.onclick = stepPipeline;
+  }
+
+  function stepPipe() { stepPipeline(); }
+</script>
+
+</body>
+</html>
