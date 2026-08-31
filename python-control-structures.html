@@ -738,9 +738,9 @@ outer</div>
     </div>
 
     <details class="expand">
-      <summary>Loops don't create a new scope — <code>if</code> and <code>for</code> leak variables<span class="chevron">▸</span></summary>
+      <summary>Loops don't create a new scope for varaiables — <code>if</code> and <code>for</code> leak variables<span class="chevron">▸</span></summary>
       <div class="expand-body">
-        <p>Unlike functions, a <code>for</code> loop or an <code>if</code> block does <strong>not</strong> get its own scope. A variable assigned inside one is still visible after it ends — a common surprise for people coming from other languages.</p>
+        <p>Unlike functions, a <code>for</code> loop or an <code>if</code> block does <strong>not</strong> get its own scope for variables. A variable assigned inside one is still visible after it ends — a common surprise for people coming from other languages.</p>
         <div class="codebox" style="margin-top:12px">
           <pre><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">3</span>):
     last = i
