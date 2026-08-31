@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sequence, selection, repetition — a Python field guide</title>
+<style>
+  :root {
+    --paper: #faf9f6;
+    --paper-2: #f1efe8;
+    --ink: #1e2a38;
+    --ink-soft: #4a5666;
+    --line: #d9d5c9;
+    --seq: #2f6f62;
+    --seq-bg: #e4efe9;
+    --sel: #b5711f;
+    --sel-bg: #f7ecd9;
+    --rep: #6b4e71;
+    --rep-bg: #eee6ef;
+    --code-bg: #1e2a38;
+    --code-ink: #e7e3d8;
+    --code-line: #33465a;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+  }
+
+  h1, h2, h3 {
+    font-family: Georgia, "Iowan Old Style", "Times New Roman", serif;
+    font-weight: 400;
+    color: var(--ink);
+    margin: 0 0 0.4em;
+  }
+
+  code, pre, .mono {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+
+  a { color: inherit; }
+
+  .wrap {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 24px 120px;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    padding: 72px 24px 48px;
+    border-bottom: 1px solid var(--line);
+    background: var(--paper);
+  }
+  .hero-inner {
+    max-width: 920px;
+    margin: 0 auto;
+  }
+  .hero .kicker {
+    font-size: 15px;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+    max-width: 60ch;
+  }
+  .hero h1 {
+    font-size: 40px;
+    line-height: 1.25;
+    max-width: 18ch;
+  }
+  .hero p.lede {
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin-top: 16px;
+  }
+  .legend {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 28px;
+  }
+  .legend a {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px 8px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    font-size: 14px;
+    background: var(--paper);
+    transition: border-color 0.15s ease;
+  }
+  .legend a:hover { border-color: var(--ink-soft); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .dot.seq { background: var(--seq); }
+  .dot.sel { background: var(--sel); }
+  .dot.rep { background: var(--rep); }
+
+  /* ---------- Nav rail ---------- */
+  .toc-rail {
+    position: sticky;
+    top: 0;
+    background: rgba(250,249,246,0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--line);
+    z-index: 10;
+  }
+  .toc-inner {
+    max-width: 920px;
+    margin: 0 auto;
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    padding: 10px 24px;
+    scrollbar-width: none;
+  }
+  .toc-inner::-webkit-scrollbar { display: none; }
+  .toc-inner a {
+    white-space: nowrap;
+    font-size: 13px;
+    text-decoration: none;
+    color: var(--ink-soft);
+    padding: 7px 12px;
+    border-radius: 6px;
+  }
+  .toc-inner a:hover { background: var(--paper-2); color: var(--ink); }
+
+  /* ---------- Sections ---------- */
+  section.chapter {
+    padding: 64px 0 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  section.chapter:last-of-type { border-bottom: none; }
+
+  .chapter-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+  .chapter-tag {
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-family: Georgia, serif;
+  }
+  .tag-seq { background: var(--seq-bg); color: var(--seq); }
+  .tag-sel { background: var(--sel-bg); color: var(--sel); }
+  .tag-rep { background: var(--rep-bg); color: var(--rep); }
+
+  .chapter h2 { font-size: 28px; }
+  .chapter .dek {
+    font-size: 16px;
+    color: var(--ink-soft);
+    max-width: 60ch;
+    margin-bottom: 32px;
+  }
+
+  /* ---------- Two-col layout ---------- */
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    align-items: start;
+    margin-bottom: 28px;
+  }
+  @media (max-width: 720px) {
+    .split { grid-template-columns: 1fr; }
+  }
+
+  .panel-label {
+    font-size: 12px;
+    text-transform: none;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+    font-family: Georgia, serif;
+    font-style: italic;
+  }
+
+  /* ---------- Code block ---------- */
+  .codebox {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .codebox pre {
+    margin: 0;
+    padding: 16px 18px;
+    font-size: 13.5px;
+    line-height: 1.65;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .codebox .kw { color: #e8a15a; }
+  .codebox .fn { color: #7bb0e8; }
+  .codebox .str { color: #9fd08c; }
+  .codebox .cm { color: #7b8a9c; font-style: italic; }
+  .codebox .num { color: #d3987a; }
+
+  .run-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #16202c;
+    padding: 8px 14px;
+    border-top: 1px solid var(--code-line);
+  }
+  .run-row span { font-size: 11px; color: #8b96a3; letter-spacing: 0.02em; }
+  .run-btn {
+    background: transparent;
+    border: 1px solid #445266;
+    color: var(--code-ink);
+    font-size: 12.5px;
+    padding: 5px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .run-btn:hover { background: #263344; }
+
+  .output {
+    display: none;
+    background: #10171f;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: #d7e6d0;
+    border-top: 1px dashed var(--code-line);
+    white-space: pre-wrap;
+  }
+  .output.show { display: block; }
+  .output .prompt { color: #6b8ca6; }
+
+  /* ---------- Diagram card ---------- */
+  .diagram-card {
+    background: var(--paper-2);
+    border-radius: 8px;
+    padding: 18px;
+    min-height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .diagram-card svg { width: 100%; height: auto; }
+
+  /* ---------- Expandable (details) ---------- */
+  details.expand {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    margin: 18px 0;
+    background: var(--paper);
+    overflow: hidden;
+  }
+  details.expand > summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 15px;
+    font-family: Georgia, serif;
+  }
+  details.expand > summary::-webkit-details-marker { display: none; }
+  details.expand > summary .chevron {
+    font-family: -apple-system, sans-serif;
+    color: var(--ink-soft);
+    transition: transform 0.18s ease;
+    font-size: 13px;
+  }
+  details.expand[open] > summary .chevron { transform: rotate(90deg); }
+  details.expand > .expand-body {
+    padding: 4px 18px 20px;
+    border-top: 1px solid var(--line);
+    font-size: 15px;
+    color: var(--ink-soft);
+  }
+  details.expand > .expand-body p { margin: 12px 0; }
+
+  /* ---------- Indentation demo ---------- */
+  .indent-demo {
+    background: var(--code-bg);
+    border-radius: 8px;
+    padding: 16px 18px;
+    font-size: 13.5px;
+    color: var(--code-ink);
+    line-height: 1.9;
+  }
+  .indent-demo .row { display: flex; align-items: center; white-space: pre; }
+  .indent-demo .lvl {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    border-left: 2px dashed #3a4c60;
+    margin-right: 6px;
+    flex: none;
+  }
+  .indent-demo .lvl.hi { border-left-color: var(--rep); }
+  .indent-demo .txt.hi { background: rgba(107,78,113,0.28); border-radius: 4px; padding: 1px 4px; }
+
+  /* ---------- Scope demo ---------- */
+  .scope-box {
+    border-radius: 10px;
+    padding: 18px;
+    position: relative;
+  }
+  .scope-outer {
+    background: var(--seq-bg);
+    border: 1.5px dashed var(--seq);
+  }
+  .scope-inner {
+    background: var(--rep-bg);
+    border: 1.5px dashed var(--rep);
+    border-radius: 8px;
+    padding: 14px;
+    margin-top: 34px;
+  }
+  .scope-caption {
+    position: absolute;
+    top: 10px;
+    left: 18px;
+    font-size: 12px;
+    font-family: Georgia, serif;
+    font-style: italic;
+    color: var(--seq);
+  }
+  .scope-inner .scope-caption { position: static; color: var(--rep); margin-bottom: 8px; display: block; }
+  .var-pill {
+    display: inline-block;
+    font-family: monospace;
+    font-size: 12.5px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 3px 8px;
+    margin: 3px 4px 3px 0;
+  }
+
+  /* ---------- Trace stepper (nested loop) ---------- */
+  .tracer {
+    background: var(--paper-2);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .tracer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .tracer-cell {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: monospace;
+    font-size: 14px;
+    color: var(--ink-soft);
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .tracer-cell.active {
+    background: var(--rep);
+    color: #fff;
+    border-color: var(--rep);
+  }
+  .tracer-cell.done {
+    background: var(--rep-bg);
+    color: var(--rep);
+    border-color: var(--rep);
+  }
+  .tracer-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .tracer-controls button {
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .tracer-controls button:hover { opacity: 0.85; }
+  .tracer-controls button:disabled { opacity: 0.35; cursor: default; }
+  .tracer-status {
+    font-family: monospace;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  footer {
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 13px;
+    padding: 40px 24px;
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="kicker">A field guide to Python control flow</div>
+    <h1>Every program is built from three moves.</h1>
+    <p class="lede">Code either runs in order, chooses a path, or repeats itself. That's it — sequence, selection, and repetition are the entire vocabulary of control flow. Everything else in Python is a variation on these three.</p>
+    <div class="legend">
+      <a href="#sequence"><span class="dot seq"></span>Sequence</a>
+      <a href="#selection"><span class="dot sel"></span>Selection</a>
+      <a href="#repetition"><span class="dot rep"></span>Repetition</a>
+      <a href="#scope"><span class="dot" style="background:var(--ink-soft)"></span>Scope &amp; blocks</a>
+      <a href="#nested"><span class="dot rep"></span>Nested loops</a>
+    </div>
+  </div>
+</div>
+
+<div class="toc-rail">
+  <div class="toc-inner">
+    <a href="#sequence">01 Sequence</a>
+    <a href="#selection">02 Selection</a>
+    <a href="#repetition">03 Repetition</a>
+    <a href="#scope">04 Scope &amp; code blocks</a>
+    <a href="#nested">05 Nested loops</a>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ SEQUENCE ============ -->
+  <section class="chapter" id="sequence">
+    <div class="chapter-head">
+      <span class="chapter-tag tag-seq">01</span>
+      <h2>Sequence</h2>
+    </div>
+    <p class="dek">The default. Statements run top to bottom, in the order they're written, each one exactly once.</p>
+
+    <div class="split">
+      <div>
+        <div class="panel-label">flow</div>
+        <div class="diagram-card">
+          <svg viewBox="0 0 260 300" xmlns="http://www.w3.org/2000/svg">
+            <rect x="40" y="10" width="180" height="50" rx="8" fill="#e4efe9" stroke="#2f6f62" stroke-width="1.2"/>
+            <text x="130" y="40" text-anchor="middle" font-family="monospace" font-size="13" fill="#2f6f62">price = 40</text>
+            <line x1="130" y1="60" x2="130" y2="90" stroke="#2f6f62" stroke-width="1.5" marker-end="url(#a1)"/>
+            <rect x="40" y="90" width="180" height="50" rx="8" fill="#e4efe9" stroke="#2f6f62" stroke-width="1.2"/>
+            <text x="130" y="120" text-anchor="middle" font-family="monospace" font-size="13" fill="#2f6f62">tax = price*0.08</text>
+            <line x1="130" y1="140" x2="130" y2="170" stroke="#2f6f62" stroke-width="1.5" marker-end="url(#a1)"/>
+            <rect x="40" y="170" width="180" height="50" rx="8" fill="#e4efe9" stroke="#2f6f62" stroke-width="1.2"/>
+            <text x="130" y="200" text-anchor="middle" font-family="monospace" font-size="13" fill="#2f6f62">total = price+tax</text>
+            <line x1="130" y1="220" x2="130" y2="250" stroke="#2f6f62" stroke-width="1.5" marker-end="url(#a1)"/>
+            <rect x="40" y="250" width="180" height="40" rx="8" fill="#2f6f62"/>
+            <text x="130" y="275" text-anchor="middle" font-family="monospace" font-size="13" fill="#fff">print(total)</text>
+            <defs><marker id="a1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#2f6f62" stroke-width="1.5"/></marker></defs>
+          </svg>
+        </div>
+      </div>
+      <div>
+        <div class="panel-label">code</div>
+        <div class="codebox">
+          <pre><span class="kw">price</span> = <span class="num">40</span>
+<span class="kw">tax</span> = price * <span class="num">0.08</span>
+<span class="kw">total</span> = price + tax
+<span class="fn">print</span>(total)</pre>
+          <div class="run-row">
+            <span>seq_example.py</span>
+            <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run ▸</button>
+          </div>
+          <div class="output"><span class="prompt">&gt;&gt;&gt; </span>43.2</div>
+        </div>
+      </div>
+    </div>
+
+    <details class="expand">
+      <summary>Why does order matter here?<span class="chevron">▸</span></summary>
+      <div class="expand-body">
+        <p>Each line depends on the one before it: <code>tax</code> needs <code>price</code> to already exist, and <code>total</code> needs both. Swap the last two lines and Python raises a <code>NameError</code> — you'd be asking for <code>tax</code> before it exists.</p>
+        <p>Sequence is invisible when it works, which is most of the time. It only becomes interesting once a line's outcome depends on something that isn't fixed — which is exactly where selection comes in.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ SELECTION ============ -->
+  <section class="chapter" id="selection">
+    <div class="chapter-head">
+      <span class="chapter-tag tag-sel">02</span>
+      <h2>Selection</h2>
+    </div>
+    <p class="dek">The program checks a condition and picks one branch to run. <code>if</code> tests, <code>elif</code> offers more tests, <code>else</code> catches everything left over.</p>
+
+    <div class="split">
+      <div>
+        <div class="panel-label">flow</div>
+        <div class="diagram-card">
+          <svg viewBox="0 0 280 320" xmlns="http://www.w3.org/2000/svg">
+            <defs><marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#b5711f" stroke-width="1.5"/></marker></defs>
+            <polygon points="140,10 220,55 140,100 60,55" fill="#f7ecd9" stroke="#b5711f" stroke-width="1.2"/>
+            <text x="140" y="50" text-anchor="middle" font-family="monospace" font-size="11" fill="#b5711f">score &gt;= 90?</text>
+            <text x="140" y="65" text-anchor="middle" font-family="monospace" font-size="11" fill="#b5711f"></text>
+            <line x1="220" y1="55" x2="255" y2="55" stroke="#b5711f" stroke-width="1.5"/>
+            <text x="228" y="48" font-size="10" fill="#b5711f">no</text>
+            <line x1="255" y1="55" x2="255" y2="150" stroke="#b5711f" stroke-width="1.5"/>
+            <line x1="140" y1="100" x2="140" y2="130" stroke="#b5711f" stroke-width="1.5" marker-end="url(#a2)"/>
+            <text x="148" y="118" font-size="10" fill="#b5711f">yes</text>
+            <rect x="60" y="130" width="160" height="40" rx="8" fill="#b5711f"/>
+            <text x="140" y="155" text-anchor="middle" font-family="monospace" font-size="12" fill="#fff">grade = "A"</text>
+
+            <polygon points="255,150 300,180" fill="none"/>
+            <text x="255" y="145" text-anchor="middle" font-size="10" fill="#b5711f">score &gt;= 70?</text>
+            <rect x="175" y="185" width="160" height="40" rx="8" fill="#f7ecd9" stroke="#b5711f" stroke-width="1.2"/>
+            <text x="255" y="210" text-anchor="middle" font-family="monospace" font-size="12" fill="#b5711f">grade = "B"</text>
+            <line x1="255" y1="160" x2="255" y2="183" stroke="#b5711f" stroke-width="1.5" marker-end="url(#a2)"/>
+
+            <line x1="255" y1="225" x2="255" y2="255" stroke="#b5711f" stroke-width="1.5" marker-end="url(#a2)"/>
+            <text x="230" y="245" font-size="10" fill="#b5711f">else</text>
+            <rect x="175" y="255" width="160" height="40" rx="8" fill="#f7ecd9" stroke="#b5711f" stroke-width="1.2"/>
+            <text x="255" y="280" text-anchor="middle" font-family="monospace" font-size="12" fill="#b5711f">grade = "F"</text>
+          </svg>
+        </div>
+      </div>
+      <div>
+        <div class="panel-label">code</div>
+        <div class="codebox">
+          <pre><span class="kw">score</span> = <span class="num">82</span>
+
+<span class="kw">if</span> score &gt;= <span class="num">90</span>:
+    grade = <span class="str">"A"</span>
+<span class="kw">elif</span> score &gt;= <span class="num">70</span>:
+    grade = <span class="str">"B"</span>
+<span class="kw">else</span>:
+    grade = <span class="str">"F"</span>
+
+<span class="fn">print</span>(grade)</pre>
+          <div class="run-row">
+            <span>selection_example.py</span>
+            <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run ▸</button>
+          </div>
+          <div class="output"><span class="prompt">&gt;&gt;&gt; </span>B</div>
+        </div>
+      </div>
+    </div>
+
+    <details class="expand">
+      <summary>What if I change score to 95?<span class="chevron">▸</span></summary>
+      <div class="expand-body">
+        <p>Only the <em>first true</em> branch runs. With <code>score = 95</code>, the <code>if</code> condition is already true, so Python assigns <code>"A"</code> and skips the <code>elif</code> and <code>else</code> entirely — it never even checks whether <code>score &gt;= 70</code>.</p>
+        <p>That's why branch order matters: if you wrote <code>elif score &gt;= 70</code> before <code>if score &gt;= 90</code>, a 95 would incorrectly land in the "B" branch, because 95 also satisfies &gt;= 70 and Python stops at the first match.</p>
+      </div>
+    </details>
+
+    <details class="expand">
+      <summary>Truthy and falsy — selection without comparisons<span class="chevron">▸</span></summary>
+      <div class="expand-body">
+        <p><code>if</code> doesn't require a comparison like <code>==</code> or <code>&gt;=</code>. It accepts anything and asks whether Python considers it true. Empty things — <code>0</code>, <code>""</code>, <code>[]</code>, <code>None</code> — count as false. Everything else counts as true.</p>
+        <div class="codebox" style="margin-top:12px">
+          <pre><span class="kw">cart</span> = []
+
+<span class="kw">if</span> cart:
+    <span class="fn">print</span>(<span class="str">"Checking out..."</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">"Cart is empty"</span>)</pre>
+          <div class="run-row">
+            <span>truthy_example.py</span>
+            <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run ▸</button>
+          </div>
+          <div class="output"><span class="prompt">&gt;&gt;&gt; </span>Cart is empty</div>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ REPETITION ============ -->
+  <section class="chapter" id="repetition">
+    <div class="chapter-head">
+      <span class="chapter-tag tag-rep">03</span>
+      <h2>Repetition</h2>
+    </div>
+    <p class="dek">The same block runs more than once. <code>for</code> repeats over a known sequence; <code>while</code> repeats until a condition turns false.</p>
+
+    <div class="split">
+      <div>
+        <div class="panel-label">flow — <code>for</code></div>
+        <div class="diagram-card">
+          <svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg">
+            <defs><marker id="a3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#6b4e71" stroke-width="1.5"/></marker></defs>
+            <rect x="55" y="15" width="150" height="42" rx="8" fill="#eee6ef" stroke="#6b4e71" stroke-width="1.2"/>
+            <text x="130" y="41" text-anchor="middle" font-family="monospace" font-size="11" fill="#6b4e71">next item?</text>
+            <line x1="130" y1="57" x2="130" y2="90" stroke="#6b4e71" stroke-width="1.5" marker-end="url(#a3)"/>
+            <text x="140" y="78" font-size="10" fill="#6b4e71">yes</text>
+            <rect x="55" y="90" width="150" height="42" rx="8" fill="#6b4e71"/>
+            <text x="130" y="116" text-anchor="middle" font-family="monospace" font-size="11" fill="#fff">run loop body</text>
+            <path d="M205 111 C 245 111 245 36 205 36" fill="none" stroke="#6b4e71" stroke-width="1.5" marker-end="url(#a3)"/>
+            <line x1="130" y1="132" x2="130" y2="165" stroke="#6b4e71" stroke-width="1.5" marker-end="url(#a3)"/>
+            <text x="90" y="155" font-size="10" fill="#6b4e71">no more</text>
+            <rect x="55" y="165" width="150" height="40" rx="8" fill="#eee6ef" stroke="#6b4e71" stroke-width="1.2"/>
+            <text x="130" y="190" text-anchor="middle" font-family="monospace" font-size="11" fill="#6b4e71">continue after loop</text>
+          </svg>
+        </div>
+      </div>
+      <div>
+        <div class="panel-label">code</div>
+        <div class="codebox">
+          <pre><span class="kw">for</span> name <span class="kw">in</span> [<span class="str">"Ada"</span>, <span class="str">"Grace"</span>, <span class="str">"Kai"</span>]:
+    <span class="fn">print</span>(<span class="str">f"Hi, {name}"</span>)</pre>
+          <div class="run-row">
+            <span>for_example.py</span>
+            <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run ▸</button>
+          </div>
+          <div class="output"><span class="prompt">&gt;&gt;&gt; </span>Hi, Ada
+Hi, Grace
+Hi, Kai</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="split">
+      <div>
+        <div class="panel-label">code — <code>while</code></div>
+        <div class="codebox">
+          <pre><span class="kw">battery</span> = <span class="num">100</span>
+
+<span class="kw">while</span> battery &gt; <span class="num">0</span>:
+    battery -= <span class="num">25</span>
+    <span class="fn">print</span>(<span class="str">f"Battery: {battery}%"</span>)</pre>
+          <div class="run-row">
+            <span>while_example.py</span>
+            <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run ▸</button>
+          </div>
+          <div class="output"><span class="prompt">&gt;&gt;&gt; </span>Battery: 75%
+Battery: 50%
+Battery: 25%
+Battery: 0%</div>
+        </div>
+      </div>
+      <div>
+        <div class="panel-label">when to use which</div>
+        <div class="diagram-card" style="flex-direction:column; align-items:stretch; gap:10px;">
+          <div style="background:var(--paper); border-radius:6px; padding:12px 14px; border:1px solid var(--line);">
+            <strong style="font-family:Georgia,serif; font-size:14px;">for</strong>
+            <div style="font-size:13px; color:var(--ink-soft); margin-top:2px;">You know what you're iterating over — a list, a string, a range. The count is baked into the data.</div>
+          </div>
+          <div style="background:var(--paper); border-radius:6px; padding:12px 14px; border:1px solid var(--line);">
+            <strong style="font-family:Georgia,serif; font-size:14px;">while</strong>
+            <div style="font-size:13px; color:var(--ink-soft); margin-top:2px;">You don't know how many iterations it'll take — you're waiting for a condition to change.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <details class="expand">
+      <summary>Escaping early: <code>break</code>, <code>continue</code>, <code>pass</code><span class="chevron">▸</span></summary>
+      <div class="expand-body">
+        <p><code>break</code> exits the loop immediately. <code>continue</code> skips the rest of the current pass and jumps to the next one. <code>pass</code> does nothing — a placeholder where Python's syntax requires a statement.</p>
+        <div class="codebox" style="margin-top:12px">
+          <pre><span class="kw">for</span> n <span class="kw">in</span> <span class="fn">range</span>(<span class="num">10</span>):
+    <span class="kw">if</span> n == <span class="num">5</span>:
+        <span class="kw">break</span>
+    <span class="kw">if</span> n % <span class="num">2</span> == <span class="num">0</span>:
+        <span class="kw">continue</span>
+    <span class="fn">print</span>(n)</pre>
+          <div class="run-row">
+            <span>loop_control.py</span>
+            <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run ▸</button>
+          </div>
+          <div class="output"><span class="prompt">&gt;&gt;&gt; </span>1
+3</div>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ SCOPE & CODE BLOCKS ============ -->
+  <section class="chapter" id="scope">
+    <div class="chapter-head">
+      <span class="chapter-tag" style="background:var(--paper-2); color:var(--ink-soft);">04</span>
+      <h2>Scope and code blocks</h2>
+    </div>
+    <p class="dek">Python doesn't use <code>{ }</code> to mark a block — it uses indentation. How deep a line is indented decides which structure it belongs to, and that nesting decides where a variable can be seen.</p>
+
+    <div class="panel-label">indentation = block membership</div>
+    <div class="indent-demo">
+      <div class="row"><span class="lvl" style="border-color:transparent"></span>for student in class_list:</div>
+      <div class="row"><span class="lvl"></span><span class="txt">if student.grade &gt;= 90:</span></div>
+      <div class="row"><span class="lvl"></span><span class="lvl hi"></span><span class="txt hi">honors.append(student)</span></div>
+      <div class="row"><span class="lvl" style="border-color:transparent"></span>print(len(honors))&nbsp;&nbsp;<span style="color:#7b8a9c">  # back to zero indent — outside the loop</span></div>
+    </div>
+
+    <details class="expand">
+      <summary>What happens if the indentation is wrong?<span class="chevron">▸</span></summary>
+      <div class="expand-body">
+        <p>Python raises an <code>IndentationError</code> before your code even runs. This isn't a style nitpick the way it is in most languages — indentation <em>is</em> the syntax that defines a block. Two spaces or four, it doesn't matter, but it must be consistent within the same block.</p>
+      </div>
+    </details>
+
+    <div class="split" style="margin-top:28px;">
+      <div>
+        <div class="panel-label">scope: who can see <code>x</code>?</div>
+        <div class="scope-box scope-outer">
+          <span class="scope-caption">global scope</span>
+          <div class="var-pill">x = "outer"</div>
+          <div class="scope-inner">
+            <span class="scope-caption">function scope</span>
+            <div class="var-pill">x = "inner"</div>
+            <div style="font-size:12.5px; color:var(--ink-soft); margin-top:6px;">Inside the function, this local <code>x</code> shadows the outer one — the function never touches the outer variable.</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="panel-label">code</div>
+        <div class="codebox">
+          <pre><span class="kw">x</span> = <span class="str">"outer"</span>
+
+<span class="kw">def</span> <span class="fn">show</span>():
+    x = <span class="str">"inner"</span>
+    <span class="fn">print</span>(x)
+
+show()
+<span class="fn">print</span>(x)</pre>
+          <div class="run-row">
+            <span>scope_example.py</span>
+            <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run ▸</button>
+          </div>
+          <div class="output"><span class="prompt">&gt;&gt;&gt; </span>inner
+outer</div>
+        </div>
+      </div>
+    </div>
+
+    <details class="expand">
+      <summary>Loops don't create a new scope — <code>if</code> and <code>for</code> leak variables<span class="chevron">▸</span></summary>
+      <div class="expand-body">
+        <p>Unlike functions, a <code>for</code> loop or an <code>if</code> block does <strong>not</strong> get its own scope. A variable assigned inside one is still visible after it ends — a common surprise for people coming from other languages.</p>
+        <div class="codebox" style="margin-top:12px">
+          <pre><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">3</span>):
+    last = i
+
+<span class="fn">print</span>(last)&nbsp;&nbsp;<span class="cm"># still works — 2</span></pre>
+          <div class="run-row">
+            <span>leak_example.py</span>
+            <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run ▸</button>
+          </div>
+          <div class="output"><span class="prompt">&gt;&gt;&gt; </span>2</div>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ NESTED LOOPS ============ -->
+  <section class="chapter" id="nested">
+    <div class="chapter-head">
+      <span class="chapter-tag tag-rep">05</span>
+      <h2>Nested loops</h2>
+    </div>
+    <p class="dek">A loop body can contain another loop. The inner loop runs to completion for every single pass of the outer one — that's the whole mental model, but it's worth watching happen.</p>
+
+    <div class="split">
+      <div>
+        <div class="panel-label">code — 3×3 grid</div>
+        <div class="codebox">
+          <pre><span class="kw">for</span> row <span class="kw">in</span> <span class="fn">range</span>(<span class="num">3</span>):
+    <span class="kw">for</span> col <span class="kw">in</span> <span class="fn">range</span>(<span class="num">3</span>):
+        <span class="fn">print</span>(<span class="str">f"({row},{col})"</span>, end=<span class="str">" "</span>)
+    <span class="fn">print</span>()</pre>
+          <div class="run-row">
+            <span>nested_example.py</span>
+            <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run ▸</button>
+          </div>
+          <div class="output"><span class="prompt">&gt;&gt;&gt; </span>(0,0) (0,1) (0,2)
+(1,0) (1,1) (1,2)
+(2,0) (2,1) (2,2)</div>
+        </div>
+      </div>
+      <div>
+        <div class="panel-label">trace it step by step</div>
+        <div class="tracer">
+          <div class="tracer-grid" id="tracerGrid"></div>
+          <div class="tracer-controls">
+            <button id="tracerBtn" onclick="stepTracer()">Step ▸</button>
+            <span class="tracer-status" id="tracerStatus">row=0, col=0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <details class="expand">
+      <summary>How many times does the inner loop actually run?<span class="chevron">▸</span></summary>
+      <div class="expand-body">
+        <p>The outer loop runs 3 times. For <em>each</em> of those, the inner loop runs its full 3 iterations. Total: 3 × 3 = 9 print calls — one per cell in the grid above. Nest a third loop and it becomes 3 × 3 × 3 = 27, which is why deeply nested loops get expensive fast.</p>
+      </div>
+    </details>
+
+    <details class="expand">
+      <summary><code>break</code> inside a nested loop only breaks the inner one<span class="chevron">▸</span></summary>
+      <div class="expand-body">
+        <p>This trips people up constantly: <code>break</code> only exits the loop it's directly written inside. To stop the outer loop too, you need a flag, an exception, or restructuring into a function so you can <code>return</code>.</p>
+        <div class="codebox" style="margin-top:12px">
+          <pre><span class="kw">for</span> row <span class="kw">in</span> <span class="fn">range</span>(<span class="num">3</span>):
+    <span class="kw">for</span> col <span class="kw">in</span> <span class="fn">range</span>(<span class="num">3</span>):
+        <span class="kw">if</span> col == <span class="num">1</span>:
+            <span class="kw">break</span>&nbsp;&nbsp;<span class="cm"># only exits the inner loop</span>
+        <span class="fn">print</span>(<span class="str">f"({row},{col})"</span>)</pre>
+          <div class="run-row">
+            <span>nested_break.py</span>
+            <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run ▸</button>
+          </div>
+          <div class="output"><span class="prompt">&gt;&gt;&gt; </span>(0,0)
+(1,0)
+(2,0)</div>
+        </div>
+      </div>
+    </details>
+
+    <details class="expand">
+      <summary>Nested loops combined with selection: filtering a grid<span class="chevron">▸</span></summary>
+      <div class="expand-body">
+        <p>This is where all three structures meet in one piece of code: <strong>repetition</strong> (the two <code>for</code> loops) drives <strong>selection</strong> (the <code>if</code>), and everything still runs in <strong>sequence</strong> line by line.</p>
+        <div class="codebox" style="margin-top:12px">
+          <pre><span class="kw">for</span> row <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">4</span>):
+    <span class="kw">for</span> col <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">4</span>):
+        product = row * col
+        <span class="kw">if</span> product % <span class="num">2</span> == <span class="num">0</span>:
+            <span class="fn">print</span>(<span class="str">f"{row}×{col}={product} (even)"</span>)</pre>
+          <div class="run-row">
+            <span>combined_example.py</span>
+            <button class="run-btn" onclick="this.closest('.codebox').querySelector('.output').classList.toggle('show')">Run ▸</button>
+          </div>
+          <div class="output"><span class="prompt">&gt;&gt;&gt; </span>1×2=2 (even)
+2×1=2 (even)
+2×2=4 (even)
+2×3=6 (even)
+3×2=6 (even)</div>
+        </div>
+      </div>
+    </details>
+  </section>
+
+</div>
+
+<footer>Sequence runs it, selection chooses it, repetition repeats it — every Python program is some arrangement of the three.</footer>
+
+<script>
+  // Build the 3x3 tracer grid
+  const grid = document.getElementById('tracerGrid');
+  const cells = [];
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 3; c++) {
+      const div = document.createElement('div');
+      div.className = 'tracer-cell';
+      div.textContent = `${r},${c}`;
+      grid.appendChild(div);
+      cells.push(div);
+    }
+  }
+
+  let step = -1;
+  const total = cells.length;
+  const statusEl = document.getElementById('tracerStatus');
+  const btnEl = document.getElementById('tracerBtn');
+
+  function stepTracer() {
+    if (step >= 0 && step < total) {
+      cells[step].classList.remove('active');
+      cells[step].classList.add('done');
+    }
+    step++;
+    if (step >= total) {
+      statusEl.textContent = 'loop finished — 9 iterations';
+      btnEl.textContent = 'Reset ↺';
+      btnEl.onclick = resetTracer;
+      return;
+    }
+    cells[step].classList.add('active');
+    const row = Math.floor(step / 3);
+    const col = step % 3;
+    statusEl.textContent = `row=${row}, col=${col}`;
+  }
+
+  function resetTracer() {
+    cells.forEach(c => c.classList.remove('active', 'done'));
+    step = -1;
+    statusEl.textContent = 'row=0, col=0';
+    btnEl.textContent = 'Step ▸';
+    btnEl.onclick = stepTracer;
+  }
+</script>
+
+</body>
+</html>
