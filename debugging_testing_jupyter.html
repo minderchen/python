@@ -246,6 +246,101 @@
 <main>
 
   <div class="section-lede">
+    <p class="eyebrow">A repeatable process</p>
+    <h2>The Debugging Cycle: Not Guesswork</h2>
+    <p>Debugging means finding, understanding, and correcting an error. The diagram above is a cycle: collect evidence, make one testable explanation, make the smallest useful change, then test the result.</p>
+  </div>
+
+  <details class="sheet" open>
+    <summary>
+      <span class="sheet-num">00</span>
+      <span class="sheet-title">Observe, isolate, explain, fix, and verify</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>Changing code randomly and hoping the error disappears is slow and fragile. Instead, work through the five stages below. The BMI example shows how each stage narrows a <code>TypeError</code> into one small, justified fix.</p>
+
+      <h4>1. Reproduce the problem</h4>
+      <p>First, make the problem happen consistently. Run the program with the same input and record the expected result and the result or error you actually receive. Ask: what input causes it, what did I expect, and what happened instead?</p>
+      <div class="code-block">
+        <div class="code-head"><span>bmi_problem.py</span><span>python 3</span></div>
+        <pre><code>weight = <span class="kw">input</span>(<span class="st">"Enter weight: "</span>)
+height = <span class="kw">input</span>(<span class="st">"Enter height: "</span>)
+
+BMI = weight / (height ** <span class="nm">2</span>)</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-cycle-reproduce">&#9656; Show observed error</button>
+      <div class="output-panel err" id="out-cycle-reproduce" hidden>Enter weight: 70
+Enter height: 1.75
+TypeError: unsupported operand type(s) for ** or pow(): 'str' and 'int'</div>
+      <p>Because the same input produces the same <code>TypeError</code>, the problem is now reproducible rather than a vague report that it "sometimes fails."</p>
+
+      <h4>2. Isolate the problem</h4>
+      <p>Most programs contain many lines, but only a small part causes the error. The traceback points to <code>BMI = weight / (height ** 2)</code>. Inspect the values involved there before changing anything else.</p>
+      <div class="code-block">
+        <div class="code-head"><span>inspect_types.py</span><span>python 3</span></div>
+        <pre><code><span class="kw">print</span>(<span class="kw">type</span>(weight))
+<span class="kw">print</span>(<span class="kw">type</span>(height))</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-cycle-isolate">&#9656; Show inspection</button>
+      <div class="output-panel" id="out-cycle-isolate" hidden>&lt;class 'str'&gt;
+&lt;class 'str'&gt;</div>
+      <p>This sharply reduces the search: the problem is not the formula itself, but the types being passed into it.</p>
+
+      <h4>3. Hypothesize the cause</h4>
+      <p>Turn the evidence into a testable explanation: <strong><code>input()</code> returns strings, but the BMI calculation requires numeric values.</strong> A hypothesis is not a guess; it is the most likely explanation supported by what you observed.</p>
+
+      <h4>4. Fix the problem</h4>
+      <p>Make the smallest reasonable change that addresses the suspected cause. Here, convert the input text to floating-point numbers at the boundary where it enters the program.</p>
+      <div class="code-block">
+        <div class="code-head"><span>bmi_fixed.py</span><span>python 3</span></div>
+        <pre><code>weight = <span class="kw">float</span>(<span class="kw">input</span>(<span class="st">"Enter weight: "</span>))
+height = <span class="kw">float</span>(<span class="kw">input</span>(<span class="st">"Enter height: "</span>))
+
+BMI = weight / (height ** <span class="nm">2</span>)
+<span class="kw">print</span>(<span class="kw">round</span>(BMI, <span class="nm">2</span>))</code></pre>
+      </div>
+      <p><code>float()</code> converts the user's text input into numeric values, allowing division and exponentiation to work as intended.</p>
+
+      <h4>5. Verify the fix</h4>
+      <p>Run the program again and compare the result with the expected outcome. Then try several reasonable inputs; one successful run is evidence, but it is not strong coverage.</p>
+      <button class="reveal-btn" data-target="out-cycle-verify">&#9656; Show verified run</button>
+      <div class="output-panel" id="out-cycle-verify" hidden>Enter weight: 70
+Enter height: 1.75
+22.86</div>
+
+      <h4>Debugging is a cycle</h4>
+      <p>If the program is still broken, do not continue changing code at random. Return to the evidence: reproduce the behavior, isolate the fault more precisely, and revise the hypothesis. A first hypothesis being wrong is normal; each pass should narrow the problem further.</p>
+      <div class="code-block">
+        <div class="code-head"><span>debugging_cycle.txt</span><span>process</span></div>
+        <pre><code>Reproduce
+    |
+Isolate
+    |
+Hypothesize
+    |
+Fix
+    |
+Verify
+    |
+    +-- Still broken? Return and isolate further.</code></pre>
+      </div>
+
+      <h4>Five questions to keep nearby</h4>
+      <table class="dsref">
+        <tr><th>Step</th><th>Question</th></tr>
+        <tr><td><code>Reproduce</code></td><td>What exactly is going wrong?</td></tr>
+        <tr><td><code>Isolate</code></td><td>Where is the problem?</td></tr>
+        <tr><td><code>Hypothesize</code></td><td>Why might it be happening?</td></tr>
+        <tr><td><code>Fix</code></td><td>What smallest change should correct it?</td></tr>
+        <tr><td><code>Verify</code></td><td>Did the change actually solve the problem?</td></tr>
+      </table>
+      <p><strong>Do not guess-and-change. Observe, isolate, explain, fix, and test.</strong> Debugging is structured problem solving, not merely fixing errors.</p>
+    </div>
+  </details>
+
+  <div class="section-lede">
     <p class="eyebrow">Foundation</p>
     <h2>Reading a Traceback</h2>
     <p>A traceback looks intimidating, but it's structured information. Click each part below to see what it tells you.</p>
