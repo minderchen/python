@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Debugging &amp; Testing Python in Jupyter Notebook (Interactive)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue-deep:#0e2d4a; --blue-panel:#153c60; --blue-line:#3a6690; --blue-line-soft:#264d70;
+    --paper:#e8eef5; --amber:#f2b84b; --cyan:#7fdde3; --coral:#ef8a6a; --green:#8fd48a; --violet:#b79ef0;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background-color:var(--blue-deep);
+    background-image:
+      repeating-linear-gradient(0deg, var(--blue-line-soft) 0px, var(--blue-line-soft) 1px, transparent 1px, transparent 32px),
+      repeating-linear-gradient(90deg, var(--blue-line-soft) 0px, var(--blue-line-soft) 1px, transparent 1px, transparent 32px);
+    color:var(--paper); font-family:'IBM Plex Sans', sans-serif; line-height:1.55; padding-bottom:80px;
+  }
+  code, pre, .mono{ font-family:'IBM Plex Mono', monospace; }
+  @media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important;} }
+
+  header.titleblock{ max-width:1000px; margin:0 auto; padding:40px 24px 10px; }
+  .stamp{
+    display:inline-block; border:1px solid var(--amber); color:var(--amber);
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:2px;
+    text-transform:uppercase; padding:4px 10px; margin-bottom:18px;
+  }
+  h1.doc-title{ font-size:clamp(24px,4.6vw,40px); margin:0 0 6px; font-weight:700; letter-spacing:-0.5px; }
+  .doc-sub{ color:var(--cyan); font-family:'IBM Plex Mono', monospace; font-size:14px; margin:0 0 20px; }
+  .lede{ max-width:700px; font-size:16px; color:#cbd9e8; margin-bottom:0; }
+
+  .schematic-wrap{ max-width:1000px; margin:16px auto 10px; padding:0 24px; }
+  .schematic-frame{ border:1px solid var(--blue-line); background:rgba(255,255,255,0.02); padding:16px 10px 6px; }
+  .schematic-caption{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:#7fa0c0; text-align:center;
+    letter-spacing:1.5px; text-transform:uppercase; margin:8px 0 0;
+  }
+  svg text{ font-family:'IBM Plex Mono', monospace; }
+
+  main{ max-width:1000px; margin:0 auto; padding:0 24px; }
+  .section-lede{ margin:52px 0 16px; }
+  .section-lede .eyebrow{
+    font-family:'IBM Plex Mono', monospace; color:var(--amber); font-size:12px;
+    letter-spacing:2px; text-transform:uppercase; margin:0 0 8px;
+  }
+  .section-lede h2{ margin:0 0 8px; font-size:clamp(20px,3vw,27px); }
+  .section-lede p{ color:#c3d3e4; max-width:700px; margin:0; }
+
+  details.sheet{ border:1px solid var(--blue-line); background:var(--blue-panel); margin-bottom:14px; }
+  details.sheet > summary{ list-style:none; cursor:pointer; display:flex; align-items:center; gap:14px; padding:16px 18px; user-select:none; }
+  details.sheet > summary::-webkit-details-marker{ display:none; }
+  .sheet-num{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--amber); border:1px solid var(--amber); padding:2px 8px; white-space:nowrap; }
+  .sheet-title{ font-weight:600; font-size:17px; flex:1; }
+  .sheet-hint{ color:#7fa0c0; font-size:13px; font-family:'IBM Plex Mono', monospace; display:none; }
+  @media (min-width:640px){ .sheet-hint{ display:inline; } }
+  .sheet-toggle{ font-family:'IBM Plex Mono', monospace; font-size:18px; color:var(--amber); width:20px; text-align:center; transition:transform .15s ease; }
+  details[open] .sheet-toggle{ transform:rotate(45deg); }
+  .sheet-body{ padding:4px 20px 24px; border-top:1px dashed var(--blue-line); }
+  .sheet-body p{ color:#d3e0ee; }
+  .sheet-body h4{ color:var(--cyan); font-family:'IBM Plex Mono', monospace; font-size:13px; letter-spacing:1px; text-transform:uppercase; margin:22px 0 8px; }
+  .sheet-body ul{ padding-left:20px; color:#d3e0ee; }
+  .sheet-body li{ margin-bottom:6px; }
+
+  .code-block{ background:#0a2036; border:1px solid var(--blue-line); margin:14px 0; overflow:hidden; }
+  .code-head{
+    display:flex; justify-content:space-between; align-items:center; padding:8px 12px;
+    background:#0d2842; border-bottom:1px solid var(--blue-line);
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:#7fa0c0; letter-spacing:1px;
+  }
+  .code-block pre{ margin:0; padding:14px 16px; overflow-x:auto; font-size:13.5px; color:#e8eef5; }
+  .kw{ color:var(--amber); } .st{ color:var(--cyan); } .cm{ color:#6c8aab; font-style:italic; } .nm{ color:var(--coral); } .fn{ color:var(--violet); }
+
+  .reveal-btn{
+    display:inline-flex; align-items:center; gap:6px; background:none; border:1px solid var(--amber);
+    color:var(--amber); font-family:'IBM Plex Mono', monospace; font-size:12px; padding:6px 12px;
+    margin:0 0 14px; cursor:pointer; letter-spacing:0.5px;
+  }
+  .reveal-btn:hover{ background:rgba(242,184,75,0.1); }
+  .reveal-btn:focus-visible, summary:focus-visible, .flip-card:focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
+  .output-panel{
+    margin:0 0 16px; border-left:3px solid var(--cyan); background:rgba(127,221,227,0.06);
+    padding:10px 14px; font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--cyan); white-space:pre-wrap;
+  }
+  .output-panel.err{ border-left-color:var(--coral); background:rgba(239,138,106,0.08); color:var(--coral); }
+  .output-panel[hidden]{ display:none; }
+
+  .toggle-row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  .toggle-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; padding:7px 14px;
+    background:none; border:1px solid var(--blue-line); color:var(--paper); cursor:pointer;
+  }
+  .toggle-btn.active{ border-color:var(--amber); color:var(--amber); background:rgba(242,184,75,0.08); }
+  .toggle-btn:hover{ border-color:var(--amber); }
+  .action-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; padding:7px 13px;
+    background:none; border:1px solid var(--amber); color:var(--amber); cursor:pointer; margin:0 8px 8px 0;
+  }
+  .action-btn:hover{ background:rgba(242,184,75,0.1); }
+  .action-btn.reset{ border-color:var(--coral); color:var(--coral); }
+  .action-btn.reset:hover{ background:rgba(239,138,106,0.1); }
+  .action-btn.good{ border-color:var(--green); color:var(--green); }
+  .action-btn.good:hover{ background:rgba(143,212,138,0.1); }
+
+  .code-line{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; background:#0a2036;
+    border-left:3px solid var(--cyan); padding:9px 12px; color:var(--cyan); min-height:18px; margin:10px 0;
+  }
+  .membership-feedback{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; min-height:20px; margin:10px 0; padding:8px 12px;
+    border-left:3px solid var(--blue-line); background:rgba(255,255,255,0.02);
+  }
+  .membership-feedback.is-true{ border-color:var(--green); color:var(--green); }
+  .membership-feedback.is-false{ border-color:var(--coral); color:var(--coral); }
+
+  /* ---- clickable traceback ---- */
+  .traceback-block{
+    background:#0a2036; border:1px solid var(--coral); padding:14px 16px; margin:14px 0;
+    font-family:'IBM Plex Mono', monospace; font-size:13px; line-height:1.8;
+  }
+  .tb-part{ cursor:pointer; padding:1px 4px; border-radius:2px; }
+  .tb-part:hover{ background:rgba(242,184,75,0.15); }
+  .tb-part.active{ background:rgba(242,184,75,0.25); outline:1px solid var(--amber); }
+  .tb-header{ color:#7fa0c0; }
+  .tb-frame{ color:var(--cyan); }
+  .tb-codeline{ color:#e8eef5; }
+  .tb-exc-type{ color:var(--coral); font-weight:600; }
+  .tb-exc-msg{ color:var(--coral); }
+  .tb-explain{
+    margin-top:10px; padding:10px 12px; border-left:3px solid var(--amber); background:rgba(242,184,75,0.06);
+    color:var(--amber); font-size:13px; font-family:'IBM Plex Mono', monospace; min-height:20px;
+  }
+
+  /* ---- error type cards ---- */
+  .error-cards{ display:grid; grid-template-columns:1fr; gap:12px; margin:14px 0; }
+  @media (min-width:700px){ .error-cards{ grid-template-columns:1fr 1fr 1fr; } }
+  .error-card{ border:1px solid var(--blue-line); background:rgba(255,255,255,0.02); padding:14px; }
+  .error-card h5{ margin:0 0 6px; font-family:'IBM Plex Mono', monospace; font-size:13px; }
+  .error-card.syntax h5{ color:var(--coral); }
+  .error-card.runtime h5{ color:var(--amber); }
+  .error-card.logical h5{ color:var(--cyan); }
+  .error-card p{ font-size:12.5px; color:#c3d3e4; margin:0; }
+
+  /* ---- guess the error game ---- */
+  .quiz-card{ border:1px solid var(--blue-line); background:rgba(255,255,255,0.02); padding:16px; margin:14px 0; }
+  .quiz-progress{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:#7fa0c0; margin-bottom:10px; letter-spacing:1px; }
+  .quiz-feedback{ font-family:'IBM Plex Mono', monospace; font-size:13px; min-height:22px; margin:10px 0; }
+  .quiz-feedback.correct{ color:var(--green); }
+  .quiz-feedback.wrong{ color:var(--coral); }
+
+  /* ---- notebook simulation ---- */
+  .notebook{ border:1px solid var(--blue-line); background:#0a2036; padding:10px; margin:14px 0; }
+  .nb-cell{ border:1px solid var(--blue-line-soft); margin-bottom:8px; display:flex; }
+  .nb-cell.stale{ border-color:var(--coral); }
+  .nb-inlabel{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--cyan); padding:10px 8px; min-width:60px;
+    text-align:right; white-space:nowrap;
+  }
+  .nb-code{ flex:1; padding:10px 12px; }
+  .nb-code pre{ margin:0; font-family:'IBM Plex Mono', monospace; font-size:13px; color:#e8eef5; white-space:pre-wrap; }
+  .nb-out{ margin-top:6px; font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--cyan); }
+  .nb-out.err{ color:var(--coral); }
+  .nb-run-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; padding:4px 10px; margin-top:6px;
+    background:none; border:1px solid var(--amber); color:var(--amber); cursor:pointer;
+  }
+  .nb-run-btn:hover{ background:rgba(242,184,75,0.1); }
+
+  /* ---- variable state table (pdb) ---- */
+  .var-table{ width:100%; border-collapse:collapse; margin:10px 0; font-family:'IBM Plex Mono', monospace; font-size:13px; }
+  .var-table th, .var-table td{ border:1px solid var(--blue-line); padding:6px 10px; text-align:left; }
+  .var-table th{ background:#0d2842; color:var(--amber); font-size:11px; text-transform:uppercase; }
+  .var-table td{ color:var(--cyan); }
+
+  table.dsref{ width:100%; border-collapse:collapse; margin-top:10px; font-size:14px; }
+  table.dsref th, table.dsref td{ border:1px solid var(--blue-line); padding:8px 10px; text-align:left; vertical-align:top; }
+  table.dsref th{ background:#0d2842; color:var(--amber); font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.5px; text-transform:uppercase; }
+  table.dsref td{ color:#d3e0ee; }
+  table.dsref code{ color:var(--cyan); }
+
+  .recall-grid{ display:grid; gap:14px; grid-template-columns:1fr; margin-top:8px; }
+  @media (min-width:640px){ .recall-grid{ grid-template-columns:1fr 1fr; } }
+  .flip-card{ perspective:1200px; height:160px; cursor:pointer; }
+  .flip-inner{ position:relative; width:100%; height:100%; transition:transform .5s; transform-style:preserve-3d; }
+  .flip-card.flipped .flip-inner{ transform:rotateY(180deg); }
+  .flip-face{ position:absolute; inset:0; backface-visibility:hidden; border:1px solid var(--blue-line); padding:14px 16px; display:flex; flex-direction:column; justify-content:center; }
+  .flip-front{ background:var(--blue-panel); }
+  .flip-front .q-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--amber); letter-spacing:1px; margin-bottom:6px; }
+  .flip-back{ background:#0d2842; transform:rotateY(180deg); color:var(--cyan); }
+  .flip-back .a-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--cyan); letter-spacing:1px; margin-bottom:6px; }
+  .flip-tap{ font-family:'IBM Plex Mono', monospace; font-size:10px; color:#5f83a8; margin-top:8px; }
+
+  footer{
+    max-width:1000px; margin:60px auto 0; padding:20px 24px; border-top:1px solid var(--blue-line);
+    color:#7fa0c0; font-family:'IBM Plex Mono', monospace; font-size:12px;
+  }
+</style>
+</head>
+<body>
+
+<header class="titleblock">
+  <span class="stamp">Sheet Set · Python Fundamentals</span>
+  <h1 class="doc-title">Debugging &amp; Testing in Jupyter Notebook</h1>
+  <p class="doc-sub">// bugs aren't a sign you did something wrong — they're a normal part of the process</p>
+  <p class="lede">Every program breaks sometimes. What separates a frustrating debugging session from a five-minute fix is knowing what kind of broken you're dealing with, and having a repeatable process for narrowing it down. This sheet builds that process, using Jupyter Notebook specifically — including the ways notebooks break in their own special ways.</p>
+</header>
+
+<div class="schematic-wrap">
+  <div class="schematic-frame">
+    <svg viewBox="0 0 900 190" width="100%" role="img" aria-label="Diagram of the debugging cycle: reproduce, isolate, hypothesize, fix, verify, looping back to reproduce if not fixed">
+      <rect x="4" y="4" width="892" height="182" fill="none" stroke="#3a6690" stroke-width="1" stroke-dasharray="4 4"/>
+      <g font-size="11">
+        <rect x="30" y="70" width="140" height="50" fill="none" stroke="#f2b84b" stroke-width="1.5"/>
+        <text x="100" y="99" fill="#f2b84b" text-anchor="middle" font-weight="600">1. Reproduce</text>
+
+        <rect x="205" y="70" width="140" height="50" fill="none" stroke="#7fdde3" stroke-width="1.5"/>
+        <text x="275" y="99" fill="#7fdde3" text-anchor="middle" font-weight="600">2. Isolate</text>
+
+        <rect x="380" y="70" width="150" height="50" fill="none" stroke="#ef8a6a" stroke-width="1.5"/>
+        <text x="455" y="99" fill="#ef8a6a" text-anchor="middle" font-weight="600">3. Hypothesize</text>
+
+        <rect x="565" y="70" width="120" height="50" fill="none" stroke="#8fd48a" stroke-width="1.5"/>
+        <text x="625" y="99" fill="#8fd48a" text-anchor="middle" font-weight="600">4. Fix</text>
+
+        <rect x="720" y="70" width="140" height="50" fill="none" stroke="#b79ef0" stroke-width="1.5"/>
+        <text x="790" y="99" fill="#b79ef0" text-anchor="middle" font-weight="600">5. Verify</text>
+      </g>
+      <line x1="170" y1="95" x2="205" y2="95" stroke="#3a6690" stroke-width="1.5" marker-end="url(#dbarrow)"/>
+      <line x1="345" y1="95" x2="380" y2="95" stroke="#3a6690" stroke-width="1.5" marker-end="url(#dbarrow)"/>
+      <line x1="530" y1="95" x2="565" y2="95" stroke="#3a6690" stroke-width="1.5" marker-end="url(#dbarrow)"/>
+      <line x1="685" y1="95" x2="720" y2="95" stroke="#3a6690" stroke-width="1.5" marker-end="url(#dbarrow)"/>
+      <path d="M 790 120 C 790 160, 100 160, 100 120" fill="none" stroke="#5f83a8" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#dbarrow2)"/>
+      <text x="450" y="155" fill="#5f83a8" font-size="9" text-anchor="middle">// still broken? loop back and isolate further</text>
+      <defs>
+        <marker id="dbarrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#3a6690"/></marker>
+        <marker id="dbarrow2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5f83a8"/></marker>
+      </defs>
+    </svg>
+    <p class="schematic-caption">Fig. 1 — the debugging cycle: a repeatable process, not guesswork</p>
+  </div>
+</div>
+
+<main>
+
+  <div class="section-lede">
+    <p class="eyebrow">Foundation</p>
+    <h2>Reading a Traceback</h2>
+    <p>A traceback looks intimidating, but it's structured information. Click each part below to see what it tells you.</p>
+  </div>
+
+  <details class="sheet" open>
+    <summary>
+      <span class="sheet-num">01</span>
+      <span class="sheet-title">Anatomy of a traceback — click any part</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>This traceback comes from running the cell below in Jupyter:</p>
+      <div class="code-block">
+        <div class="code-head"><span>In [4]</span><span>python 3</span></div>
+        <pre><code>sales = [<span class="nm">1200</span>, <span class="nm">1500</span>, <span class="nm">0</span>]
+count = <span class="kw">len</span>(sales)
+total = <span class="kw">sum</span>(sales)
+average = total / (count - <span class="nm">3</span>)  <span class="cm"># bug: this is 0</span></code></pre>
+      </div>
+      <div class="traceback-block">
+        <div class="tb-part tb-header" data-key="header">Traceback (most recent call last):</div>
+        <div class="tb-part tb-frame" data-key="frame">&nbsp;&nbsp;Cell In[4], line 4, in &lt;module&gt;</div>
+        <div class="tb-part tb-codeline" data-key="codeline">&nbsp;&nbsp;&nbsp;&nbsp;average = total / (count - 3)</div>
+        <div class="tb-part" data-key="exception"><span class="tb-exc-type">ZeroDivisionError</span>: <span class="tb-exc-msg">division by zero</span></div>
+      </div>
+      <div class="tb-explain" id="tb-explain">click a line above ↑</div>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Diagnosis</p>
+    <h2>Types of Errors</h2>
+    <p>Not all bugs announce themselves the same way. Recognizing which category you're in tells you where to even start looking.</p>
+  </div>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">02</span>
+      <span class="sheet-title">Syntax, runtime, and logical errors</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <div class="error-cards">
+        <div class="error-card syntax">
+          <h5>SYNTAX ERROR</h5>
+          <p>Python can't even parse the code — it never runs. Usually a typo: a missing colon, an unclosed bracket. Caught before anything executes.</p>
+        </div>
+        <div class="error-card runtime">
+          <h5>RUNTIME ERROR (EXCEPTION)</h5>
+          <p>The code is valid Python, but something goes wrong while it's running — dividing by zero, a missing key, a wrong type. Raises a traceback.</p>
+        </div>
+        <div class="error-card logical">
+          <h5>LOGICAL ERROR</h5>
+          <p>The code runs fine, no traceback at all — it just gives you the <em>wrong answer</em>. The hardest kind to catch, because nothing complains.</p>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-head"><span>syntax_error.py</span><span>python 3</span></div>
+        <pre><code><span class="kw">if</span> total > <span class="nm">100</span>
+    <span class="kw">print</span>(<span class="st">"big order"</span>)</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-syn">▸ Show output</button>
+      <div class="output-panel err" id="out-syn" hidden>  Cell In[1], line 1
+    if total > 100
+                   ^
+SyntaxError: expected ':'</div>
+
+      <div class="code-block">
+        <div class="code-head"><span>logical_error.py</span><span>python 3</span></div>
+        <pre><code><span class="cm"># goal: average of a list of scores</span>
+scores = [<span class="nm">80</span>, <span class="nm">90</span>, <span class="nm">70</span>]
+average = <span class="kw">sum</span>(scores) / <span class="nm">2</span>   <span class="cm"># bug: should divide by len(scores), not 2</span>
+<span class="kw">print</span>(average)</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-log">▸ Show output</button>
+      <div class="output-panel" id="out-log" hidden>120.0
+# No error at all — but the real average is 80.0, not 120.0.
+# Nothing will tell you this is wrong except checking the answer yourself.</div>
+
+      <h4>Quick reference: common runtime exceptions</h4>
+      <table class="dsref">
+        <tr><th>Exception</th><th>Typical cause</th></tr>
+        <tr><td><code>NameError</code></td><td>Using a variable that hasn't been defined (or a typo in its name).</td></tr>
+        <tr><td><code>TypeError</code></td><td>An operation doesn't support the type involved, e.g. <code>"5" + 5</code>.</td></tr>
+        <tr><td><code>ValueError</code></td><td>Right type, but an invalid value, e.g. <code>int("abc")</code>.</td></tr>
+        <tr><td><code>IndexError</code></td><td>A list index that's out of range.</td></tr>
+        <tr><td><code>KeyError</code></td><td>A dictionary key that doesn't exist.</td></tr>
+        <tr><td><code>ZeroDivisionError</code></td><td>Dividing by zero.</td></tr>
+      </table>
+    </div>
+  </details>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">03</span>
+      <span class="sheet-title">Guess the error — play through 6 snippets</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>Read the snippet, guess which exception it raises, then check yourself.</p>
+      <div class="quiz-card">
+        <div class="quiz-progress" id="quiz-progress">SNIPPET 1 / 6</div>
+        <div class="code-block">
+          <div class="code-head"><span>snippet.py</span><span>python 3</span></div>
+          <pre id="quiz-snippet"><code></code></pre>
+        </div>
+        <div class="toggle-row" id="quiz-options"></div>
+        <div class="quiz-feedback" id="quiz-feedback"></div>
+        <div class="output-panel err" id="quiz-traceback" hidden></div>
+        <button class="action-btn" id="quiz-next">next snippet →</button>
+      </div>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Jupyter-specific</p>
+    <h2>Out-of-Order Execution</h2>
+    <p>This is the bug category unique to notebooks: the code looks correct, but the <em>order you clicked "Run"</em> doesn't match the order on the page.</p>
+  </div>
+
+  <details class="sheet" open>
+    <summary>
+      <span class="sheet-num">04</span>
+      <span class="sheet-title">A live notebook — try running cells out of order</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>This mini notebook has a real kernel state behind it. Click <strong>Run</strong> on each cell in whatever order you like, and watch what happens.</p>
+      <div class="notebook" id="notebook"></div>
+      <div>
+        <button class="action-btn good" id="nb-restart">▸ Restart &amp; Run All</button>
+        <button class="action-btn" id="nb-change-x">change Cell 1 to x = 99 (don't rerun)</button>
+        <button class="action-btn reset" id="nb-reset">reset demo ↺</button>
+      </div>
+      <h4>What just happened</h4>
+      <ul>
+        <li>Running <strong>Cell 2</strong> before <strong>Cell 1</strong> raises <code>NameError: name 'x' is not defined</code> — the kernel doesn't know about <code>x</code> yet, regardless of what order the cells appear on the page.</li>
+        <li>Editing Cell 1's code doesn't retroactively change anything — the kernel only updates when you actually re-run that cell. Until then, other cells still see the <em>old</em> value.</li>
+        <li><strong>Restart &amp; Run All</strong> wipes the kernel's memory completely and reruns every cell top to bottom — the single most reliable way to confirm your notebook actually works, not just that it worked in whatever order you happened to click things.</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Technique</p>
+    <h2>print() Debugging vs. logging</h2>
+    <p>Both let you inspect what's happening while code runs. One is a quick, disposable habit; the other scales to real projects.</p>
+  </div>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">05</span>
+      <span class="sheet-title">Same bug, investigated two ways</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <div class="error-cards" style="grid-template-columns:1fr 1fr;">
+        <div class="error-card runtime">
+          <h5>print() DEBUGGING</h5>
+          <p>Fast to add, fast to forget to remove. No record of when or in what order things ran. Fine for a quick check in a notebook cell.</p>
+        </div>
+        <div class="error-card logical">
+          <h5>logging MODULE</h5>
+          <p>Timestamped, leveled (DEBUG/INFO/WARNING/ERROR), and can be switched off without deleting a single line. Scales past a single notebook session.</p>
+        </div>
+      </div>
+      <div class="code-block">
+        <div class="code-head"><span>print_debug.py</span><span>python 3</span></div>
+        <pre><code><span class="kw">def</span> calculate_average(scores):
+    <span class="kw">print</span>(<span class="st">"scores:"</span>, scores)          <span class="cm"># temporary — easy to forget to delete</span>
+    total = <span class="kw">sum</span>(scores)
+    <span class="kw">print</span>(<span class="st">"total:"</span>, total)
+    <span class="kw">return</span> total / <span class="kw">len</span>(scores)</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-print">▸ Show output</button>
+      <div class="output-panel" id="out-print" hidden>scores: [80, 90, 70]
+total: 240</div>
+
+      <div class="code-block">
+        <div class="code-head"><span>logging_debug.py</span><span>python 3</span></div>
+        <pre><code><span class="kw">import</span> logging
+logging.basicConfig(level=logging.DEBUG)
+
+<span class="kw">def</span> calculate_average(scores):
+    logging.debug(<span class="st">f"scores: {scores}"</span>)
+    total = <span class="kw">sum</span>(scores)
+    logging.debug(<span class="st">f"total: {total}"</span>)
+    <span class="kw">return</span> total / <span class="kw">len</span>(scores)</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-log2">▸ Show output</button>
+      <div class="output-panel" id="out-log2" hidden>DEBUG:root:scores: [80, 90, 70]
+DEBUG:root:total: 240
+# Change to logging.basicConfig(level=logging.WARNING) later,
+# and every debug() line goes silent — without touching the function at all.</div>
+      <p>The function's code is nearly identical either way — the difference is that <code>logging</code> lines can be dialed up or down globally, and carry a timestamp and severity level for free.</p>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Prevention</p>
+    <h2>Handling Errors on Purpose</h2>
+    <p>Sometimes a runtime error is expected — bad user input, a missing file. <code>try/except</code> lets you decide what happens instead of letting the program crash.</p>
+  </div>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">06</span>
+      <span class="sheet-title">try / except / else / finally playground</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>This code divides 100 by whatever denominator you pick. Toggle handling on or off, then run it with a normal number and with zero.</p>
+      <div class="code-block">
+        <div class="code-head"><span>safe_divide.py</span><span>python 3</span></div>
+        <pre id="try-code"><code><span class="kw">def</span> safe_divide(n, d):
+    <span class="kw">return</span> n / d</code></pre>
+      </div>
+      <div class="toggle-row">
+        <button class="toggle-btn active" id="try-off">handling: OFF</button>
+        <button class="toggle-btn" id="try-on">handling: ON</button>
+      </div>
+      <div class="toggle-row">
+        <button class="action-btn" data-d="4">run safe_divide(100, 4)</button>
+        <button class="action-btn" data-d="0">run safe_divide(100, 0)</button>
+      </div>
+      <div class="output-panel" id="try-output" style="display:block;">pick a denominator above ↑</div>
+      <div class="trace-panel-wrap" id="try-trace" style="display:none;">
+        <div class="membership-feedback" id="try-order"></div>
+      </div>
+      <p style="font-size:13px;color:#9fb6cf;"><code>else</code> runs only if the <code>try</code> block succeeded with no exception. <code>finally</code> always runs — success, failure, or anything in between — which makes it the right place for cleanup like closing a file.</p>
+    </div>
+  </details>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">07</span>
+      <span class="sheet-title">assert statements and a first test</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p><code>assert</code> is a sanity check: if the condition is false, it stops the program immediately with a clear message — much better than finding out three steps later.</p>
+      <div class="code-block">
+        <div class="code-head"><span>assert_demo.py</span><span>python 3</span></div>
+        <pre><code>discount_rate = <span class="nm">1.5</span>   <span class="cm"># bug: this should never exceed 1.0</span>
+<span class="kw">assert</span> <span class="nm">0</span> <= discount_rate <= <span class="nm">1</span>, <span class="st">f"Invalid rate: {discount_rate}"</span></code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-assert">▸ Show output</button>
+      <div class="output-panel err" id="out-assert" hidden>AssertionError: Invalid rate: 1.5</div>
+
+      <h4>Turning that habit into a test</h4>
+      <p>A test is just an assert (or several) wrapped in a function, run against your real code — so you find out <em>before</em> shipping it, not while running it live.</p>
+      <div class="code-block">
+        <div class="code-head"><span>test_discount.py</span><span>python 3</span></div>
+        <pre id="test-code"><code><span class="kw">def</span> calculate_discount(price, rate):
+    <span class="kw">return</span> price * (<span class="nm">1</span> - rate)
+
+<span class="kw">def</span> test_calculate_discount():
+    <span class="kw">assert</span> calculate_discount(<span class="nm">100</span>, <span class="nm">0.10</span>) == <span class="nm">90</span>
+    <span class="kw">assert</span> calculate_discount(<span class="nm">200</span>, <span class="nm">0.25</span>) == <span class="nm">150</span>
+    <span class="kw">print</span>(<span class="st">"All tests passed!"</span>)
+
+test_calculate_discount()</code></pre>
+      </div>
+      <div class="toggle-row">
+        <button class="toggle-btn active" id="test-correct">correct implementation</button>
+        <button class="toggle-btn" id="test-buggy">buggy implementation</button>
+      </div>
+      <button class="action-btn" id="test-run">▸ run test_calculate_discount()</button>
+      <div class="output-panel" id="test-output" style="display:block;">run the test above ↑</div>
+    </div>
+  </details>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">08</span>
+      <span class="sheet-title">Step-through debugging with pdb / breakpoint()</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>Dropping <code>breakpoint()</code> into your code pauses execution right there and gives you a live prompt to inspect variables — more powerful than sprinkling <code>print()</code> everywhere. Step through this trace to see what a debugger session shows you.</p>
+      <div class="code-block">
+        <div class="code-head"><span>pdb_demo.py</span><span>python 3</span></div>
+        <pre><code><span class="kw">def</span> apply_bulk_discount(orders):
+    total = <span class="nm">0</span>
+    <span class="kw">breakpoint</span>()  <span class="cm"># execution pauses here in a real run</span>
+    <span class="kw">for</span> price <span class="kw">in</span> orders:
+        total += price * <span class="nm">0.9</span>
+    <span class="kw">return</span> total</code></pre>
+      </div>
+      <button class="action-btn" id="pdb-step">▸ step forward</button>
+      <button class="action-btn reset" id="pdb-reset">reset ↺</button>
+      <div class="code-line" id="pdb-line">click "step forward" to begin</div>
+      <table class="var-table">
+        <tr><th>variable</th><th>value</th></tr>
+        <tr><td>orders</td><td id="pdb-orders">—</td></tr>
+        <tr><td>total</td><td id="pdb-total">—</td></tr>
+        <tr><td>price</td><td id="pdb-price">—</td></tr>
+      </table>
+      <p style="font-size:13px;color:#9fb6cf;">At a real <code>breakpoint()</code>, you'd type commands like <code>n</code> (next line), <code>c</code> (continue), or just the variable name to inspect it — all without adding a single <code>print()</code> to your code.</p>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Applied</p>
+    <h2>Common Bug Patterns in Analytics Code</h2>
+    <p>These three show up constantly once you're working with real data. Toggle each one to see the bug, then the fix.</p>
+  </div>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">09</span>
+      <span class="sheet-title">Off-by-one, float equality, and stringy CSV data</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <h4>Off-by-one error</h4>
+      <div class="toggle-row" id="bug1-toggle">
+        <button class="toggle-btn active" data-state="bug">buggy</button>
+        <button class="toggle-btn" data-state="fix">fixed</button>
+      </div>
+      <div class="code-block">
+        <div class="code-head"><span>off_by_one.py</span><span>python 3</span></div>
+        <pre id="bug1-code"><code></code></pre>
+      </div>
+      <div class="output-panel" id="bug1-output" style="display:block;"></div>
+
+      <h4>Comparing floats with ==</h4>
+      <div class="toggle-row" id="bug2-toggle">
+        <button class="toggle-btn active" data-state="bug">buggy</button>
+        <button class="toggle-btn" data-state="fix">fixed</button>
+      </div>
+      <div class="code-block">
+        <div class="code-head"><span>float_equality.py</span><span>python 3</span></div>
+        <pre id="bug2-code"><code></code></pre>
+      </div>
+      <div class="output-panel" id="bug2-output" style="display:block;"></div>
+
+      <h4>Wrong type after reading a CSV</h4>
+      <div class="toggle-row" id="bug3-toggle">
+        <button class="toggle-btn active" data-state="bug">buggy</button>
+        <button class="toggle-btn" data-state="fix">fixed</button>
+      </div>
+      <div class="code-block">
+        <div class="code-head"><span>csv_types.py</span><span>python 3</span></div>
+        <pre id="bug3-code"><code></code></pre>
+      </div>
+      <div class="output-panel err" id="bug3-output" style="display:block;"></div>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Active recall</p>
+    <h2>Quick Check</h2>
+    <p>Tap a card to flip it. Try answering before you flip.</p>
+  </div>
+
+  <div class="recall-grid">
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q1</div>
+          <div>Which type of error produces no traceback at all?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A1</div>
+          <div>A <strong>logical error</strong> — the code runs successfully but produces the wrong answer.</div>
+        </div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q2</div>
+          <div>Why can a Jupyter notebook throw a <code>NameError</code> even though the variable is defined further down the page?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A2</div>
+          <div>Cell order on the page doesn't matter — only the order cells were actually <em>run</em> matters to the kernel.</div>
+        </div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q3</div>
+          <div>Which <code>try</code> block always runs, exception or not?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A3</div>
+          <div><code>finally</code> — useful for cleanup like closing files or connections.</div>
+        </div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q4</div>
+          <div>What's the safest way to confirm a notebook actually runs correctly top to bottom?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A4</div>
+          <div><strong>Restart &amp; Run All</strong> — it clears all kernel state and reruns every cell in page order.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>DRWG BY: Claude &nbsp;·&nbsp; TOPIC: debugging &amp; testing in Jupyter &nbsp;·&nbsp; interactive sheet set</footer>
+
+<script>
+  document.querySelectorAll('.reveal-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var panel = document.getElementById(btn.dataset.target);
+      var isHidden = panel.hasAttribute('hidden');
+      if(isHidden){ panel.removeAttribute('hidden'); btn.textContent = '▾ Hide output'; }
+      else { panel.setAttribute('hidden',''); btn.textContent = '▸ Show output'; }
+    });
+  });
+  document.querySelectorAll('.flip-card').forEach(function(card){
+    function toggle(){ card.classList.toggle('flipped'); card.setAttribute('aria-pressed', card.classList.contains('flipped')); }
+    card.addEventListener('click', toggle);
+    card.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); } });
+  });
+
+  // ---------- 01: clickable traceback ----------
+  var tbExplanations = {
+    header: 'This line is boilerplate — it just announces that a traceback follows, and (for nested calls) that frames are listed most-recent-last.',
+    frame: 'The call frame: which cell and line number the error happened on. In a longer program, you\'d see one of these per level of function call, showing the whole chain that led here.',
+    codeline: 'The actual line of source code that was executing when things went wrong — Python shows it so you don\'t have to go hunting for it.',
+    exception: 'The exception type (what kind of problem) and its message (specific details). This is usually the first thing worth reading, then work upward to find where it happened.'
+  };
+  document.querySelectorAll('.tb-part').forEach(function(part){
+    part.addEventListener('click', function(){
+      document.querySelectorAll('.tb-part').forEach(function(p){ p.classList.remove('active'); });
+      part.classList.add('active');
+      document.getElementById('tb-explain').textContent = tbExplanations[part.dataset.key];
+    });
+  });
+
+  // ---------- 03: guess the error quiz ----------
+  var quizItems = [
+    {
+      code: '<span class="fn">print</span>(order_total)',
+      options: ['NameError','TypeError','ValueError','IndexError','KeyError','ZeroDivisionError'],
+      correct: 'NameError',
+      traceback: "NameError: name 'order_total' is not defined",
+      explain: 'order_total was never assigned anywhere before this line.'
+    },
+    {
+      code: '<span class="st">"Total: "</span> + <span class="nm">100</span>',
+      options: ['NameError','TypeError','ValueError','IndexError','KeyError','ZeroDivisionError'],
+      correct: 'TypeError',
+      traceback: 'TypeError: can only concatenate str (not "int") to str',
+      explain: 'You can\'t add a string and an int directly — one needs converting, e.g. str(100).'
+    },
+    {
+      code: '<span class="kw">int</span>(<span class="st">"24.99"</span>)',
+      options: ['NameError','TypeError','ValueError','IndexError','KeyError','ZeroDivisionError'],
+      correct: 'ValueError',
+      traceback: "ValueError: invalid literal for int() with base 10: '24.99'",
+      explain: 'The string has a decimal point — int() can\'t parse it directly; float() could.'
+    },
+    {
+      code: 'scores = [<span class="nm">80</span>, <span class="nm">90</span>, <span class="nm">70</span>]\n<span class="fn">print</span>(scores[<span class="nm">5</span>])',
+      options: ['NameError','TypeError','ValueError','IndexError','KeyError','ZeroDivisionError'],
+      correct: 'IndexError',
+      traceback: 'IndexError: list index out of range',
+      explain: 'The list only has indices 0, 1, 2 — there is no index 5.'
+    },
+    {
+      code: 'customer = {<span class="st">"name"</span>: <span class="st">"Acme"</span>}\n<span class="fn">print</span>(customer[<span class="st">"region"</span>])',
+      options: ['NameError','TypeError','ValueError','IndexError','KeyError','ZeroDivisionError'],
+      correct: 'KeyError',
+      traceback: "KeyError: 'region'",
+      explain: 'The dictionary has no "region" key — use .get("region") to avoid this.'
+    },
+    {
+      code: 'orders = <span class="nm">0</span>\navg = <span class="nm">100</span> / orders',
+      options: ['NameError','TypeError','ValueError','IndexError','KeyError','ZeroDivisionError'],
+      correct: 'ZeroDivisionError',
+      traceback: 'ZeroDivisionError: division by zero',
+      explain: 'orders is 0, and Python refuses to divide by zero.'
+    }
+  ];
+  var quizIdx = 0;
+  var quizSnippetEl = document.querySelector('#quiz-snippet code');
+  var quizOptionsEl = document.getElementById('quiz-options');
+  var quizFeedbackEl = document.getElementById('quiz-feedback');
+  var quizTracebackEl = document.getElementById('quiz-traceback');
+  var quizProgressEl = document.getElementById('quiz-progress');
+
+  function loadQuiz(){
+    var item = quizItems[quizIdx];
+    quizProgressEl.textContent = 'SNIPPET ' + (quizIdx+1) + ' / ' + quizItems.length;
+    quizSnippetEl.innerHTML = item.code;
+    quizFeedbackEl.textContent = '';
+    quizFeedbackEl.className = 'quiz-feedback';
+    quizTracebackEl.setAttribute('hidden','');
+    quizOptionsEl.innerHTML = '';
+    item.options.forEach(function(opt){
+      var btn = document.createElement('button');
+      btn.className = 'toggle-btn';
+      btn.textContent = opt;
+      btn.addEventListener('click', function(){
+        document.querySelectorAll('#quiz-options .toggle-btn').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        var isCorrect = opt === item.correct;
+        quizFeedbackEl.textContent = isCorrect ? '✓ correct — ' + item.explain : '✗ actually ' + item.correct + ' — ' + item.explain;
+        quizFeedbackEl.className = 'quiz-feedback ' + (isCorrect ? 'correct' : 'wrong');
+        quizTracebackEl.textContent = item.traceback;
+        quizTracebackEl.removeAttribute('hidden');
+      });
+      quizOptionsEl.appendChild(btn);
+    });
+  }
+  document.getElementById('quiz-next').addEventListener('click', function(){
+    quizIdx = (quizIdx + 1) % quizItems.length;
+    loadQuiz();
+  });
+  loadQuiz();
+
+  // ---------- 04: notebook simulation ----------
+  var nbCells = [
+    { label:'x = 10', run:function(state){ state.x = state.xOverride !== undefined ? state.xOverride : 10; return { ok:true, out:null }; } },
+    { label:'y = x + 5\nprint(y)', run:function(state){
+        if(state.x === undefined) return { ok:false, out:"NameError: name 'x' is not defined" };
+        state.y = state.x + 5; return { ok:true, out: String(state.y) };
+      } },
+    { label:'print(y)', run:function(state){
+        if(state.y === undefined) return { ok:false, out:"NameError: name 'y' is not defined" };
+        return { ok:true, out: String(state.y) };
+      } }
+  ];
+  var nbState = {};
+  var nbExecCount = 0;
+  var nbCellStatus = [null, null, null];
+  var nbEl = document.getElementById('notebook');
+
+  function renderNotebook(){
+    nbEl.innerHTML = '';
+    nbCells.forEach(function(cell, i){
+      var displayLabel = (i === 0 && nbState.xOverride !== undefined) ? ('x = ' + nbState.xOverride) : cell.label;
+      var wrap = document.createElement('div');
+      wrap.className = 'nb-cell';
+      var status = nbCellStatus[i];
+      var inLabel = status && status.execN ? ('In [' + status.execN + ']') : 'In [ ]';
+      var outHtml = '';
+      if(status){
+        outHtml = '<div class="nb-out' + (status.ok ? '' : ' err') + '">' + (status.ok ? 'Out: ' + (status.out !== null ? status.out : '(no output)') : status.out) + '</div>';
+      }
+      wrap.innerHTML =
+        '<div class="nb-inlabel">' + inLabel + '</div>' +
+        '<div class="nb-code"><pre>' + displayLabel + '</pre>' + outHtml +
+        '<button class="nb-run-btn" data-cell="' + i + '">▸ Run</button></div>';
+      nbEl.appendChild(wrap);
+    });
+    nbEl.querySelectorAll('.nb-run-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var i = parseInt(btn.dataset.cell, 10);
+        nbExecCount++;
+        var result = nbCells[i].run(nbState);
+        nbCellStatus[i] = { ok: result.ok, out: result.out, execN: nbExecCount };
+        renderNotebook();
+      });
+    });
+  }
+  renderNotebook();
+
+  document.getElementById('nb-restart').addEventListener('click', function(){
+    nbState = {};
+    nbCellStatus = [null, null, null];
+    nbExecCount = 0;
+    renderNotebook();
+    var i = 0;
+    function runNext(){
+      if(i < nbCells.length){
+        nbExecCount++;
+        var result = nbCells[i].run(nbState);
+        nbCellStatus[i] = { ok: result.ok, out: result.out, execN: nbExecCount };
+        renderNotebook();
+        i++;
+        setTimeout(runNext, 450);
+      }
+    }
+    runNext();
+  });
+  document.getElementById('nb-change-x').addEventListener('click', function(){
+    nbState.xOverride = 99;
+    renderNotebook();
+  });
+  document.getElementById('nb-reset').addEventListener('click', function(){
+    nbState = {};
+    nbCellStatus = [null, null, null];
+    nbExecCount = 0;
+    renderNotebook();
+  });
+
+  // ---------- 06: try/except playground ----------
+  var handlingOn = false;
+  document.getElementById('try-off').addEventListener('click', function(){
+    handlingOn = false;
+    this.classList.add('active');
+    document.getElementById('try-on').classList.remove('active');
+    document.querySelector('#try-code code').innerHTML =
+      '<span class="kw">def</span> safe_divide(n, d):\n    <span class="kw">return</span> n / d';
+  });
+  document.getElementById('try-on').addEventListener('click', function(){
+    handlingOn = true;
+    this.classList.add('active');
+    document.getElementById('try-off').classList.remove('active');
+    document.querySelector('#try-code code').innerHTML =
+      '<span class="kw">def</span> safe_divide(n, d):\n    <span class="kw">try</span>:\n        result = n / d\n    <span class="kw">except</span> ZeroDivisionError:\n        <span class="kw">print</span>(<span class="st">"Can\'t divide by zero — returning None"</span>)\n        <span class="kw">return</span> <span class="kw">None</span>\n    <span class="kw">else</span>:\n        <span class="kw">print</span>(<span class="st">"Division succeeded"</span>)\n        <span class="kw">return</span> result\n    <span class="kw">finally</span>:\n        <span class="kw">print</span>(<span class="st">"safe_divide() finished"</span>)';
+  });
+  document.querySelectorAll('[data-d]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var d = parseInt(btn.dataset.d, 10);
+      var outputEl = document.getElementById('try-output');
+      if(d === 0){
+        if(handlingOn){
+          outputEl.className = 'output-panel';
+          outputEl.textContent = "Can't divide by zero — returning None\nsafe_divide() finished\n→ returned: None";
+        } else {
+          outputEl.className = 'output-panel err';
+          outputEl.textContent = 'ZeroDivisionError: division by zero\n(program crashes here — nothing after this line runs)';
+        }
+      } else {
+        if(handlingOn){
+          outputEl.className = 'output-panel';
+          outputEl.textContent = 'Division succeeded\nsafe_divide() finished\n→ returned: 25.0';
+        } else {
+          outputEl.className = 'output-panel';
+          outputEl.textContent = '→ returned: 25.0';
+        }
+      }
+    });
+  });
+
+  // ---------- 07: test playground ----------
+  var testBuggy = false;
+  document.getElementById('test-correct').addEventListener('click', function(){
+    testBuggy = false;
+    this.classList.add('active');
+    document.getElementById('test-buggy').classList.remove('active');
+    document.querySelector('#test-code code').innerHTML =
+      '<span class="kw">def</span> calculate_discount(price, rate):\n    <span class="kw">return</span> price * (<span class="nm">1</span> - rate)\n\n<span class="kw">def</span> test_calculate_discount():\n    <span class="kw">assert</span> calculate_discount(<span class="nm">100</span>, <span class="nm">0.10</span>) == <span class="nm">90</span>\n    <span class="kw">assert</span> calculate_discount(<span class="nm">200</span>, <span class="nm">0.25</span>) == <span class="nm">150</span>\n    <span class="kw">print</span>(<span class="st">"All tests passed!"</span>)\n\ntest_calculate_discount()';
+  });
+  document.getElementById('test-buggy').addEventListener('click', function(){
+    testBuggy = true;
+    this.classList.add('active');
+    document.getElementById('test-correct').classList.remove('active');
+    document.querySelector('#test-code code').innerHTML =
+      '<span class="kw">def</span> calculate_discount(price, rate):\n    <span class="kw">return</span> price * rate   <span class="cm"># bug: forgot (1 - rate)</span>\n\n<span class="kw">def</span> test_calculate_discount():\n    <span class="kw">assert</span> calculate_discount(<span class="nm">100</span>, <span class="nm">0.10</span>) == <span class="nm">90</span>\n    <span class="kw">assert</span> calculate_discount(<span class="nm">200</span>, <span class="nm">0.25</span>) == <span class="nm">150</span>\n    <span class="kw">print</span>(<span class="st">"All tests passed!"</span>)\n\ntest_calculate_discount()';
+  });
+  document.getElementById('test-run').addEventListener('click', function(){
+    var outEl = document.getElementById('test-output');
+    if(testBuggy){
+      outEl.className = 'output-panel err';
+      outEl.textContent = 'AssertionError\n(test failed on the very first assert — calculate_discount(100, 0.10) returned 10.0, not 90)';
+    } else {
+      outEl.className = 'output-panel';
+      outEl.textContent = 'All tests passed!';
+    }
+  });
+
+  // ---------- 08: pdb step trace ----------
+  var pdbSteps = [
+    { line: 'def apply_bulk_discount(orders):', vars:{orders:'—', total:'—', price:'—'} },
+    { line: 'total = 0', vars:{orders:'[100, 250, 60]', total:'0', price:'—'} },
+    { line: 'breakpoint()  ← paused here', vars:{orders:'[100, 250, 60]', total:'0', price:'—'} },
+    { line: 'for price in orders:  (price = 100)', vars:{orders:'[100, 250, 60]', total:'0', price:'100'} },
+    { line: 'total += price * 0.9', vars:{orders:'[100, 250, 60]', total:'90.0', price:'100'} },
+    { line: 'for price in orders:  (price = 250)', vars:{orders:'[100, 250, 60]', total:'90.0', price:'250'} },
+    { line: 'total += price * 0.9', vars:{orders:'[100, 250, 60]', total:'315.0', price:'250'} },
+    { line: 'for price in orders:  (price = 60)', vars:{orders:'[100, 250, 60]', total:'315.0', price:'60'} },
+    { line: 'total += price * 0.9', vars:{orders:'[100, 250, 60]', total:'369.0', price:'60'} },
+    { line: 'return total  →  369.0', vars:{orders:'[100, 250, 60]', total:'369.0', price:'60'} }
+  ];
+  var pdbIdx = -1;
+  function renderPdb(){
+    var lineEl = document.getElementById('pdb-line');
+    if(pdbIdx < 0){ lineEl.textContent = 'click "step forward" to begin'; return; }
+    var step = pdbSteps[pdbIdx];
+    lineEl.textContent = 'line: ' + step.line;
+    document.getElementById('pdb-orders').textContent = step.vars.orders;
+    document.getElementById('pdb-total').textContent = step.vars.total;
+    document.getElementById('pdb-price').textContent = step.vars.price;
+  }
+  document.getElementById('pdb-step').addEventListener('click', function(){
+    if(pdbIdx < pdbSteps.length - 1){ pdbIdx++; renderPdb(); }
+  });
+  document.getElementById('pdb-reset').addEventListener('click', function(){ pdbIdx = -1; renderPdb(); });
+
+  // ---------- 09: common bug patterns ----------
+  function wireBugToggle(toggleId, codeId, outputId, states){
+    var toggle = document.getElementById(toggleId);
+    var codeEl = document.querySelector('#' + codeId + ' code');
+    var outEl = document.getElementById(outputId);
+    function render(state){
+      codeEl.innerHTML = states[state].code;
+      outEl.className = states[state].errClass;
+      outEl.textContent = states[state].output;
+    }
+    toggle.querySelectorAll('.toggle-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        toggle.querySelectorAll('.toggle-btn').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        render(btn.dataset.state);
+      });
+    });
+    render('bug');
+  }
+
+  wireBugToggle('bug1-toggle', 'bug1-code', 'bug1-output', {
+    bug: {
+      code: 'scores = [<span class="nm">80</span>, <span class="nm">90</span>, <span class="nm">70</span>]\n<span class="kw">for</span> i <span class="kw">in</span> <span class="kw">range</span>(<span class="kw">len</span>(scores) + <span class="nm">1</span>):\n    <span class="fn">print</span>(scores[i])',
+      errClass: 'output-panel err',
+      output: '80\n90\n70\nIndexError: list index out of range'
+    },
+    fix: {
+      code: 'scores = [<span class="nm">80</span>, <span class="nm">90</span>, <span class="nm">70</span>]\n<span class="kw">for</span> i <span class="kw">in</span> <span class="kw">range</span>(<span class="kw">len</span>(scores)):\n    <span class="fn">print</span>(scores[i])',
+      errClass: 'output-panel',
+      output: '80\n90\n70'
+    }
+  });
+
+  wireBugToggle('bug2-toggle', 'bug2-code', 'bug2-output', {
+    bug: {
+      code: 'total = <span class="nm">0.1</span> + <span class="nm">0.2</span>\n<span class="fn">print</span>(total == <span class="nm">0.3</span>)',
+      errClass: 'output-panel err',
+      output: 'False\n# 0.1 + 0.2 is actually 0.30000000000000004 due to float precision'
+    },
+    fix: {
+      code: '<span class="kw">import</span> math\ntotal = <span class="nm">0.1</span> + <span class="nm">0.2</span>\n<span class="fn">print</span>(math.isclose(total, <span class="nm">0.3</span>))',
+      errClass: 'output-panel',
+      output: 'True'
+    }
+  });
+
+  wireBugToggle('bug3-toggle', 'bug3-code', 'bug3-output', {
+    bug: {
+      code: '<span class="cm"># price came from a CSV column, read as text</span>\nprice = <span class="st">"24.99"</span>\ntotal = price * <span class="nm">3</span>\n<span class="fn">print</span>(total)',
+      errClass: 'output-panel',
+      output: '"24.9924.9924.99"\n# strings repeat with *, they don\'t multiply numerically — no crash, just wrong'
+    },
+    fix: {
+      code: 'price = <span class="kw">float</span>(<span class="st">"24.99"</span>)\ntotal = price * <span class="nm">3</span>\n<span class="fn">print</span>(total)',
+      errClass: 'output-panel',
+      output: '74.97'
+    }
+  });
+</script>
+
+</body>
+</html>
