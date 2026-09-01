@@ -151,23 +151,25 @@
     font-weight:600;
     font-size:17px;
     flex:1;
+    min-width:0;
   }
-  .sheet-hint{
+  .sheet-control{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    flex:0 0 auto;
     color:#7fa0c0;
     font-size:13px;
     font-family:'IBM Plex Mono', monospace;
-    display:none;
+    white-space:nowrap;
   }
-  @media (min-width:640px){ .sheet-hint{display:inline;} }
-  .sheet-toggle{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:18px;
+  .sheet-control-arrow{
     color:var(--amber);
-    width:20px;
-    text-align:center;
-    transition:transform .15s ease;
+    font-size:16px;
+    line-height:1;
   }
-  details[open] .sheet-toggle{ transform:rotate(45deg); }
+  .sheet-hint,
+  .sheet-toggle{ display:none; }
   .sheet-body{
     padding:4px 20px 22px;
     border-top:1px dashed var(--blue-line);
@@ -769,6 +771,28 @@ high_value = [p <span class="kw">for</span> p <span class="kw">in</span> prices 
 </footer>
 
 <script>
+  document.querySelectorAll('details.sheet').forEach(function(sheet){
+    var summary = sheet.querySelector('summary');
+    summary.querySelectorAll('.sheet-hint, .sheet-toggle').forEach(function(legacyControl){
+      legacyControl.remove();
+    });
+
+    var control = document.createElement('span');
+    control.className = 'sheet-control';
+    control.innerHTML = '<span class="sheet-control-arrow" aria-hidden="true"></span><span class="sheet-control-label"></span>';
+    summary.appendChild(control);
+
+    function updateSheetControl(){
+      var isOpen = sheet.open;
+      summary.setAttribute('aria-expanded', String(isOpen));
+      control.querySelector('.sheet-control-arrow').textContent = isOpen ? '\u25bc' : '\u25b6';
+      control.querySelector('.sheet-control-label').textContent = isOpen ? 'Hide explanation' : 'Show explanation';
+    }
+
+    sheet.addEventListener('toggle', updateSheetControl);
+    updateSheetControl();
+  });
+
   // reveal-output buttons
   document.querySelectorAll('.reveal-btn').forEach(function(btn){
     btn.addEventListener('click', function(){

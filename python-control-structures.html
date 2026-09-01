@@ -276,6 +276,9 @@
     font-size: 13px;
   }
   details.expand[open] > summary .chevron { transform: rotate(90deg); }
+  details.expand > summary .expand-title { flex: 1; min-width: 0; }
+  details.expand > summary .expand-control { display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; margin-left: 16px; color: var(--ink-soft); font-family: Georgia, serif; font-size: 13px; white-space: nowrap; }
+  details.expand > summary .expand-control-arrow { font-family: -apple-system, sans-serif; font-size: 12px; line-height: 1; }
   details.expand > .expand-body {
     padding: 4px 18px 20px;
     border-top: 1px solid var(--line);
@@ -850,6 +853,29 @@ outer</div>
 <footer>Sequence runs it, selection chooses it, repetition repeats it — every Python program is some arrangement of the three.</footer>
 
 <script>
+  document.querySelectorAll('details.expand').forEach(function(expand){
+    var summary = expand.querySelector('summary');
+    var title = document.createElement('span');
+    title.className = 'expand-title';
+    Array.from(summary.childNodes).forEach(function(node){
+      if(node.nodeType === Node.ELEMENT_NODE && node.classList.contains('chevron')){ node.remove(); }
+      else { title.appendChild(node); }
+    });
+    var control = document.createElement('span');
+    control.className = 'expand-control';
+    control.innerHTML = '<span class="expand-control-arrow" aria-hidden="true"></span><span class="expand-control-label"></span>';
+    summary.appendChild(title);
+    summary.appendChild(control);
+    function updateExpandControl(){
+      var isOpen = expand.open;
+      summary.setAttribute('aria-expanded', String(isOpen));
+      control.querySelector('.expand-control-arrow').textContent = isOpen ? '\u25bc' : '\u25b6';
+      control.querySelector('.expand-control-label').textContent = isOpen ? 'Hide explanation' : 'Show explanation';
+    }
+    expand.addEventListener('toggle', updateExpandControl);
+    updateExpandControl();
+  });
+
   // Build the 3x3 tracer grid
   const grid = document.getElementById('tracerGrid');
   const cells = [];

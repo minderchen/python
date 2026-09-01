@@ -18,8 +18,8 @@
     .intro { padding:24px; border-left:7px solid var(--yellow); } .intro h2, .section-title { margin:0 0 8px; font-family:Arial, sans-serif; font-size:1.5rem; }
     .section-heading { margin:48px 0 14px; } .section-heading p { margin:0; color:#466174; }
     details { margin:14px 0; } summary { display:flex; gap:14px; align-items:center; cursor:pointer; padding:17px 18px; color:var(--navy); font-weight:bold; list-style:none; }
-    summary::-webkit-details-marker { display:none; } summary::before { content:"+"; color:var(--paper); background:var(--blue); border-radius:50%; display:grid; place-items:center; width:23px; height:23px; flex:0 0 23px; }
-    details[open] summary::before { content:"-"; background:var(--teal); } .lesson { padding:2px 20px 24px; border-top:1px dashed var(--line); }
+    summary::-webkit-details-marker { display:none; } .details-summary-title { flex:1; min-width:0; } .details-control { display:inline-flex; align-items:center; gap:6px; flex:0 0 auto; color:var(--blue); font:13px Consolas, monospace; white-space:nowrap; } details[open] .details-control { color:var(--teal); } .details-control-arrow { font-size:12px; line-height:1; }
+    .lesson { padding:2px 20px 24px; border-top:1px dashed var(--line); }
     .list-row { display:flex; flex-wrap:wrap; gap:8px; margin:16px 0; } .cell { min-width:94px; padding:9px 8px; text-align:center; border:2px solid var(--blue); background:#f5fbff; color:var(--navy); cursor:pointer; transition:transform .15s, background .15s; }
     .cell:hover, .cell.active { transform:translateY(-3px); border-color:var(--coral); background:#fff0e9; } .index { color:#587383; display:block; font:12px Consolas, monospace; } .cell-value { font-family:Consolas, monospace; }
     .result { min-height:45px; border-left:4px solid var(--teal); background:#e9f8f5; padding:10px 13px; color:#075c55; font-family:Consolas, monospace; white-space:pre-wrap; }
@@ -59,6 +59,25 @@ result = []
   </main>
   <footer>Python Lists: ordered, mutable, and ready for practical work.</footer>
   <script>
+    document.querySelectorAll("main details").forEach(details => {
+      const summary = details.querySelector("summary");
+      const title = document.createElement("span");
+      title.className = "details-summary-title";
+      Array.from(summary.childNodes).forEach(node => title.appendChild(node));
+      const control = document.createElement("span");
+      control.className = "details-control";
+      control.innerHTML = '<span class="details-control-arrow" aria-hidden="true"></span><span class="details-control-label"></span>';
+      summary.append(title, control);
+      const updateControl = () => {
+        const isOpen = details.open;
+        summary.setAttribute("aria-expanded", String(isOpen));
+        control.querySelector(".details-control-arrow").textContent = isOpen ? "\u25bc" : "\u25b6";
+        control.querySelector(".details-control-label").textContent = isOpen ? "Hide explanation" : "Show explanation";
+      };
+      details.addEventListener("toggle", updateControl);
+      updateControl();
+    });
+
     const fruits = ["apple", "banana", "cherry", "date"];
     const fruitCells = document.getElementById("fruit-cells");
     fruits.forEach((fruit, index) => {

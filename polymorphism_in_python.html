@@ -59,6 +59,9 @@
   @media (min-width:640px){ .sheet-hint{ display:inline; } }
   .sheet-toggle{ font-family:'IBM Plex Mono', monospace; font-size:18px; color:var(--amber); width:20px; text-align:center; transition:transform .15s ease; }
   details[open] .sheet-toggle{ transform:rotate(45deg); }
+  .sheet-control{ display:inline-flex; align-items:center; gap:6px; flex:0 0 auto; color:#7fa0c0; font-size:13px; font-family:'IBM Plex Mono', monospace; white-space:nowrap; }
+  .sheet-control-arrow{ color:var(--amber); font-size:16px; line-height:1; }
+  .sheet-hint, .sheet-toggle{ display:none; }
   .sheet-body{ padding:4px 20px 24px; border-top:1px dashed var(--blue-line); }
   .sheet-body p{ color:#d3e0ee; }
   .sheet-body h4{ color:var(--cyan); font-family:'IBM Plex Mono', monospace; font-size:13px; letter-spacing:1px; text-transform:uppercase; margin:22px 0 8px; }
@@ -523,6 +526,23 @@ team = SalesTeam([<span class="st">"Amy"</span>, <span class="st">"Bob"</span>, 
 <footer>DRWG BY: Claude &nbsp;·&nbsp; TOPIC: polymorphism &amp; duck typing &nbsp;·&nbsp; interactive sheet set</footer>
 
 <script>
+  document.querySelectorAll('details.sheet').forEach(function(sheet){
+    var summary = sheet.querySelector('summary');
+    summary.querySelectorAll('.sheet-hint, .sheet-toggle').forEach(function(legacyControl){ legacyControl.remove(); });
+    var control = document.createElement('span');
+    control.className = 'sheet-control';
+    control.innerHTML = '<span class="sheet-control-arrow" aria-hidden="true"></span><span class="sheet-control-label"></span>';
+    summary.appendChild(control);
+    function updateSheetControl(){
+      var isOpen = sheet.open;
+      summary.setAttribute('aria-expanded', String(isOpen));
+      control.querySelector('.sheet-control-arrow').textContent = isOpen ? '\u25bc' : '\u25b6';
+      control.querySelector('.sheet-control-label').textContent = isOpen ? 'Hide explanation' : 'Show explanation';
+    }
+    sheet.addEventListener('toggle', updateSheetControl);
+    updateSheetControl();
+  });
+
   document.querySelectorAll('.reveal-btn').forEach(function(btn){
     btn.addEventListener('click', function(){
       var panel = document.getElementById(btn.dataset.target);

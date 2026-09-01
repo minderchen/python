@@ -70,11 +70,9 @@
     font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--amber);
     border:1px solid var(--amber); padding:2px 8px; white-space:nowrap;
   }
-  .sheet-title{ font-weight:600; font-size:17px; flex:1; }
-  .sheet-hint{ color:#7fa0c0; font-size:13px; font-family:'IBM Plex Mono', monospace; display:none; }
-  @media (min-width:640px){ .sheet-hint{ display:inline; } }
-  .sheet-toggle{ font-family:'IBM Plex Mono', monospace; font-size:18px; color:var(--amber); width:20px; text-align:center; transition:transform .15s ease; }
-  details[open] .sheet-toggle{ transform:rotate(45deg); }
+  .sheet-title{ font-weight:600; font-size:17px; flex:1; min-width:0; }
+  .sheet-control{ display:inline-flex; align-items:center; gap:6px; flex:0 0 auto; color:#7fa0c0; font-size:13px; font-family:'IBM Plex Mono', monospace; white-space:nowrap; }
+  .sheet-control-arrow{ color:var(--amber); font-size:16px; line-height:1; }
   .sheet-body{ padding:4px 20px 24px; border-top:1px dashed var(--blue-line); }
   .sheet-body p{ color:#d3e0ee; }
   .sheet-body h4{ color:var(--cyan); font-family:'IBM Plex Mono', monospace; font-size:13px; letter-spacing:1px; text-transform:uppercase; margin:22px 0 8px; }
@@ -277,8 +275,7 @@
     <summary>
       <span class="sheet-num">01</span>
       <span class="sheet-title">Key access, and the safer .get()</span>
-      <span class="sheet-hint">click to expand</span>
-      <span class="sheet-toggle">+</span>
+      <span class="sheet-control"><span class="sheet-control-arrow" aria-hidden="true">&#9660;</span><span class="sheet-control-label">Hide explanation</span></span>
     </summary>
     <div class="sheet-body">
       <div class="kv-stack" id="product-kv"></div>
@@ -315,8 +312,7 @@ KeyError: 'discount'</div>
     <summary>
       <span class="sheet-num">02</span>
       <span class="sheet-title">Playground — assignment, update, pop, del, setdefault</span>
-      <span class="sheet-hint">click to expand</span>
-      <span class="sheet-toggle">+</span>
+      <span class="sheet-control"><span class="sheet-control-arrow" aria-hidden="true">&#9654;</span><span class="sheet-control-label">Show explanation</span></span>
     </summary>
     <div class="sheet-body">
       <p>Starting dict: <code>inventory = {"mouse": 50, "keyboard": 30, "monitor": 12}</code></p>
@@ -347,8 +343,7 @@ KeyError: 'discount'</div>
     <summary>
       <span class="sheet-num">03</span>
       <span class="sheet-title">Checking membership with "in"</span>
-      <span class="sheet-hint">click to expand</span>
-      <span class="sheet-toggle">+</span>
+      <span class="sheet-control"><span class="sheet-control-arrow" aria-hidden="true">&#9654;</span><span class="sheet-control-label">Show explanation</span></span>
     </summary>
     <div class="sheet-body">
       <p><code>in</code> checks a dictionary's <strong>keys</strong> by default — not its values. Try both.</p>
@@ -371,8 +366,7 @@ KeyError: 'discount'</div>
     <summary>
       <span class="sheet-num">04</span>
       <span class="sheet-title">.keys() / .values() / .items() — the three loop views</span>
-      <span class="sheet-hint">click to expand</span>
-      <span class="sheet-toggle">+</span>
+      <span class="sheet-control"><span class="sheet-control-arrow" aria-hidden="true">&#9654;</span><span class="sheet-control-label">Show explanation</span></span>
     </summary>
     <div class="sheet-body">
       <div class="code-block">
@@ -418,8 +412,7 @@ monitor: $210.0</div>
     <summary>
       <span class="sheet-num">05</span>
       <span class="sheet-title">Live pattern — building a word/customer frequency counter</span>
-      <span class="sheet-hint">click to expand</span>
-      <span class="sheet-toggle">+</span>
+      <span class="sheet-control"><span class="sheet-control-arrow" aria-hidden="true">&#9654;</span><span class="sheet-control-label">Show explanation</span></span>
     </summary>
     <div class="sheet-body">
       <p>This is one of the most common dict + loop patterns in analytics: counting how often each value appears. Step through it one item at a time.</p>
@@ -456,8 +449,7 @@ counts = {}
     <summary>
       <span class="sheet-num">06</span>
       <span class="sheet-title">Nested dicts — a dict of records</span>
-      <span class="sheet-hint">click to expand</span>
-      <span class="sheet-toggle">+</span>
+      <span class="sheet-control"><span class="sheet-control-arrow" aria-hidden="true">&#9654;</span><span class="sheet-control-label">Show explanation</span></span>
     </summary>
     <div class="sheet-body">
       <p>Click a customer ID to look up their record, then a field inside it.</p>
@@ -483,8 +475,7 @@ counts = {}
     <summary>
       <span class="sheet-num">07</span>
       <span class="sheet-title">Dictionary comprehensions</span>
-      <span class="sheet-hint">click to expand</span>
-      <span class="sheet-toggle">+</span>
+      <span class="sheet-control"><span class="sheet-control-arrow" aria-hidden="true">&#9654;</span><span class="sheet-control-label">Show explanation</span></span>
     </summary>
     <div class="sheet-body">
       <p>Base data: <code>numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code>. Toggle the filter and watch the comprehension — and its resulting dict — update live.</p>
@@ -518,8 +509,7 @@ for</span> n <span class="kw">in</span> numbers:
     <summary>
       <span class="sheet-num">08</span>
       <span class="sheet-title">When a dict is (and isn't) the right choice</span>
-      <span class="sheet-hint">click to expand</span>
-      <span class="sheet-toggle">+</span>
+      <span class="sheet-control"><span class="sheet-control-arrow" aria-hidden="true">&#9654;</span><span class="sheet-control-label">Show explanation</span></span>
     </summary>
     <div class="sheet-body">
       <ul>
@@ -598,6 +588,25 @@ for</span> n <span class="kw">in</span> numbers:
 <footer>DRWG BY: Claude &nbsp;·&nbsp; TOPIC: Python dict, basic → advanced &nbsp;·&nbsp; interactive sheet set</footer>
 
 <script>
+  document.querySelectorAll('details.sheet').forEach(function(sheet){
+    var summary = sheet.querySelector('summary');
+    var control = summary.querySelector('.sheet-control');
+    if(!control){
+      control = document.createElement('span');
+      control.className = 'sheet-control';
+      control.innerHTML = '<span class="sheet-control-arrow" aria-hidden="true"></span><span class="sheet-control-label"></span>';
+      summary.appendChild(control);
+    }
+    function updateSheetControl(){
+      var isOpen = sheet.open;
+      summary.setAttribute('aria-expanded', String(isOpen));
+      control.querySelector('.sheet-control-arrow').textContent = isOpen ? '\u25bc' : '\u25b6';
+      control.querySelector('.sheet-control-label').textContent = isOpen ? 'Hide explanation' : 'Show explanation';
+    }
+    sheet.addEventListener('toggle', updateSheetControl);
+    updateSheetControl();
+  });
+
   document.querySelectorAll('.reveal-btn').forEach(function(btn){
     btn.addEventListener('click', function(){
       var panel = document.getElementById(btn.dataset.target);
