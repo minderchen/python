@@ -54,11 +54,9 @@
   details.sheet > summary{ list-style:none; cursor:pointer; display:flex; align-items:center; gap:14px; padding:16px 18px; user-select:none; }
   details.sheet > summary::-webkit-details-marker{ display:none; }
   .sheet-num{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--amber); border:1px solid var(--amber); padding:2px 8px; white-space:nowrap; }
-  .sheet-title{ font-weight:600; font-size:17px; flex:1; }
-  .sheet-hint{ color:#7fa0c0; font-size:13px; font-family:'IBM Plex Mono', monospace; display:none; }
-  @media (min-width:640px){ .sheet-hint{ display:inline; } }
-  .sheet-toggle{ font-family:'IBM Plex Mono', monospace; font-size:18px; color:var(--amber); width:20px; text-align:center; transition:transform .15s ease; }
-  details[open] .sheet-toggle{ transform:rotate(45deg); }
+  .sheet-title{ font-weight:600; font-size:17px; flex:1; min-width:0; }
+  .sheet-control{ display:inline-flex; align-items:center; gap:6px; flex:0 0 auto; color:#7fa0c0; font-size:13px; font-family:'IBM Plex Mono', monospace; white-space:nowrap; }
+  .sheet-control-arrow{ color:var(--amber); font-size:16px; line-height:1; }
   .sheet-body{ padding:4px 20px 24px; border-top:1px dashed var(--blue-line); }
   .sheet-body p{ color:#d3e0ee; }
   .sheet-body h4{ color:var(--cyan); font-family:'IBM Plex Mono', monospace; font-size:13px; letter-spacing:1px; text-transform:uppercase; margin:22px 0 8px; }
@@ -255,8 +253,7 @@
     <summary>
       <span class="sheet-num">00</span>
       <span class="sheet-title">Observe, isolate, explain, fix, and verify</span>
-      <span class="sheet-hint">click to expand</span>
-      <span class="sheet-toggle">+</span>
+      <span class="sheet-control"><span class="sheet-control-arrow" aria-hidden="true">&#9660;</span><span class="sheet-control-label">Hide explanation</span></span>
     </summary>
     <div class="sheet-body">
       <p>Changing code randomly and hoping the error disappears is slow and fragile. Instead, work through the five stages below. The BMI example shows how each stage narrows a <code>TypeError</code> into one small, justified fix.</p>
@@ -350,8 +347,7 @@ Verify
     <summary>
       <span class="sheet-num">01</span>
       <span class="sheet-title">Anatomy of a traceback — click any part</span>
-      <span class="sheet-hint">click to expand</span>
-      <span class="sheet-toggle">+</span>
+      <span class="sheet-control"><span class="sheet-control-arrow" aria-hidden="true">&#9660;</span><span class="sheet-control-label">Hide explanation</span></span>
     </summary>
     <div class="sheet-body">
       <p>This traceback comes from running the cell below in Jupyter:</p>
@@ -382,8 +378,7 @@ average = total / (count - <span class="nm">3</span>)  <span class="cm"># bug: t
     <summary>
       <span class="sheet-num">02</span>
       <span class="sheet-title">Syntax, runtime, and logical errors</span>
-      <span class="sheet-hint">click to expand</span>
-      <span class="sheet-toggle">+</span>
+      <span class="sheet-control"><span class="sheet-control-arrow" aria-hidden="true">&#9654;</span><span class="sheet-control-label">Show explanation</span></span>
     </summary>
     <div class="sheet-body">
       <div class="error-cards">
@@ -441,8 +436,7 @@ average = <span class="kw">sum</span>(scores) / <span class="nm">2</span>   <spa
     <summary>
       <span class="sheet-num">03</span>
       <span class="sheet-title">Guess the error — play through 6 snippets</span>
-      <span class="sheet-hint">click to expand</span>
-      <span class="sheet-toggle">+</span>
+      <span class="sheet-control"><span class="sheet-control-arrow" aria-hidden="true">&#9654;</span><span class="sheet-control-label">Show explanation</span></span>
     </summary>
     <div class="sheet-body">
       <p>Read the snippet, guess which exception it raises, then check yourself.</p>
@@ -470,8 +464,7 @@ average = <span class="kw">sum</span>(scores) / <span class="nm">2</span>   <spa
     <summary>
       <span class="sheet-num">04</span>
       <span class="sheet-title">A live notebook — try running cells out of order</span>
-      <span class="sheet-hint">click to expand</span>
-      <span class="sheet-toggle">+</span>
+      <span class="sheet-control"><span class="sheet-control-arrow" aria-hidden="true">&#9660;</span><span class="sheet-control-label">Hide explanation</span></span>
     </summary>
     <div class="sheet-body">
       <p>This mini notebook has a real kernel state behind it. Click <strong>Run</strong> on each cell in whatever order you like, and watch what happens.</p>
@@ -500,8 +493,7 @@ average = <span class="kw">sum</span>(scores) / <span class="nm">2</span>   <spa
     <summary>
       <span class="sheet-num">05</span>
       <span class="sheet-title">Same bug, investigated two ways</span>
-      <span class="sheet-hint">click to expand</span>
-      <span class="sheet-toggle">+</span>
+      <span class="sheet-control"><span class="sheet-control-arrow" aria-hidden="true">&#9654;</span><span class="sheet-control-label">Show explanation</span></span>
     </summary>
     <div class="sheet-body">
       <div class="error-cards" style="grid-template-columns:1fr 1fr;">
@@ -556,8 +548,7 @@ DEBUG:root:total: 240
     <summary>
       <span class="sheet-num">06</span>
       <span class="sheet-title">try / except / else / finally playground</span>
-      <span class="sheet-hint">click to expand</span>
-      <span class="sheet-toggle">+</span>
+      <span class="sheet-control"><span class="sheet-control-arrow" aria-hidden="true">&#9654;</span><span class="sheet-control-label">Show explanation</span></span>
     </summary>
     <div class="sheet-body">
       <p>This code divides 100 by whatever denominator you pick. Toggle handling on or off, then run it with a normal number and with zero.</p>
@@ -586,8 +577,7 @@ DEBUG:root:total: 240
     <summary>
       <span class="sheet-num">07</span>
       <span class="sheet-title">assert statements and a first test</span>
-      <span class="sheet-hint">click to expand</span>
-      <span class="sheet-toggle">+</span>
+      <span class="sheet-control"><span class="sheet-control-arrow" aria-hidden="true">&#9654;</span><span class="sheet-control-label">Show explanation</span></span>
     </summary>
     <div class="sheet-body">
       <p><code>assert</code> is a sanity check: if the condition is false, it stops the program immediately with a clear message — much better than finding out three steps later.</p>
@@ -626,8 +616,7 @@ test_calculate_discount()</code></pre>
     <summary>
       <span class="sheet-num">08</span>
       <span class="sheet-title">Step-through debugging with pdb / breakpoint()</span>
-      <span class="sheet-hint">click to expand</span>
-      <span class="sheet-toggle">+</span>
+      <span class="sheet-control"><span class="sheet-control-arrow" aria-hidden="true">&#9654;</span><span class="sheet-control-label">Show explanation</span></span>
     </summary>
     <div class="sheet-body">
       <p>Dropping <code>breakpoint()</code> into your code pauses execution right there and gives you a live prompt to inspect variables — more powerful than sprinkling <code>print()</code> everywhere. Step through this trace to see what a debugger session shows you.</p>
@@ -663,8 +652,7 @@ test_calculate_discount()</code></pre>
     <summary>
       <span class="sheet-num">09</span>
       <span class="sheet-title">Off-by-one, float equality, and stringy CSV data</span>
-      <span class="sheet-hint">click to expand</span>
-      <span class="sheet-toggle">+</span>
+      <span class="sheet-control"><span class="sheet-control-arrow" aria-hidden="true">&#9654;</span><span class="sheet-control-label">Show explanation</span></span>
     </summary>
     <div class="sheet-body">
       <h4>Off-by-one error</h4>
@@ -768,6 +756,22 @@ test_calculate_discount()</code></pre>
 <footer>DRWG BY: Claude &nbsp;·&nbsp; TOPIC: debugging &amp; testing in Jupyter &nbsp;·&nbsp; interactive sheet set</footer>
 
 <script>
+  document.querySelectorAll('details.sheet').forEach(function(sheet){
+    var summary = sheet.querySelector('summary');
+    var label = summary.querySelector('.sheet-control-label');
+    var arrow = summary.querySelector('.sheet-control-arrow');
+
+    function updateSheetControl(){
+      var isOpen = sheet.open;
+      summary.setAttribute('aria-expanded', String(isOpen));
+      label.textContent = isOpen ? 'Hide explanation' : 'Show explanation';
+      arrow.textContent = isOpen ? '\u25bc' : '\u25b6';
+    }
+
+    sheet.addEventListener('toggle', updateSheetControl);
+    updateSheetControl();
+  });
+
   document.querySelectorAll('.reveal-btn').forEach(function(btn){
     btn.addEventListener('click', function(){
       var panel = document.getElementById(btn.dataset.target);
