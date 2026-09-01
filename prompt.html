@@ -37,7 +37,7 @@ The text and arrow should both be clickable.<br>
 Cover these topics, basic to advanced, each as its own sheet:
 
 <ol>
-  <li></li>The debugging cycle — reproduce → isolate → hypothesize → fix → verify, as a short visual flow.</li>
+  <li>The debugging cycle — reproduce → isolate → hypothesize → fix → verify, as a short visual flow.</li>
   <li>Reading a traceback — an actual Python traceback broken into labeled, clickable parts (exception type, error message, file/line, call stack) that reveal what each part means when clicked.</li>
   <li>Types of errors — syntax errors, runtime errors/exceptions (NameError, TypeError, ValueError, IndexError, KeyError, ZeroDivisionError), and logical errors (code runs but gives a wrong answer, no traceback at all). Include an interactive "guess the error" demo: show a buggy snippet, let the user pick which exception it raises, then reveal the real traceback.</li>
   <li>Jupyter-specific pitfalls — out-of-order cell execution and stale state. Build a small interactive simulation of numbered Jupyter cells that can be "run" out of order, showing how it produces a NameError that wouldn't happen top-to-bottom, and why "Restart & Run All" is the fix.</li>
