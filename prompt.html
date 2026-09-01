@@ -29,23 +29,26 @@
    <h1>Interactive Python Tutorial Prompt Template 2</h1>
     <div class="prompt">Create an interactive HTML tutorial titled "Debugging & Testing Python in Jupyter Notebook," continuing the same blueprint-themed sheet-set style used in my earlier List/Dict/Functions tutorials (IBM Plex fonts, dark navy grid background, amber/cyan/coral accents, expandable "sheet" accordions numbered 01, 02, 03..., click-to-reveal output panels, and flip-card recall questions at the end).
 
-        
-When a section is collapsed, show: ▶ Show explanation
-When a section is expanded, show: ▼ Hide explanation
-
-The text and arrow should both be clickable.
-
+      <p>
+When a section is collapsed, show: ▶ Show explanation<br>
+When a section is expanded, show: ▼ Hide explanation<br>
+The text and arrow should both be clickable.<br>
+</p>  
 Cover these topics, basic to advanced, each as its own sheet:
 
-- The debugging cycle — reproduce → isolate → hypothesize → fix → verify, as a short visual flow.
-- Reading a traceback — an actual Python traceback broken into labeled, clickable parts (exception type, error message, file/line, call stack) that reveal what each part means when clicked.
-- Types of errors — syntax errors, runtime errors/exceptions (NameError, TypeError, ValueError, IndexError, KeyError, ZeroDivisionError), and logical errors (code runs but gives a wrong answer, no traceback at all). Include an interactive "guess the error" demo: show a buggy snippet, let the user pick which exception it raises, then reveal the real traceback.
-- Jupyter-specific pitfalls — out-of-order cell execution and stale state. Build a small interactive simulation of numbered Jupyter cells that can be "run" out of order, showing how it produces a NameError that wouldn't happen top-to-bottom, and why "Restart & Run All" is the fix.
-- print() debugging vs. the logging module — side-by-side comparison, with a toggle showing the same bug investigated both ways.
-- try/except/else/finally — an interactive playground: toggle exception handling on/off for the same risky code (e.g., dividing by user input) and show crash vs. graceful handling.
-- assert statements and basic tests — writing a quick sanity check, then a simple test function, framed as "catching bugs before they ship."
-- Step-through debugging — introduce breakpoint() / pdb/ipdb conceptually, with a click-through trace showing variable state at each paused line.
-- Common bug patterns in analytics code — off-by-one errors, comparing floats with ==, wrong data type after reading a CSV — each with a before/after fix demo.
+<ol>
+  <li></li>The debugging cycle — reproduce → isolate → hypothesize → fix → verify, as a short visual flow.</li>
+  <li>Reading a traceback — an actual Python traceback broken into labeled, clickable parts (exception type, error message, file/line, call stack) that reveal what each part means when clicked.</li>
+  <li>Types of errors — syntax errors, runtime errors/exceptions (NameError, TypeError, ValueError, IndexError, KeyError, ZeroDivisionError), and logical errors (code runs but gives a wrong answer, no traceback at all). Include an interactive "guess the error" demo: show a buggy snippet, let the user pick which exception it raises, then reveal the real traceback.</li>
+  <li>Jupyter-specific pitfalls — out-of-order cell execution and stale state. Build a small interactive simulation of numbered Jupyter cells that can be "run" out of order, showing how it produces a NameError that wouldn't happen top-to-bottom, and why "Restart & Run All" is the fix.</li>
+  <li>print() debugging vs. the logging module — side-by-side comparison, with a toggle showing the same bug investigated both ways.</li>
+  <li>try/except/else/finally — an interactive playground: toggle exception handling on/off for the same risky code (e.g., dividing by user input) and show crash vs. graceful handling.</li>
+  <li>assert statements and basic tests — writing a quick sanity check, then a simple test function, framed as "catching bugs before they ship."</li>
+  <li>Step-through debugging — introduce breakpoint() / pdb/ipdb conceptually, with a click-through trace showing variable state at each paused line.</li>
+  <li>Common bug patterns in analytics code — off-by-one errors, comparing floats with ==, wrong data type after reading a CSV — each with a before/after fix demo.</li>
+</ol>
+
+
 
 Deliverable: a single self-contained HTML file (inline CSS/JS, no external dependencies besides Google Fonts) with real, runnable-looking Python code examples and click-to-reveal output for every code block — not a static wall of text.</div>
  
