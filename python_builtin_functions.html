@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Built-in Functions in Python (Interactive)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue-deep:#0e2d4a; --blue-panel:#153c60; --blue-line:#3a6690; --blue-line-soft:#264d70;
+    --paper:#e8eef5; --amber:#f2b84b; --cyan:#7fdde3; --coral:#ef8a6a; --green:#8fd48a; --violet:#b79ef0;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background-color:var(--blue-deep);
+    background-image:
+      repeating-linear-gradient(0deg, var(--blue-line-soft) 0px, var(--blue-line-soft) 1px, transparent 1px, transparent 32px),
+      repeating-linear-gradient(90deg, var(--blue-line-soft) 0px, var(--blue-line-soft) 1px, transparent 1px, transparent 32px);
+    color:var(--paper); font-family:'IBM Plex Sans', sans-serif; line-height:1.55; padding-bottom:80px;
+  }
+  code, pre, .mono{ font-family:'IBM Plex Mono', monospace; }
+  @media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important;} }
+
+  header.titleblock{ max-width:1000px; margin:0 auto; padding:40px 24px 10px; }
+  .stamp{
+    display:inline-block; border:1px solid var(--amber); color:var(--amber);
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:2px;
+    text-transform:uppercase; padding:4px 10px; margin-bottom:18px;
+  }
+  h1.doc-title{ font-size:clamp(24px,4.6vw,40px); margin:0 0 6px; font-weight:700; letter-spacing:-0.5px; }
+  .doc-sub{ color:var(--cyan); font-family:'IBM Plex Mono', monospace; font-size:14px; margin:0 0 20px; }
+  .lede{ max-width:700px; font-size:16px; color:#cbd9e8; margin-bottom:0; }
+
+  .schematic-wrap{ max-width:1000px; margin:16px auto 10px; padding:0 24px; }
+  .schematic-frame{ border:1px solid var(--blue-line); background:rgba(255,255,255,0.02); padding:16px 10px 6px; }
+  .schematic-caption{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:#7fa0c0; text-align:center;
+    letter-spacing:1.5px; text-transform:uppercase; margin:8px 0 0;
+  }
+  svg text{ font-family:'IBM Plex Mono', monospace; }
+
+  main{ max-width:1000px; margin:0 auto; padding:0 24px; }
+  .section-lede{ margin:52px 0 16px; }
+  .section-lede .eyebrow{
+    font-family:'IBM Plex Mono', monospace; color:var(--amber); font-size:12px;
+    letter-spacing:2px; text-transform:uppercase; margin:0 0 8px;
+  }
+  .section-lede h2{ margin:0 0 8px; font-size:clamp(20px,3vw,27px); }
+  .section-lede p{ color:#c3d3e4; max-width:700px; margin:0; }
+
+  details.sheet{ border:1px solid var(--blue-line); background:var(--blue-panel); margin-bottom:14px; }
+  details.sheet > summary{ list-style:none; cursor:pointer; display:flex; align-items:center; gap:14px; padding:16px 18px; user-select:none; }
+  details.sheet > summary::-webkit-details-marker{ display:none; }
+  .sheet-num{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--amber); border:1px solid var(--amber); padding:2px 8px; white-space:nowrap; }
+  .sheet-title{ font-weight:600; font-size:17px; flex:1; }
+  .sheet-hint{ color:#7fa0c0; font-size:13px; font-family:'IBM Plex Mono', monospace; display:none; }
+  @media (min-width:640px){ .sheet-hint{ display:inline; } }
+  .sheet-toggle{ font-family:'IBM Plex Mono', monospace; font-size:18px; color:var(--amber); width:20px; text-align:center; transition:transform .15s ease; }
+  details[open] .sheet-toggle{ transform:rotate(45deg); }
+  .sheet-body{ padding:4px 20px 24px; border-top:1px dashed var(--blue-line); }
+  .sheet-body p{ color:#d3e0ee; }
+  .sheet-body h4{ color:var(--cyan); font-family:'IBM Plex Mono', monospace; font-size:13px; letter-spacing:1px; text-transform:uppercase; margin:22px 0 8px; }
+  .sheet-body ul{ padding-left:20px; color:#d3e0ee; }
+  .sheet-body li{ margin-bottom:6px; }
+
+  .code-block{ background:#0a2036; border:1px solid var(--blue-line); margin:14px 0; overflow:hidden; }
+  .code-head{
+    display:flex; justify-content:space-between; align-items:center; padding:8px 12px;
+    background:#0d2842; border-bottom:1px solid var(--blue-line);
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:#7fa0c0; letter-spacing:1px;
+  }
+  .code-block pre{ margin:0; padding:14px 16px; overflow-x:auto; font-size:13.5px; color:#e8eef5; }
+  .kw{ color:var(--amber); } .st{ color:var(--cyan); } .cm{ color:#6c8aab; font-style:italic; } .nm{ color:var(--coral); } .fn{ color:var(--violet); }
+
+  .reveal-btn{
+    display:inline-flex; align-items:center; gap:6px; background:none; border:1px solid var(--amber);
+    color:var(--amber); font-family:'IBM Plex Mono', monospace; font-size:12px; padding:6px 12px;
+    margin:0 0 14px; cursor:pointer; letter-spacing:0.5px;
+  }
+  .reveal-btn:hover{ background:rgba(242,184,75,0.1); }
+  .reveal-btn:focus-visible, summary:focus-visible, .flip-card:focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
+  .output-panel{
+    margin:0 0 16px; border-left:3px solid var(--cyan); background:rgba(127,221,227,0.06);
+    padding:10px 14px; font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--cyan); white-space:pre-wrap;
+  }
+  .output-panel.err{ border-left-color:var(--coral); background:rgba(239,138,106,0.08); color:var(--coral); }
+  .output-panel[hidden]{ display:none; }
+
+  .toggle-row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  .toggle-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; padding:7px 14px;
+    background:none; border:1px solid var(--blue-line); color:var(--paper); cursor:pointer;
+  }
+  .toggle-btn.active{ border-color:var(--amber); color:var(--amber); background:rgba(242,184,75,0.08); }
+  .toggle-btn:hover{ border-color:var(--amber); }
+  .action-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; padding:7px 13px;
+    background:none; border:1px solid var(--amber); color:var(--amber); cursor:pointer; margin:0 8px 8px 0;
+  }
+  .action-btn:hover{ background:rgba(242,184,75,0.1); }
+  .action-btn.reset{ border-color:var(--coral); color:var(--coral); }
+  .action-btn.reset:hover{ background:rgba(239,138,106,0.1); }
+
+  .code-line{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; background:#0a2036;
+    border-left:3px solid var(--cyan); padding:9px 12px; color:var(--cyan); min-height:18px; margin:10px 0;
+  }
+  .code-line.err{ border-left-color:var(--coral); color:var(--coral); }
+  .membership-feedback{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; min-height:20px; margin:10px 0; padding:8px 12px;
+    border-left:3px solid var(--blue-line); background:rgba(255,255,255,0.02);
+  }
+  .membership-feedback.is-true{ border-color:var(--green); color:var(--green); }
+  .membership-feedback.is-false{ border-color:var(--coral); color:var(--coral); }
+
+  /* ---- chip grid (built-in name explorer) ---- */
+  .chip-grid{ display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+  .fn-chip{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; padding:8px 14px;
+    border:1px solid var(--blue-line); background:#0a2036; cursor:pointer; color:var(--paper);
+  }
+  .fn-chip.active{ border-color:var(--amber); color:var(--amber); background:rgba(242,184,75,0.1); }
+
+  /* ---- console log ---- */
+  .console{
+    background:#08192b; border:1px solid var(--blue-line); font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px; padding:12px 14px; max-height:260px; overflow-y:auto; margin:14px 0; color:#c3d3e4;
+  }
+  .console .line{ margin-bottom:6px; }
+  .console .prompt{ color:var(--amber); margin-right:6px; }
+  .console .result{ color:var(--cyan); padding-left:20px; }
+
+  /* ---- compare grid ---- */
+  .compare-grid{ display:grid; grid-template-columns:1fr; gap:14px; margin:14px 0; }
+  @media (min-width:760px){ .compare-grid{ grid-template-columns:1fr 1fr; } }
+  .compare-card{ border:1px solid var(--blue-line); padding:14px 16px; background:rgba(255,255,255,0.02); }
+  .compare-card h5{ margin:0 0 10px; font-family:'IBM Plex Mono', monospace; color:var(--amber); font-size:12.5px; letter-spacing:1px; }
+
+  /* ---- live text input demo ---- */
+  .sim-input{
+    font-family:'IBM Plex Mono', monospace; background:#0a2036; border:1px solid var(--blue-line);
+    color:var(--paper); padding:8px 10px; font-size:13px; width:140px; margin-right:8px;
+  }
+
+  table.dsref{ width:100%; border-collapse:collapse; margin-top:10px; font-size:14px; }
+  table.dsref th, table.dsref td{ border:1px solid var(--blue-line); padding:8px 10px; text-align:left; vertical-align:top; }
+  table.dsref th{ background:#0d2842; color:var(--amber); font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.5px; text-transform:uppercase; }
+  table.dsref td{ color:#d3e0ee; }
+  table.dsref code{ color:var(--cyan); }
+
+  .recall-grid{ display:grid; gap:14px; grid-template-columns:1fr; margin-top:8px; }
+  @media (min-width:640px){ .recall-grid{ grid-template-columns:1fr 1fr; } }
+  .flip-card{ perspective:1200px; height:160px; cursor:pointer; }
+  .flip-inner{ position:relative; width:100%; height:100%; transition:transform .5s; transform-style:preserve-3d; }
+  .flip-card.flipped .flip-inner{ transform:rotateY(180deg); }
+  .flip-face{ position:absolute; inset:0; backface-visibility:hidden; border:1px solid var(--blue-line); padding:14px 16px; display:flex; flex-direction:column; justify-content:center; }
+  .flip-front{ background:var(--blue-panel); }
+  .flip-front .q-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--amber); letter-spacing:1px; margin-bottom:6px; }
+  .flip-back{ background:#0d2842; transform:rotateY(180deg); color:var(--cyan); }
+  .flip-back .a-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--cyan); letter-spacing:1px; margin-bottom:6px; }
+  .flip-tap{ font-family:'IBM Plex Mono', monospace; font-size:10px; color:#5f83a8; margin-top:8px; }
+
+  footer{
+    max-width:1000px; margin:60px auto 0; padding:20px 24px; border-top:1px solid var(--blue-line);
+    color:#7fa0c0; font-family:'IBM Plex Mono', monospace; font-size:12px;
+  }
+</style>
+</head>
+<body>
+
+<header class="titleblock">
+  <span class="stamp">Sheet Set · Python Fundamentals</span>
+  <h1 class="doc-title">Built-in Functions in Python</h1>
+  <p class="doc-sub">// tools that are just... there, no import required</p>
+  <p class="lede">Python ships with a small set of functions available everywhere, all the time — <code>len()</code>, <code>sum()</code>, <code>print()</code>, and dozens more. This sheet builds from what a built-in function even is, up through the exact business-analytics patterns they power: counting, totaling, sorting, and averaging real data.</p>
+</header>
+
+<div class="schematic-wrap">
+  <div class="schematic-frame">
+    <svg viewBox="0 0 900 190" width="100%" role="img" aria-label="Diagram contrasting a built-in function call, function of object, with a method call, object dot method">
+      <rect x="4" y="4" width="892" height="182" fill="none" stroke="#3a6690" stroke-width="1" stroke-dasharray="4 4"/>
+
+      <text x="30" y="40" fill="#f2b84b" font-size="15" font-weight="600">len(sales)</text>
+  <text x="30" y="72" fill="#7fa0c0" font-size="10">built-in function — takes the object as an argument</text>
+      <rect x="20" y="20" width="160" height="34" fill="none" stroke="#f2b84b" stroke-width="1.5"/>
+
+      <line x1="220" y1="37" x2="320" y2="37" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#bfarrow)"/>
+      <rect x="320" y="20" width="90" height="34" fill="none" stroke="#7fdde3" stroke-width="1.5"/>
+      <text x="365" y="42" fill="#7fdde3" font-size="13" text-anchor="middle">5</text>
+
+      <text x="30" y="120" fill="#ef8a6a" font-size="15" font-weight="600">sales.append(10)</text>
+  <text x="30" y="152" fill="#7fa0c0" font-size="10">method — called ON the object, using dot notation</text>
+      <rect x="20" y="100" width="220" height="34" fill="none" stroke="#ef8a6a" stroke-width="1.5"/>
+
+      <line x1="260" y1="117" x2="360" y2="117" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#bfarrow)"/>
+      <rect x="360" y="100" width="200" height="34" fill="none" stroke="#8fd48a" stroke-width="1.5"/>
+      <text x="460" y="122" fill="#8fd48a" font-size="11" text-anchor="middle">sales is now longer</text>
+
+      <text x="650" y="80" fill="#5f83a8" font-size="10">// function(object)</text>
+      <text x="650" y="98" fill="#5f83a8" font-size="10">// vs. object.method()</text>
+      <defs><marker id="bfarrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#3a6690"/></marker></defs>
+    </svg>
+    <p class="schematic-caption">Fig. 1 — a built-in function wraps around an object; a method is called on one</p>
+  </div>
+</div>
+
+<main>
+
+  <div class="section-lede">
+    <p class="eyebrow">Foundation</p>
+    <h2>Python Built-in Functions</h2>
+    <p>A built-in function is a tool that's always available, no <code>import</code> needed. Click a few to see what they do.</p>
+  </div>
+
+  <details class="sheet" open>
+    <summary>
+      <span class="sheet-num">01</span>
+      <span class="sheet-title">What built-in functions are, and their general shape</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>You've already been using built-ins since your first line of Python — <code>print()</code> is one. They all share the same basic shape: <code>function(object)</code>.</p>
+      <div class="chip-grid" id="builtin-explorer"></div>
+      <div class="membership-feedback" id="builtin-explorer-feedback">click a name above ↑</div>
+
+      <div class="code-block">
+        <div class="code-head"><span>no_import_needed.py</span><span>python 3</span></div>
+        <pre><code><span class="cm"># no import statement anywhere — these just work</span>
+sales = [<span class="nm">1200</span>, <span class="nm">950</span>, <span class="nm">1600</span>]
+<span class="fn">print</span>(<span class="fn">len</span>(sales))
+<span class="fn">print</span>(<span class="fn">sum</span>(sales))</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-01">▸ Show output</button>
+      <div class="output-panel" id="out-01" hidden>3
+3750</div>
+      <p>Contrast this with tools like <code>pandas.DataFrame</code> — those require <code>import pandas</code> first. Built-ins never do.</p>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">First built-in</p>
+    <h2>len() — Finding the Length of an Object</h2>
+    <p><code>len()</code> is probably the built-in you'll type most often. It's worth understanding exactly what it is — and isn't.</p>
+  </div>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">02</span>
+      <span class="sheet-title">len() is a function, not a list method</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <div class="code-block">
+        <div class="code-head"><span>len_basic.py</span><span>python 3</span></div>
+        <pre><code>fruits = [<span class="st">"apple"</span>, <span class="st">"banana"</span>, <span class="st">"cherry"</span>]
+<span class="fn">print</span>(<span class="fn">len</span>(fruits))</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-02a">▸ Show output</button>
+      <div class="output-panel" id="out-02a" hidden>3</div>
+
+      <p>A common early mistake is trying to call it as a method — it isn't one:</p>
+      <div class="code-block">
+        <div class="code-head"><span>len_is_not_a_method.py</span><span>python 3</span></div>
+        <pre><code><span class="fn">print</span>(fruits.len())</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-02b">▸ Show output</button>
+      <div class="output-panel err" id="out-02b" hidden>AttributeError: 'list' object has no attribute 'len'</div>
+
+      <h4>Under the hood: the __len__() connection</h4>
+      <p><code>len()</code> doesn't have its own separate way of measuring every type. Instead, it calls a special method that the object itself defines: <code>__len__()</code>.</p>
+      <div class="code-block">
+        <div class="code-head"><span>dunder_len.py</span><span>python 3</span></div>
+        <pre><code><span class="fn">print</span>(<span class="fn">len</span>(fruits))          <span class="cm"># the usual way</span>
+<span class="fn">print</span>(fruits.__len__())    <span class="cm"># what len() does internally</span></code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-02c">▸ Show output</button>
+      <div class="output-panel" id="out-02c" hidden>3
+3</div>
+      <p>Both lines give the same answer, because <code>len(fruits)</code> is really just Python calling <code>fruits.__len__()</code> for you, with friendlier syntax. This is also why <code>len()</code> works on so many different types — each one implements its own <code>__len__()</code>.</p>
+    </div>
+  </details>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">03</span>
+      <span class="sheet-title">len() across data structures — and where it fails</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>Click each type below to see <code>len()</code> called on it.</p>
+      <div class="toggle-row" id="len-types"></div>
+      <div class="code-line" id="len-types-code">click a type above ↑</div>
+
+      <h4>Why len() doesn't work on an integer</h4>
+      <p><code>len()</code> measures how many items something <em>contains</em>. A number like <code>42</code> doesn't contain items — it isn't a collection, so it has no <code>__len__()</code> to call.</p>
+      <div class="code-block">
+        <div class="code-head"><span>len_on_int.py</span><span>python 3</span></div>
+        <pre><code><span class="fn">len</span>(<span class="nm">42</span>)</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-03">▸ Show output</button>
+      <div class="output-panel err" id="out-03" hidden>TypeError: object of type 'int' has no len()</div>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">A key distinction</p>
+    <h2>Built-in Functions vs. Methods</h2>
+    <p>Both do things to objects — but the syntax, and where the capability "lives," is different.</p>
+  </div>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">04</span>
+      <span class="sheet-title">function(object) vs. object.method()</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h5>BUILT-IN FUNCTION</h5>
+          <div class="code-block" style="margin-top:0;">
+            <pre style="padding:10px 12px; font-size:13px;"><code><span class="fn">len</span>(aList)</code></pre>
+          </div>
+          <p style="font-size:13px;">The object is passed <em>into</em> the function as an argument. <code>len</code> isn't attached to any particular object.</p>
+        </div>
+        <div class="compare-card">
+          <h5>METHOD</h5>
+          <div class="code-block" style="margin-top:0;">
+            <pre style="padding:10px 12px; font-size:13px;"><code>aList.append(<span class="nm">10</span>)</code></pre>
+          </div>
+          <p style="font-size:13px;">The function is attached to the object itself, called with dot notation. Only objects of that class have it.</p>
+        </div>
+      </div>
+      <div class="code-block">
+        <div class="code-head"><span>function_vs_method.py</span><span>python 3</span></div>
+        <pre><code>aList = [<span class="nm">3</span>, <span class="nm">1</span>, <span class="nm">2</span>]
+
+<span class="fn">print</span>(<span class="fn">len</span>(aList))     <span class="cm"># function(object) — len doesn't belong to aList</span>
+aList.append(<span class="nm">10</span>)     <span class="cm"># object.method() — append belongs to aList</span>
+<span class="fn">print</span>(aList)</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-04">▸ Show output</button>
+      <div class="output-panel" id="out-04" hidden>3
+[3, 1, 2, 10]</div>
+      <p>Rule of thumb: if you see <code>something(x)</code>, it's probably a built-in function. If you see <code>x.something()</code>, it's a method that belongs to <code>x</code>'s class.</p>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Aggregation</p>
+    <h2>sum() — Adding Values</h2>
+    <p><code>sum()</code> adds up every item in a collection of numbers. Try it across a few types below.</p>
+  </div>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">05</span>
+      <span class="sheet-title">sum() across types, and pairing it with len()</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <div class="code-block">
+        <div class="code-head"><span>sum_basics.py</span><span>python 3</span></div>
+        <pre><code><span class="fn">print</span>(<span class="fn">sum</span>([<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>]))        <span class="cm"># list</span>
+<span class="fn">print</span>(<span class="fn">sum</span>((<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>)))         <span class="cm"># tuple</span>
+<span class="fn">print</span>(<span class="fn">sum</span>({<span class="nm">4</span>, <span class="nm">5</span>, <span class="nm">6</span>}))         <span class="cm"># set</span>
+<span class="fn">print</span>(<span class="fn">sum</span>(<span class="fn">range</span>(<span class="nm">1</span>, <span class="nm">5</span>)))       <span class="cm"># range → 1+2+3+4</span></code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-05a">▸ Show output</button>
+      <div class="output-panel" id="out-05a" hidden>60
+6
+15
+10</div>
+
+      <p><code>sum()</code> and <code>len()</code> answer different questions — <code>sum()</code> totals the values, <code>len()</code> counts how many there are. You need both to get an average.</p>
+
+      <div class="code-block">
+        <div class="code-head"><span>sum_dict_values.py</span><span>python 3</span></div>
+        <pre><code>prices = {<span class="st">"mouse"</span>: <span class="nm">24.99</span>, <span class="st">"keyboard"</span>: <span class="nm">59.00</span>}
+<span class="fn">print</span>(<span class="fn">sum</span>(prices.values()))   <span class="cm"># sum() needs the values, not the dict itself</span></code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-05b">▸ Show output</button>
+      <div class="output-panel" id="out-05b" hidden>83.99</div>
+
+      <h4>Live: sum() + len() = average</h4>
+      <p>Click to add scores, and watch the running total, count, and average update.</p>
+      <div class="toggle-row">
+        <button class="toggle-btn" id="avg-add">add a score</button>
+        <button class="toggle-btn" id="avg-reset">reset</button>
+      </div>
+      <div class="output-panel" id="avg-output" style="display:block;">scores = []   |   sum=0, len=0</div>
+      <div class="code-block">
+        <div class="code-head"><span>average.py</span><span>python 3</span></div>
+        <pre><code>average = <span class="fn">sum</span>(scores) / <span class="fn">len</span>(scores)</code></pre>
+      </div>
+    </div>
+  </details>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">06</span>
+      <span class="sheet-title">Common collection built-ins — len, sum, min, max, sorted</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>Dataset: <code>sales = [1200, 950, 1600, 800, 1400]</code>. Click each function to run it and log the result.</p>
+      <div class="toggle-row">
+        <button class="action-btn" data-cb="len">len(sales)</button>
+        <button class="action-btn" data-cb="sum">sum(sales)</button>
+        <button class="action-btn" data-cb="min">min(sales)</button>
+        <button class="action-btn" data-cb="max">max(sales)</button>
+        <button class="action-btn" data-cb="sorted">sorted(sales)</button>
+        <button class="action-btn reset" data-cb="reset">clear log ↺</button>
+      </div>
+      <div class="console" id="cb-console"></div>
+      <table class="dsref">
+        <tr><th>Function</th><th>Returns</th></tr>
+        <tr><td><code>len(x)</code></td><td>Number of items.</td></tr>
+        <tr><td><code>sum(x)</code></td><td>Total of all values.</td></tr>
+        <tr><td><code>min(x)</code></td><td>Smallest value.</td></tr>
+        <tr><td><code>max(x)</code></td><td>Largest value.</td></tr>
+        <tr><td><code>sorted(x)</code></td><td>A <em>new</em> list, sorted ascending — the original is untouched.</td></tr>
+      </table>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Conversion</p>
+    <h2>Built-in Type-Conversion Functions</h2>
+    <p>These convert a value from one type to another. Try one live, then see the rest in action.</p>
+  </div>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">07</span>
+      <span class="sheet-title">int(), float(), str(), list(), tuple(), set()</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>Type a value and try converting it:</p>
+      <input type="text" class="sim-input" id="convert-input" value="42">
+      <button class="action-btn" data-conv="int">int(value)</button>
+      <button class="action-btn" data-conv="float">float(value)</button>
+      <button class="action-btn" data-conv="str">str(value)</button>
+      <div class="output-panel" id="convert-output" style="display:block;">try a conversion above ↑</div>
+      <p style="font-size:12.5px;color:#9fb6cf;">Try typing <code>3.14</code> and clicking <code>int(value)</code> — or <code>abc</code> and clicking <code>int(value)</code> — to see both a normal conversion and a real <code>ValueError</code>.</p>
+
+      <h4>Converting collections</h4>
+      <div class="code-block">
+        <div class="code-head"><span>collection_conversion.py</span><span>python 3</span></div>
+        <pre><code><span class="fn">print</span>(<span class="fn">list</span>(<span class="st">"abc"</span>))          <span class="cm"># string → list of characters</span>
+<span class="fn">print</span>(<span class="fn">tuple</span>([<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>]))    <span class="cm"># list → tuple</span>
+<span class="fn">print</span>(<span class="fn">set</span>([<span class="nm">1</span>, <span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>])) <span class="cm"># list → set, duplicates dropped</span></code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-07">▸ Show output</button>
+      <div class="output-panel" id="out-07" hidden>['a', 'b', 'c']
+(1, 2, 3)
+{1, 2, 3}</div>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">I/O</p>
+    <h2>Input and Output Functions</h2>
+    <p><code>input()</code> and <code>print()</code> are how your program talks to a person. One catch trips up almost everyone at first.</p>
+  </div>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">08</span>
+      <span class="sheet-title">input() always returns a string</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>Type a number below to simulate what a person would type at <code>input()</code>, then try both versions of the code.</p>
+      <input type="text" class="sim-input" id="input-sim" value="25">
+      <button class="action-btn" id="input-naive">run: age = input(...); print(age + 1)</button>
+      <button class="action-btn" id="input-fixed">run: age = int(input(...)); print(age + 1)</button>
+      <div class="output-panel" id="input-output" style="display:block;">type a value and pick a version above ↑</div>
+      <div class="code-block">
+        <div class="code-head"><span>input_demo.py</span><span>python 3</span></div>
+        <pre><code>age = <span class="fn">input</span>(<span class="st">"How old are you? "</span>)   <span class="cm"># age is ALWAYS a string, even if you type "25"</span>
+<span class="fn">print</span>(age + <span class="nm">1</span>)                       <span class="cm"># TypeError — can't add int to str</span>
+
+age = <span class="fn">int</span>(<span class="fn">input</span>(<span class="st">"How old are you? "</span>))  <span class="cm"># convert immediately</span>
+<span class="fn">print</span>(age + <span class="nm">1</span>)                       <span class="cm"># works — real math now</span></code></pre>
+      </div>
+      <p>This is one of the most common early bugs: forgetting that whatever a person types — even <code>"25"</code> — arrives as text, not a number, until you convert it with <code>int()</code> or <code>float()</code>.</p>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">More tools</p>
+    <h2>Other Useful Built-in Functions</h2>
+    <p>A quick tour of five more you'll reach for constantly.</p>
+  </div>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">09</span>
+      <span class="sheet-title">type(), round(), abs(), range(), enumerate()</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <div class="code-block">
+        <div class="code-head"><span>other_builtins.py</span><span>python 3</span></div>
+        <pre><code><span class="fn">print</span>(<span class="fn">type</span>(<span class="nm">3.14</span>))            <span class="cm"># &lt;class 'float'&gt;</span>
+<span class="fn">print</span>(<span class="fn">round</span>(<span class="nm">3.14159</span>, <span class="nm">2</span>))    <span class="cm"># 3.14</span>
+<span class="fn">print</span>(<span class="fn">abs</span>(-<span class="nm">42</span>))            <span class="cm"># 42</span>
+<span class="fn">print</span>(<span class="fn">list</span>(<span class="fn">range</span>(<span class="nm">3</span>)))      <span class="cm"># [0, 1, 2]</span>
+<span class="fn">print</span>(<span class="fn">list</span>(<span class="fn">enumerate</span>([<span class="st">"a"</span>, <span class="st">"b"</span>])))  <span class="cm"># [(0, 'a'), (1, 'b')]</span></code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-09">▸ Show output</button>
+      <div class="output-panel" id="out-09" hidden>&lt;class 'float'&gt;
+3.14
+42
+[0, 1, 2]
+[(0, 'a'), (1, 'b')]</div>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Looping smarter</p>
+    <h2>enumerate() with Lists</h2>
+    <p>When you need both the position and the value while looping, <code>enumerate()</code> gives you both in one pass.</p>
+  </div>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">10</span>
+      <span class="sheet-title">Stepping through enumerate() — sales by day</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p><code>sales = [1200, 950, 1600, 800, 1400]</code> — step through the loop one iteration at a time.</p>
+      <div class="code-block">
+        <div class="code-head"><span>enumerate_demo.py</span><span>python 3</span></div>
+        <pre><code>sales = [<span class="nm">1200</span>, <span class="nm">950</span>, <span class="nm">1600</span>, <span class="nm">800</span>, <span class="nm">1400</span>]
+
+<span class="kw">for</span> day, amount <span class="kw">in</span> <span class="fn">enumerate</span>(sales, start=<span class="nm">1</span>):
+    <span class="fn">print</span>(<span class="st">f"Day {day}: ${amount}"</span>)</code></pre>
+      </div>
+      <button class="action-btn" id="enum-step">▸ step forward</button>
+      <button class="action-btn reset" id="enum-reset">reset ↺</button>
+      <div class="console" id="enum-console"></div>
+      <p><code>start=1</code> shifts the counter to begin at 1 instead of 0 — purely for human-friendly display; the list itself is still zero-indexed underneath.</p>
+    </div>
+  </details>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">11</span>
+      <span class="sheet-title">enumerate() vs. range(len(...))</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>Both loops below produce identical output — one is just more Pythonic.</p>
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h5>TRADITIONAL — range(len(...))</h5>
+          <div class="code-block" style="margin-top:0;">
+            <pre style="padding:10px 12px; font-size:12.5px;"><code><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(sales)):
+    <span class="fn">print</span>(i, sales[i])</code></pre>
+          </div>
+          <button class="reveal-btn" data-target="out-11a" style="margin-top:8px;">▸ Show output</button>
+          <div class="output-panel" id="out-11a" hidden>0 1200
+1 950
+2 1600
+3 800
+4 1400</div>
+        </div>
+        <div class="compare-card">
+          <h5>MORE PYTHONIC — enumerate()</h5>
+          <div class="code-block" style="margin-top:0;">
+            <pre style="padding:10px 12px; font-size:12.5px;"><code><span class="kw">for</span> i, sale <span class="kw">in</span> <span class="fn">enumerate</span>(sales):
+    <span class="fn">print</span>(i, sale)</code></pre>
+          </div>
+          <button class="reveal-btn" data-target="out-11b" style="margin-top:8px;">▸ Show output</button>
+          <div class="output-panel" id="out-11b" hidden>0 1200
+1 950
+2 1600
+3 800
+4 1400</div>
+        </div>
+      </div>
+      <p>The <code>enumerate()</code> version never has to index into <code>sales</code> manually with <code>sales[i]</code> — it hands you the value directly, alongside the position. Same result, less room for an off-by-one mistake.</p>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Capstone</p>
+    <h2>Applying Built-in Functions to Basic Data Analytics</h2>
+    <p>Every built-in from this sheet, applied to one dataset. This is what a first analytics pass over real numbers actually looks like.</p>
+  </div>
+
+  <details class="sheet" open>
+    <summary>
+      <span class="sheet-num">12</span>
+      <span class="sheet-title">One dataset, every technique — try them all</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p><code>sales = [1200, 950, 1600, 800, 1400, 1100, 1750]</code> — click each analysis step below and watch the log build up.</p>
+      <div class="toggle-row">
+        <button class="action-btn" data-an="count">count observations</button>
+        <button class="action-btn" data-an="total">calculate total</button>
+        <button class="action-btn" data-an="min">find minimum</button>
+        <button class="action-btn" data-an="max">find maximum</button>
+        <button class="action-btn" data-an="sort">sort data</button>
+        <button class="action-btn" data-an="avg">calculate average</button>
+        <button class="action-btn" data-an="idx">best day by index</button>
+        <button class="action-btn reset" data-an="reset">clear log ↺</button>
+      </div>
+      <div class="console" id="capstone-console"></div>
+      <table class="dsref">
+        <tr><th>Question</th><th>Built-in(s) used</th></tr>
+        <tr><td>How many observations?</td><td><code>len(sales)</code></td></tr>
+        <tr><td>What's the total?</td><td><code>sum(sales)</code></td></tr>
+        <tr><td>What's the smallest / largest?</td><td><code>min(sales)</code> / <code>max(sales)</code></td></tr>
+        <tr><td>What's the order, low to high?</td><td><code>sorted(sales)</code></td></tr>
+        <tr><td>What's the average?</td><td><code>sum(sales) / len(sales)</code></td></tr>
+        <tr><td>Which day had the best sales?</td><td><code>enumerate(sales)</code>, tracking the max as you go</td></tr>
+      </table>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Active recall</p>
+    <h2>Quick Check</h2>
+    <p>Tap a card to flip it. Try answering before you flip.</p>
+  </div>
+
+  <div class="recall-grid">
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q1</div>
+          <div>Is <code>len(aList)</code> a function or a method? How can you tell from the syntax?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A1</div>
+          <div>A function — the object is passed <em>into</em> it. A method would be written <code>aList.len()</code> instead (which doesn't exist).</div>
+        </div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q2</div>
+          <div>Why does <code>len(42)</code> raise an error?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A2</div>
+          <div>An integer isn't a collection — it has no <code>__len__()</code> method for <code>len()</code> to call.</div>
+        </div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q3</div>
+          <div>What type does <code>input()</code> always return, no matter what's typed?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A3</div>
+          <div><code>str</code> — always a string. Convert with <code>int()</code> or <code>float()</code> before doing math on it.</div>
+        </div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q4</div>
+          <div>What two built-ins do you combine to calculate an average?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A4</div>
+          <div><code>sum()</code> and <code>len()</code> — <code>sum(data) / len(data)</code>.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>DRWG BY: Claude &nbsp;·&nbsp; TOPIC: Python built-in functions &nbsp;·&nbsp; interactive sheet set</footer>
+
+<script>
+  document.querySelectorAll('.reveal-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var panel = document.getElementById(btn.dataset.target);
+      var isHidden = panel.hasAttribute('hidden');
+      if(isHidden){ panel.removeAttribute('hidden'); btn.textContent = '▾ Hide output'; }
+      else { panel.setAttribute('hidden',''); btn.textContent = '▸ Show output'; }
+    });
+  });
+  document.querySelectorAll('.flip-card').forEach(function(card){
+    function toggle(){ card.classList.toggle('flipped'); card.setAttribute('aria-pressed', card.classList.contains('flipped')); }
+    card.addEventListener('click', toggle);
+    card.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); } });
+  });
+
+  // ---------- 01: built-in explorer chips ----------
+  var builtinInfo = {
+    'print()': 'Displays output to the screen. Returns nothing.',
+    'len()': 'Returns how many items are in a collection.',
+    'sum()': 'Adds up all the numeric values in a collection.',
+    'type()': 'Tells you what class an object is an instance of.',
+    'sorted()': 'Returns a new, sorted list — doesn\'t change the original.',
+    'input()': 'Pauses and waits for the user to type something, returned as a string.'
+  };
+  var explorerEl = document.getElementById('builtin-explorer');
+  var explorerFeedback = document.getElementById('builtin-explorer-feedback');
+  Object.keys(builtinInfo).forEach(function(name){
+    var chip = document.createElement('div');
+    chip.className = 'fn-chip';
+    chip.textContent = name;
+    chip.addEventListener('click', function(){
+      document.querySelectorAll('.fn-chip').forEach(function(c){ c.classList.remove('active'); });
+      chip.classList.add('active');
+      explorerFeedback.textContent = name + '  —  ' + builtinInfo[name];
+    });
+    explorerEl.appendChild(chip);
+  });
+
+  // ---------- 03: len() across types ----------
+  var lenTypes = [
+    { label:'list', code:'len(["apple", "banana", "cherry"])', result:'3' },
+    { label:'tuple', code:'len((10, 20))', result:'2' },
+    { label:'set', code:'len({1, 2, 3, 4})', result:'4' },
+    { label:'dict', code:'len({"name": "Acme", "region": "West"})', result:'2   (counts keys)' },
+    { label:'string', code:'len("hello")', result:'5' },
+    { label:'range', code:'len(range(10))', result:'10' }
+  ];
+  var lenTypesEl = document.getElementById('len-types');
+  var lenTypesCode = document.getElementById('len-types-code');
+  lenTypes.forEach(function(t){
+    var btn = document.createElement('button');
+    btn.className = 'toggle-btn';
+    btn.textContent = t.label;
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('#len-types .toggle-btn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      lenTypesCode.textContent = t.code + '  →  ' + t.result;
+    });
+    lenTypesEl.appendChild(btn);
+  });
+
+  // ---------- 05: sum()+len() average builder ----------
+  var scores = [];
+  var possibleScores = [72, 88, 95, 60, 81, 100, 77];
+  var avgOutput = document.getElementById('avg-output');
+  document.getElementById('avg-add').addEventListener('click', function(){
+    scores.push(possibleScores[scores.length % possibleScores.length]);
+    var total = scores.reduce(function(a,b){ return a+b; }, 0);
+    var avg = scores.length ? (total/scores.length).toFixed(2) : '0';
+    avgOutput.textContent = 'scores = [' + scores.join(', ') + ']   |   sum=' + total + ', len=' + scores.length + ', average=' + avg;
+  });
+  document.getElementById('avg-reset').addEventListener('click', function(){
+    scores = [];
+    avgOutput.textContent = 'scores = []   |   sum=0, len=0';
+  });
+
+  // ---------- 06: collection builtins console ----------
+  var salesData = [1200, 950, 1600, 800, 1400];
+  var cbConsole = document.getElementById('cb-console');
+  function logConsole(container, code, result){
+    var line = document.createElement('div');
+    line.className = 'line';
+    line.innerHTML = '<span class="prompt">&gt;&gt;&gt;</span>' + code;
+    container.appendChild(line);
+    var res = document.createElement('div');
+    res.className = 'result';
+    res.textContent = result;
+    container.appendChild(res);
+    container.scrollTop = container.scrollHeight;
+  }
+  document.querySelectorAll('[data-cb]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var op = btn.dataset.cb;
+      if(op === 'reset'){ cbConsole.innerHTML = ''; return; }
+      if(op === 'len'){ logConsole(cbConsole, 'len(sales)', String(salesData.length)); }
+      if(op === 'sum'){ logConsole(cbConsole, 'sum(sales)', String(salesData.reduce(function(a,b){return a+b;},0))); }
+      if(op === 'min'){ logConsole(cbConsole, 'min(sales)', String(Math.min.apply(null, salesData))); }
+      if(op === 'max'){ logConsole(cbConsole, 'max(sales)', String(Math.max.apply(null, salesData))); }
+      if(op === 'sorted'){ logConsole(cbConsole, 'sorted(sales)', '[' + salesData.slice().sort(function(a,b){return a-b;}).join(', ') + ']'); }
+    });
+  });
+
+  // ---------- 07: conversion playground ----------
+  var convertOutput = document.getElementById('convert-output');
+  document.querySelectorAll('[data-conv]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var raw = document.getElementById('convert-input').value;
+      var kind = btn.dataset.conv;
+      if(kind === 'int'){
+        var n = Number(raw);
+        if(raw.trim() === '' || isNaN(n)){
+          convertOutput.className = 'output-panel err';
+          convertOutput.textContent = "ValueError: invalid literal for int() with base 10: '" + raw + "'";
+        } else {
+          convertOutput.className = 'output-panel';
+          convertOutput.textContent = 'int("' + raw + '")  →  ' + Math.trunc(n);
+        }
+      } else if(kind === 'float'){
+        var f = Number(raw);
+        if(raw.trim() === '' || isNaN(f)){
+          convertOutput.className = 'output-panel err';
+          convertOutput.textContent = "ValueError: could not convert string to float: '" + raw + "'";
+        } else {
+          convertOutput.className = 'output-panel';
+          convertOutput.textContent = 'float("' + raw + '")  →  ' + f.toFixed(f % 1 === 0 ? 1 : 2);
+        }
+      } else if(kind === 'str'){
+        convertOutput.className = 'output-panel';
+        convertOutput.textContent = 'str(' + raw + ')  →  "' + raw + '"   (now text, even if it looked numeric)';
+      }
+    });
+  });
+
+  // ---------- 08: input() simulation ----------
+  var inputOutput = document.getElementById('input-output');
+  document.getElementById('input-naive').addEventListener('click', function(){
+    var val = document.getElementById('input-sim').value;
+    inputOutput.className = 'output-panel err';
+    inputOutput.textContent = 'age = "' + val + '"   (a string)\nTypeError: can only concatenate str (not "int") to str';
+  });
+  document.getElementById('input-fixed').addEventListener('click', function(){
+    var val = document.getElementById('input-sim').value;
+    var n = Number(val);
+    if(val.trim() === '' || isNaN(n)){
+      inputOutput.className = 'output-panel err';
+      inputOutput.textContent = "ValueError: invalid literal for int() with base 10: '" + val + "'";
+    } else {
+      inputOutput.className = 'output-panel';
+      inputOutput.textContent = 'age = ' + Math.trunc(n) + '   (a real int now)\nprint(age + 1)  →  ' + (Math.trunc(n)+1);
+    }
+  });
+
+  // ---------- 10: enumerate stepper ----------
+  var enumSales = [1200, 950, 1600, 800, 1400];
+  var enumStep = 0;
+  var enumConsole = document.getElementById('enum-console');
+  document.getElementById('enum-step').addEventListener('click', function(){
+    if(enumStep >= enumSales.length) return;
+    logConsole(enumConsole, 'day, amount = ' + (enumStep+1) + ', ' + enumSales[enumStep], 'Day ' + (enumStep+1) + ': $' + enumSales[enumStep]);
+    enumStep++;
+  });
+  document.getElementById('enum-reset').addEventListener('click', function(){
+    enumStep = 0;
+    enumConsole.innerHTML = '';
+  });
+
+  // ---------- 12: capstone console ----------
+  var capstoneSales = [1200, 950, 1600, 800, 1400, 1100, 1750];
+  var capstoneConsole = document.getElementById('capstone-console');
+  document.querySelectorAll('[data-an]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var op = btn.dataset.an;
+      if(op === 'reset'){ capstoneConsole.innerHTML = ''; return; }
+      if(op === 'count'){ logConsole(capstoneConsole, 'len(sales)', String(capstoneSales.length) + ' observations'); }
+      if(op === 'total'){ logConsole(capstoneConsole, 'sum(sales)', '$' + capstoneSales.reduce(function(a,b){return a+b;},0)); }
+      if(op === 'min'){ logConsole(capstoneConsole, 'min(sales)', '$' + Math.min.apply(null, capstoneSales)); }
+      if(op === 'max'){ logConsole(capstoneConsole, 'max(sales)', '$' + Math.max.apply(null, capstoneSales)); }
+      if(op === 'sort'){ logConsole(capstoneConsole, 'sorted(sales)', '[' + capstoneSales.slice().sort(function(a,b){return a-b;}).join(', ') + ']'); }
+      if(op === 'avg'){
+        var total = capstoneSales.reduce(function(a,b){return a+b;},0);
+        logConsole(capstoneConsole, 'sum(sales) / len(sales)', '$' + (total/capstoneSales.length).toFixed(2));
+      }
+      if(op === 'idx'){
+        var bestIdx = 0;
+        capstoneSales.forEach(function(v, i){ if(v > capstoneSales[bestIdx]) bestIdx = i; });
+        logConsole(capstoneConsole, 'max via enumerate(sales)', 'Day ' + (bestIdx+1) + ' (index ' + bestIdx + ') had the best sales: $' + capstoneSales[bestIdx]);
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

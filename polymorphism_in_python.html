@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polymorphism in Python (Interactive)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue-deep:#0e2d4a; --blue-panel:#153c60; --blue-line:#3a6690; --blue-line-soft:#264d70;
+    --paper:#e8eef5; --amber:#f2b84b; --cyan:#7fdde3; --coral:#ef8a6a; --green:#8fd48a; --violet:#b79ef0;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background-color:var(--blue-deep);
+    background-image:
+      repeating-linear-gradient(0deg, var(--blue-line-soft) 0px, var(--blue-line-soft) 1px, transparent 1px, transparent 32px),
+      repeating-linear-gradient(90deg, var(--blue-line-soft) 0px, var(--blue-line-soft) 1px, transparent 1px, transparent 32px);
+    color:var(--paper); font-family:'IBM Plex Sans', sans-serif; line-height:1.55; padding-bottom:80px;
+  }
+  code, pre, .mono{ font-family:'IBM Plex Mono', monospace; }
+  @media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important;} }
+
+  header.titleblock{ max-width:1000px; margin:0 auto; padding:40px 24px 10px; }
+  .stamp{
+    display:inline-block; border:1px solid var(--amber); color:var(--amber);
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:2px;
+    text-transform:uppercase; padding:4px 10px; margin-bottom:18px;
+  }
+  h1.doc-title{ font-size:clamp(26px,5vw,42px); margin:0 0 6px; font-weight:700; letter-spacing:-0.5px; }
+  .doc-sub{ color:var(--cyan); font-family:'IBM Plex Mono', monospace; font-size:14px; margin:0 0 20px; }
+  .lede{ max-width:700px; font-size:16px; color:#cbd9e8; margin-bottom:0; }
+
+  .schematic-wrap{ max-width:1000px; margin:16px auto 10px; padding:0 24px; }
+  .schematic-frame{ border:1px solid var(--blue-line); background:rgba(255,255,255,0.02); padding:16px 10px 6px; }
+  .schematic-caption{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:#7fa0c0; text-align:center;
+    letter-spacing:1.5px; text-transform:uppercase; margin:8px 0 0;
+  }
+  svg text{ font-family:'IBM Plex Mono', monospace; }
+
+  main{ max-width:1000px; margin:0 auto; padding:0 24px; }
+  .section-lede{ margin:52px 0 16px; }
+  .section-lede .eyebrow{
+    font-family:'IBM Plex Mono', monospace; color:var(--amber); font-size:12px;
+    letter-spacing:2px; text-transform:uppercase; margin:0 0 8px;
+  }
+  .section-lede h2{ margin:0 0 8px; font-size:clamp(20px,3vw,27px); }
+  .section-lede p{ color:#c3d3e4; max-width:700px; margin:0; }
+
+  details.sheet{ border:1px solid var(--blue-line); background:var(--blue-panel); margin-bottom:14px; }
+  details.sheet > summary{ list-style:none; cursor:pointer; display:flex; align-items:center; gap:14px; padding:16px 18px; user-select:none; }
+  details.sheet > summary::-webkit-details-marker{ display:none; }
+  .sheet-num{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--amber); border:1px solid var(--amber); padding:2px 8px; white-space:nowrap; }
+  .sheet-title{ font-weight:600; font-size:17px; flex:1; }
+  .sheet-hint{ color:#7fa0c0; font-size:13px; font-family:'IBM Plex Mono', monospace; display:none; }
+  @media (min-width:640px){ .sheet-hint{ display:inline; } }
+  .sheet-toggle{ font-family:'IBM Plex Mono', monospace; font-size:18px; color:var(--amber); width:20px; text-align:center; transition:transform .15s ease; }
+  details[open] .sheet-toggle{ transform:rotate(45deg); }
+  .sheet-body{ padding:4px 20px 24px; border-top:1px dashed var(--blue-line); }
+  .sheet-body p{ color:#d3e0ee; }
+  .sheet-body h4{ color:var(--cyan); font-family:'IBM Plex Mono', monospace; font-size:13px; letter-spacing:1px; text-transform:uppercase; margin:22px 0 8px; }
+  .sheet-body ul{ padding-left:20px; color:#d3e0ee; }
+  .sheet-body li{ margin-bottom:6px; }
+
+  .code-block{ background:#0a2036; border:1px solid var(--blue-line); margin:14px 0; overflow:hidden; }
+  .code-head{
+    display:flex; justify-content:space-between; align-items:center; padding:8px 12px;
+    background:#0d2842; border-bottom:1px solid var(--blue-line);
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:#7fa0c0; letter-spacing:1px;
+  }
+  .code-block pre{ margin:0; padding:14px 16px; overflow-x:auto; font-size:13.5px; color:#e8eef5; }
+  .kw{ color:var(--amber); } .st{ color:var(--cyan); } .cm{ color:#6c8aab; font-style:italic; } .nm{ color:var(--coral); } .fn{ color:var(--violet); }
+
+  .reveal-btn{
+    display:inline-flex; align-items:center; gap:6px; background:none; border:1px solid var(--amber);
+    color:var(--amber); font-family:'IBM Plex Mono', monospace; font-size:12px; padding:6px 12px;
+    margin:0 0 14px; cursor:pointer; letter-spacing:0.5px;
+  }
+  .reveal-btn:hover{ background:rgba(242,184,75,0.1); }
+  .reveal-btn:focus-visible, summary:focus-visible, .flip-card:focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
+  .output-panel{
+    margin:0 0 16px; border-left:3px solid var(--cyan); background:rgba(127,221,227,0.06);
+    padding:10px 14px; font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--cyan); white-space:pre-wrap;
+  }
+  .output-panel.err{ border-left-color:var(--coral); background:rgba(239,138,106,0.08); color:var(--coral); }
+  .output-panel[hidden]{ display:none; }
+
+  .toggle-row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  .toggle-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; padding:7px 14px;
+    background:none; border:1px solid var(--blue-line); color:var(--paper); cursor:pointer;
+  }
+  .toggle-btn.active{ border-color:var(--amber); color:var(--amber); background:rgba(242,184,75,0.08); }
+  .toggle-btn:hover{ border-color:var(--amber); }
+  .action-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; padding:7px 13px;
+    background:none; border:1px solid var(--amber); color:var(--amber); cursor:pointer; margin:0 8px 8px 0;
+  }
+  .action-btn:hover{ background:rgba(242,184,75,0.1); }
+  .action-btn.reset{ border-color:var(--coral); color:var(--coral); }
+  .action-btn.reset:hover{ background:rgba(239,138,106,0.1); }
+  .action-btn.good{ border-color:var(--green); color:var(--green); }
+  .action-btn.good:hover{ background:rgba(143,212,138,0.1); }
+
+  .code-line{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; background:#0a2036;
+    border-left:3px solid var(--cyan); padding:9px 12px; color:var(--cyan); min-height:18px; margin:10px 0;
+  }
+  .membership-feedback{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; min-height:20px; margin:10px 0; padding:8px 12px;
+    border-left:3px solid var(--blue-line); background:rgba(255,255,255,0.02);
+  }
+  .membership-feedback.is-true{ border-color:var(--green); color:var(--green); }
+  .membership-feedback.is-false{ border-color:var(--coral); color:var(--coral); }
+
+  .chip-grid{ display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+  .fn-chip{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; padding:8px 14px;
+    border:1px solid var(--blue-line); background:#0a2036; cursor:pointer; color:var(--paper);
+  }
+  .fn-chip.active{ border-color:var(--amber); color:var(--amber); background:rgba(242,184,75,0.1); }
+
+  .compare-grid{ display:grid; grid-template-columns:1fr; gap:14px; margin:14px 0; }
+  @media (min-width:760px){ .compare-grid{ grid-template-columns:1fr 1fr; } }
+  .compare-card{ border:1px solid var(--blue-line); padding:14px 16px; background:rgba(255,255,255,0.02); }
+  .compare-card.bad h5{ color:var(--coral); }
+  .compare-card.good h5{ color:var(--green); }
+  .compare-card h5{ margin:0 0 10px; font-family:'IBM Plex Mono', monospace; font-size:12.5px; letter-spacing:1px; color:var(--amber); }
+
+  .chain-row{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:16px 0; }
+  .chain-box{
+    border:1px solid var(--blue-line); background:#0a2036; padding:12px 14px; text-align:center;
+    font-family:'IBM Plex Mono', monospace; font-size:12px; cursor:pointer; color:var(--paper); min-width:120px;
+  }
+  .chain-box.active{ border-color:var(--amber); color:var(--amber); background:rgba(242,184,75,0.1); }
+  .chain-arrow{ color:#5f83a8; font-size:16px; }
+  .chain-explain{
+    margin-top:12px; padding:10px 12px; border-left:3px solid var(--amber); background:rgba(242,184,75,0.06);
+    color:var(--amber); font-size:13px; font-family:'IBM Plex Mono', monospace; min-height:20px;
+  }
+
+  table.dsref{ width:100%; border-collapse:collapse; margin-top:10px; font-size:14px; }
+  table.dsref th, table.dsref td{ border:1px solid var(--blue-line); padding:8px 10px; text-align:left; vertical-align:top; }
+  table.dsref th{ background:#0d2842; color:var(--amber); font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.5px; text-transform:uppercase; }
+  table.dsref td{ color:#d3e0ee; }
+  table.dsref code{ color:var(--cyan); }
+
+  .recall-grid{ display:grid; gap:14px; grid-template-columns:1fr; margin-top:8px; }
+  @media (min-width:640px){ .recall-grid{ grid-template-columns:1fr 1fr; } }
+  .flip-card{ perspective:1200px; height:160px; cursor:pointer; }
+  .flip-inner{ position:relative; width:100%; height:100%; transition:transform .5s; transform-style:preserve-3d; }
+  .flip-card.flipped .flip-inner{ transform:rotateY(180deg); }
+  .flip-face{ position:absolute; inset:0; backface-visibility:hidden; border:1px solid var(--blue-line); padding:14px 16px; display:flex; flex-direction:column; justify-content:center; }
+  .flip-front{ background:var(--blue-panel); }
+  .flip-front .q-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--amber); letter-spacing:1px; margin-bottom:6px; }
+  .flip-back{ background:#0d2842; transform:rotateY(180deg); color:var(--cyan); }
+  .flip-back .a-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--cyan); letter-spacing:1px; margin-bottom:6px; }
+  .flip-tap{ font-family:'IBM Plex Mono', monospace; font-size:10px; color:#5f83a8; margin-top:8px; }
+
+  footer{
+    max-width:1000px; margin:60px auto 0; padding:20px 24px; border-top:1px solid var(--blue-line);
+    color:#7fa0c0; font-family:'IBM Plex Mono', monospace; font-size:12px;
+  }
+</style>
+</head>
+<body>
+
+<header class="titleblock">
+  <span class="stamp">Sheet Set · Object-Oriented Foundations</span>
+  <h1 class="doc-title">Polymorphism in Python</h1>
+  <p class="doc-sub">// one interface, many types, each doing the "right thing" for itself</p>
+  <p class="lede">You've already used polymorphism — every time you called <code>len()</code> on a list, a string, or a dictionary. This sheet unpacks exactly why that counts, what makes Python's version of it distinctive (duck typing), and how to make your own classes plug into the same interface.</p>
+</header>
+
+<div class="schematic-wrap">
+  <div class="schematic-frame">
+    <svg viewBox="0 0 900 230" width="100%" role="img" aria-label="Diagram of len(object) branching to list, string, and dict, each calling their own __len__ method">
+      <rect x="4" y="4" width="892" height="222" fill="none" stroke="#3a6690" stroke-width="1" stroke-dasharray="4 4"/>
+
+      <rect x="370" y="15" width="160" height="40" fill="none" stroke="#f2b84b" stroke-width="1.5"/>
+      <text x="450" y="40" fill="#f2b84b" font-size="14" text-anchor="middle" font-weight="600">len(object)</text>
+
+      <line x1="420" y1="55" x2="180" y2="100" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3"/>
+      <line x1="450" y1="55" x2="450" y2="100" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3"/>
+      <line x1="480" y1="55" x2="720" y2="100" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3"/>
+
+      <g font-size="12" text-anchor="middle">
+        <rect x="110" y="100" width="140" height="32" fill="none" stroke="#7fdde3" stroke-width="1.5"/>
+        <text x="180" y="121" fill="#7fdde3">list</text>
+        <rect x="380" y="100" width="140" height="32" fill="none" stroke="#ef8a6a" stroke-width="1.5"/>
+        <text x="450" y="121" fill="#ef8a6a">string</text>
+        <rect x="650" y="100" width="140" height="32" fill="none" stroke="#b79ef0" stroke-width="1.5"/>
+        <text x="720" y="121" fill="#b79ef0">dict</text>
+      </g>
+
+      <line x1="180" y1="132" x2="180" y2="155" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3"/>
+      <line x1="450" y1="132" x2="450" y2="155" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3"/>
+      <line x1="720" y1="132" x2="720" y2="155" stroke="#3a6690" stroke-width="1" stroke-dasharray="3 3"/>
+
+      <g font-size="11" text-anchor="middle">
+        <rect x="110" y="155" width="140" height="28" fill="none" stroke="#5f83a8" stroke-width="1"/>
+        <text x="180" y="174" fill="#c3d3e4">__len__()</text>
+        <rect x="380" y="155" width="140" height="28" fill="none" stroke="#5f83a8" stroke-width="1"/>
+        <text x="450" y="174" fill="#c3d3e4">__len__()</text>
+        <rect x="650" y="155" width="140" height="28" fill="none" stroke="#5f83a8" stroke-width="1"/>
+        <text x="720" y="174" fill="#c3d3e4">__len__()</text>
+      </g>
+
+      <text x="180" y="205" fill="#6d90b3" font-size="10" text-anchor="middle"># elements</text>
+      <text x="450" y="205" fill="#6d90b3" font-size="10" text-anchor="middle"># characters</text>
+      <text x="720" y="205" fill="#6d90b3" font-size="10" text-anchor="middle"># keys</text>
+    </svg>
+    <p class="schematic-caption">Fig. 1 — one interface, three unrelated implementations, each correct for its own type</p>
+  </div>
+</div>
+
+<main>
+
+  <div class="section-lede">
+    <p class="eyebrow">Foundation</p>
+    <h2>What Polymorphism Means</h2>
+    <p>Strip away the jargon and it's a simple idea: the same operation works on different types of objects, and each type quietly does the right thing for itself.</p>
+  </div>
+
+  <details class="sheet" open>
+    <summary>
+      <span class="sheet-num">01</span>
+      <span class="sheet-title">One function call, several unrelated types</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>Watch the same call, <code>len(...)</code>, applied to four completely different kinds of objects:</p>
+      <div class="code-block">
+        <div class="code-head"><span>same_interface.py</span><span>python 3</span></div>
+        <pre><code><span class="fn">len</span>([<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>])         <span class="cm"># list</span>
+<span class="fn">len</span>(<span class="st">"Python"</span>)              <span class="cm"># string</span>
+<span class="fn">len</span>((<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>))         <span class="cm"># tuple</span>
+<span class="fn">len</span>({<span class="st">"A"</span>: <span class="nm">10</span>, <span class="st">"B"</span>: <span class="nm">20</span>})  <span class="cm"># dictionary</span></code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-01">▸ Show output</button>
+      <div class="output-panel" id="out-01" hidden>3
+6
+3
+2</div>
+      <p>A list, a string, a tuple, and a dictionary have almost nothing in common structurally — yet all four understand <code>len()</code>. That's polymorphism: <strong>the same interface or operation can work with objects of different types, with each type providing behavior appropriate to itself.</strong></p>
+    </div>
+  </details>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">02</span>
+      <span class="sheet-title">Same call, different meaning of "length"</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>Click each type below — notice that "length" doesn't even mean the same thing every time.</p>
+      <div class="chip-grid" id="len-explorer"></div>
+      <div class="membership-feedback" id="len-explorer-feedback">click a type above ↑</div>
+      <p>For a list, length means <em>how many elements</em>. For a string, it means <em>how many characters</em>. For a dictionary, it means <em>how many keys</em>. <code>len()</code> doesn't know or care about that difference — it just asks the object, and the object answers correctly for its own type.</p>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Mechanism</p>
+    <h2>Under the Hood — Each Class's Own __len__()</h2>
+    <p><code>len()</code> isn't magic. It's a thin, friendly wrapper that calls a special method the object itself defines.</p>
+  </div>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">03</span>
+      <span class="sheet-title">len(fruits) conceptually calls fruits.__len__()</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <div class="code-block">
+        <div class="code-head"><span>dunder_len.py</span><span>python 3</span></div>
+        <pre><code>fruits = [<span class="st">"apple"</span>, <span class="st">"banana"</span>, <span class="st">"orange"</span>]
+
+<span class="fn">print</span>(<span class="fn">len</span>(fruits))          <span class="cm"># the friendly, everyday syntax</span>
+<span class="fn">print</span>(fruits.__len__())    <span class="cm"># what len() does internally</span></code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-03">▸ Show output</button>
+      <div class="output-panel" id="out-03" hidden>3
+3</div>
+      <p>Both lines return the same answer, because <code>len(fruits)</code> really is Python calling <code>fruits.__len__()</code> for you. This is also exactly <em>why</em> <code>len()</code> can work on so many different types: each one — list, string, dict, and any class you write yourself — implements its own <code>__len__()</code>, and <code>len()</code> just defers to whichever one is in front of it.</p>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">The definition, earned</p>
+    <h2>Why This Qualifies as Polymorphism</h2>
+    <p>Here's the contrast that makes it click: imagine Python <em>didn't</em> have polymorphism for this.</p>
+  </div>
+
+  <details class="sheet" open>
+    <summary>
+      <span class="sheet-num">04</span>
+      <span class="sheet-title">One interface vs. a function per type</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>Without polymorphism, you'd need to remember a different function name for every type:</p>
+      <div class="compare-grid">
+        <div class="compare-card bad">
+          <h5>WITHOUT POLYMORPHISM — a function per type</h5>
+          <div class="code-block" style="margin-top:0;">
+            <pre style="padding:10px 12px; font-size:12.5px;"><code>string_length(<span class="st">"Python"</span>)
+list_length([<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>])
+dictionary_length({<span class="st">"A"</span>: <span class="nm">1</span>, <span class="st">"B"</span>: <span class="nm">2</span>})</code></pre>
+          </div>
+          <p style="font-size:12.5px;">Three names to memorize. Add a new type — say, a custom <code>SalesTeam</code> class — and you'd need a fourth function, written from scratch.</p>
+        </div>
+        <div class="compare-card good">
+          <h5>WITH POLYMORPHISM — one interface</h5>
+          <div class="code-block" style="margin-top:0;">
+            <pre style="padding:10px 12px; font-size:12.5px;"><code><span class="fn">len</span>(<span class="st">"Python"</span>)
+<span class="fn">len</span>([<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>])
+<span class="fn">len</span>({<span class="st">"A"</span>: <span class="nm">1</span>, <span class="st">"B"</span>: <span class="nm">2</span>})</code></pre>
+          </div>
+          <p style="font-size:12.5px;">One name, ever. The object's own type determines how its length gets calculated — <code>len()</code> just asks, and trusts the answer.</p>
+        </div>
+      </div>
+      <p>This is the essence of polymorphism: you don't branch on type yourself with a chain of <code>if isinstance(x, list): ... elif isinstance(x, str): ...</code> — the object already knows how to answer for itself, and the single shared interface makes that invisible to you as the caller.</p>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Python's flavor</p>
+    <h2>Duck Typing</h2>
+    <p>Python takes a specific, lightweight approach to polymorphism — it doesn't check what class an object claims to be. It checks what the object can <em>do</em>.</p>
+  </div>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">05</span>
+      <span class="sheet-title">"If it knows how to report its length, len() can work with it"</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>The name comes from an old saying: <em>if it walks like a duck and quacks like a duck, it's a duck</em> — as far as Python is concerned, it doesn't matter what class an object officially belongs to. What matters is whether it supports the behavior being asked of it.</p>
+      <div class="chain-row">
+        <div class="chain-box active">list</div>
+        <div class="chain-box active">string</div>
+        <div class="chain-box active">dict</div>
+        <div class="chain-box active">your own class</div>
+      </div>
+      <p>None of these four share a common parent class written specifically for "things that have a length." They're unrelated types. <code>len()</code> doesn't require them to be related — it only requires that each one defines <code>__len__()</code>. That's duck typing: Python is asking <em>"can you report your length?"</em>, not <em>"are you officially a Sized object?"</em></p>
+      <table class="dsref">
+        <tr><th>Traditional (class-based) polymorphism</th><th>Python's duck typing</th></tr>
+        <tr><td>Often requires inheriting from a common parent class or interface.</td><td>Requires only that the object implements the expected method — no shared ancestry needed.</td></tr>
+        <tr><td>The type system checks the relationship up front.</td><td>Python simply tries the operation and trusts the object to handle it.</td></tr>
+      </table>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Bringing it together</p>
+    <h2>Writing a Polymorphic Class of Your Own</h2>
+    <p>Define <code>__len__()</code> on any class you write, and it immediately plugs into the exact same <code>len()</code> interface as every built-in type.</p>
+  </div>
+
+  <details class="sheet" open>
+    <summary>
+      <span class="sheet-num">06</span>
+      <span class="sheet-title">SalesTeam — a custom class that speaks len()</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <div class="code-block">
+        <div class="code-head"><span>sales_team.py</span><span>python 3</span></div>
+        <pre><code><span class="kw">class</span> SalesTeam:
+    <span class="kw">def</span> __init__(self, employees):
+        self.employees = employees
+
+    <span class="kw">def</span> __len__(self):
+        <span class="kw">return</span> <span class="fn">len</span>(self.employees)
+
+
+team = SalesTeam([<span class="st">"Amy"</span>, <span class="st">"Bob"</span>, <span class="st">"Carlos"</span>])
+<span class="fn">print</span>(<span class="fn">len</span>(team))</code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-06a">▸ Show output</button>
+      <div class="output-panel" id="out-06a" hidden>3</div>
+      <p><code>SalesTeam</code> now works with the exact same <code>len()</code> interface as lists, strings, tuples, and dictionaries — without inheriting from any of them.</p>
+
+      <h4>Try it with a second, unrelated class</h4>
+      <p>Click below to build a completely different class that also defines <code>__len__()</code>, and prove <code>len()</code> works on it too.</p>
+      <div class="code-block">
+        <div class="code-head"><span>project_backlog.py</span><span>python 3</span></div>
+        <pre><code><span class="kw">class</span> ProjectBacklog:
+    <span class="kw">def</span> __init__(self, tickets):
+        self.tickets = tickets
+
+    <span class="kw">def</span> __len__(self):
+        <span class="kw">return</span> <span class="fn">len</span>(self.tickets)</code></pre>
+      </div>
+      <button class="action-btn" id="backlog-run">▸ backlog = ProjectBacklog(["bug-12", "bug-45", "feature-8", "bug-90"])<br>len(backlog)</button>
+      <div class="output-panel" id="backlog-output" style="display:block;">click above ↑</div>
+      <p><code>SalesTeam</code> and <code>ProjectBacklog</code> share no inheritance whatsoever — one tracks employees, the other tracks tickets. Both plug into <code>len()</code> for exactly the same reason list and string do: each one defines <code>__len__()</code>. That's the whole mechanism.</p>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">The big picture</p>
+    <h2>Connecting the Concepts</h2>
+    <p>Click through the chain below to see how each idea in this sheet leads to the next.</p>
+  </div>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">07</span>
+      <span class="sheet-title">OOP → Polymorphism → Dunder methods → Built-ins</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <div class="chain-row" id="concept-chain"></div>
+      <div class="chain-explain" id="concept-chain-explain">click a step above ↑</div>
+      <p style="margin-top:16px; font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--amber); border-left:3px solid var(--amber); background:rgba(242,184,75,0.06); padding:10px 14px;">
+        <code>len()</code> demonstrates polymorphism in Python: the same built-in function works with many different object types because each type can define its own <code>__len__()</code> behavior.
+      </p>
+    </div>
+  </details>
+
+  <details class="sheet">
+    <summary>
+      <span class="sheet-num">08</span>
+      <span class="sheet-title">Bonus: len() isn't the only one</span>
+      <span class="sheet-hint">click to expand</span>
+      <span class="sheet-toggle">+</span>
+    </summary>
+    <div class="sheet-body">
+      <p>This same pattern — a built-in function or operator calling a dunder method that each type implements for itself — shows up all over Python.</p>
+      <div class="code-block">
+        <div class="code-head"><span>more_polymorphism.py</span><span>python 3</span></div>
+        <pre><code><span class="fn">str</span>(<span class="nm">42</span>)          <span class="cm"># calls (42).__str__()</span>
+<span class="nm">3</span> + <span class="nm">5</span>            <span class="cm"># calls (3).__add__(5)</span>
+<span class="st">"a"</span> + <span class="st">"b"</span>        <span class="cm"># calls ("a").__add__("b") — totally different behavior, same operator</span>
+<span class="fn">sorted</span>(team.employees) <span class="cm"># relies on each employee name's __lt__() to compare</span></code></pre>
+      </div>
+      <button class="reveal-btn" data-target="out-08">▸ Show output</button>
+      <div class="output-panel" id="out-08" hidden>'42'
+8
+'ab'
+['Amy', 'Bob', 'Carlos']</div>
+      <p>Notice <code>+</code> on numbers adds, but <code>+</code> on strings concatenates — same operator, different behavior, because <code>int</code> and <code>str</code> each define their own <code>__add__()</code>. It's the identical pattern as <code>len()</code>, just spelled with an operator instead of a function name.</p>
+    </div>
+  </details>
+
+  <div class="section-lede">
+    <p class="eyebrow">Active recall</p>
+    <h2>Quick Check</h2>
+    <p>Tap a card to flip it. Try answering before you flip.</p>
+  </div>
+
+  <div class="recall-grid">
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q1</div>
+          <div>In one sentence, what is polymorphism?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A1</div>
+          <div>The same operation or interface works with objects of different types, each providing behavior appropriate to itself.</div>
+        </div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q2</div>
+          <div>What special method does <code>len(x)</code> actually call?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A2</div>
+          <div><code>x.__len__()</code> — <code>len()</code> is a thin wrapper around it.</div>
+        </div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q3</div>
+          <div>What is duck typing?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A3</div>
+          <div>Python cares whether an object supports the required behavior (like <code>__len__()</code>), not what class it officially belongs to.</div>
+        </div>
+      </div>
+    </div>
+    <div class="flip-card" tabindex="0" role="button" aria-pressed="false">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="q-label">Q4</div>
+          <div>If you define <code>__len__()</code> on your own class, what do you immediately get for free?</div>
+          <div class="flip-tap">tap to reveal</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="a-label">A4</div>
+          <div>Your objects work with the built-in <code>len()</code> function — the same interface every list, string, and dict already uses.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>DRWG BY: Claude &nbsp;·&nbsp; TOPIC: polymorphism &amp; duck typing &nbsp;·&nbsp; interactive sheet set</footer>
+
+<script>
+  document.querySelectorAll('.reveal-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var panel = document.getElementById(btn.dataset.target);
+      var isHidden = panel.hasAttribute('hidden');
+      if(isHidden){ panel.removeAttribute('hidden'); btn.textContent = '▾ Hide output'; }
+      else { panel.setAttribute('hidden',''); btn.textContent = '▸ Show output'; }
+    });
+  });
+  document.querySelectorAll('.flip-card').forEach(function(card){
+    function toggle(){ card.classList.toggle('flipped'); card.setAttribute('aria-pressed', card.classList.contains('flipped')); }
+    card.addEventListener('click', toggle);
+    card.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); } });
+  });
+
+  // ---------- 02: len() meaning explorer ----------
+  var lenMeanings = [
+    { label:'list', code:'len([10, 20, 30])', result:'3', note:'counts elements' },
+    { label:'string', code:'len("Python")', result:'6', note:'counts characters' },
+    { label:'tuple', code:'len((10, 20, 30))', result:'3', note:'counts elements' },
+    { label:'dict', code:'len({"A": 10, "B": 20})', result:'2', note:'counts keys' }
+  ];
+  var lenExplorerEl = document.getElementById('len-explorer');
+  var lenExplorerFeedback = document.getElementById('len-explorer-feedback');
+  lenMeanings.forEach(function(item){
+    var chip = document.createElement('div');
+    chip.className = 'fn-chip';
+    chip.textContent = item.label;
+    chip.addEventListener('click', function(){
+      document.querySelectorAll('#len-explorer .fn-chip').forEach(function(c){ c.classList.remove('active'); });
+      chip.classList.add('active');
+      lenExplorerFeedback.textContent = item.code + '  →  ' + item.result + '   (' + item.note + ')';
+    });
+    lenExplorerEl.appendChild(chip);
+  });
+
+  // ---------- 06: ProjectBacklog demo ----------
+  document.getElementById('backlog-run').addEventListener('click', function(){
+    var out = document.getElementById('backlog-output');
+    out.textContent = 'len(backlog)  →  4';
+  });
+
+  // ---------- 07: concept chain ----------
+  var chainSteps = [
+    { label:'Object-Oriented\nProgramming', explain:'A style of organizing code around objects that bundle data and behavior together.' },
+    { label:'Polymorphism', explain:'One of OOP\'s core ideas: the same interface can work across different, even unrelated, types.' },
+    { label:'Same interface,\ndifferent types', explain:'len(), +, str() — one name or symbol, but each type decides what it actually does.' },
+    { label:'Special methods\n(__len__, etc.)', explain:'The mechanism: dunder methods are how a type plugs its own behavior into a shared interface.' },
+    { label:'Convenient\nbuilt-ins', explain:'The payoff for you as a programmer: one simple, memorable function — len(x) — that just works, on almost anything.' }
+  ];
+  var chainRowEl = document.getElementById('concept-chain');
+  var chainExplainEl = document.getElementById('concept-chain-explain');
+  chainSteps.forEach(function(step, i){
+    if(i > 0){
+      var arrow = document.createElement('div');
+      arrow.className = 'chain-arrow';
+      arrow.textContent = '→';
+      chainRowEl.appendChild(arrow);
+    }
+    var box = document.createElement('div');
+    box.className = 'chain-box';
+    box.style.whiteSpace = 'pre-line';
+    box.textContent = step.label;
+    box.addEventListener('click', function(){
+      document.querySelectorAll('#concept-chain .chain-box').forEach(function(b){ b.classList.remove('active'); });
+      box.classList.add('active');
+      chainExplainEl.textContent = step.explain;
+    });
+    chainRowEl.appendChild(box);
+  });
+</script>
+
+</body>
+</html>
