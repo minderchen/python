@@ -164,6 +164,11 @@
         line-height: 1.5;
       }
 
+      .code-container pre {
+        margin: 0;
+        white-space: pre;
+      }
+
       .code-tag {
         position: absolute;
         top: 0;
@@ -729,17 +734,14 @@
 
             <div class="code-container">
               <span class="code-tag">Snippet 1</span>
-              <span class="c-kw">if</span> bmi &lt;
-              <span class="c-num">18.5</span>: category =
-              <span class="c-str">"Underweight"</span>
-              <span class="c-kw">elif</span> bmi &lt;
-              <span class="c-num">25</span>: category =
-              <span class="c-str">"Normal weight"</span>
-              <span class="c-kw">elif</span> bmi &lt;
-              <span class="c-num">30</span>: category =
-              <span class="c-str">"Overweight"</span>
-              <span class="c-kw">else</span>: category =
-              <span class="c-str">"Obese"</span>
+              <pre><code><span class="c-kw">if</span> bmi &lt; <span class="c-num">18.5</span>:
+        category = <span class="c-str">"Underweight"</span>
+      <span class="c-kw">elif</span> bmi &lt; <span class="c-num">25</span>:
+        category = <span class="c-str">"Normal weight"</span>
+      <span class="c-kw">elif</span> bmi &lt; <span class="c-num">30</span>:
+        category = <span class="c-str">"Overweight"</span>
+      <span class="c-kw">else</span>:
+        category = <span class="c-str">"Obese"</span></code></pre>
             </div>
 
             <p>
@@ -762,19 +764,15 @@
 
             <div class="code-container">
               <span class="code-tag">Snippet 2</span>
-              <span class="c-kw">def</span>
-              <span class="c-fn">get_bmi_category</span>(bmi):
-              <span class="c-kw">if</span> bmi &lt;
-              <span class="c-num">18.5</span>: <span class="c-kw">return</span>
-              <span class="c-str">"Underweight"</span>
-              <span class="c-kw">elif</span> bmi &lt;
-              <span class="c-num">25</span>: <span class="c-kw">return</span>
-              <span class="c-str">"Normal weight"</span>
-              <span class="c-kw">elif</span> bmi &lt;
-              <span class="c-num">30</span>: <span class="c-kw">return</span>
-              <span class="c-str">"Overweight"</span>
-              <span class="c-kw">else</span>: <span class="c-kw">return</span>
-              <span class="c-str">"Obese"</span>
+              <pre><code><span class="c-kw">def</span> <span class="c-fn">get_bmi_category</span>(bmi):
+        <span class="c-kw">if</span> bmi &lt; <span class="c-num">18.5</span>:
+          <span class="c-kw">return</span> <span class="c-str">"Underweight"</span>
+        <span class="c-kw">elif</span> bmi &lt; <span class="c-num">25</span>:
+          <span class="c-kw">return</span> <span class="c-str">"Normal weight"</span>
+        <span class="c-kw">elif</span> bmi &lt; <span class="c-num">30</span>:
+          <span class="c-kw">return</span> <span class="c-str">"Overweight"</span>
+        <span class="c-kw">else</span>:
+          <span class="c-kw">return</span> <span class="c-str">"Obese"</span></code></pre>
             </div>
 
             <div class="diagram-container">
@@ -819,29 +817,19 @@
 
             <div class="code-container">
               <span class="code-tag">Snippet 3</span>
-              <span class="c-com"># Dynamic Rule Structure (Data)</span>
-              BMI_CATEGORIES = [ (<span class="c-num">18.5</span>,
-              <span class="c-str">"Underweight"</span>), (<span class="c-num"
-                >25.0</span
-              >, <span class="c-str">"Normal weight"</span>), (<span
-                class="c-num"
-                >30.0</span
-              >, <span class="c-str">"Overweight"</span>), (<span class="c-fn"
-                >float</span
-              >(<span class="c-str">"inf"</span>),
-              <span class="c-str">"Obese"</span>)
-              <span class="c-com"># Matches everything else</span>
-              ]
+              <pre><code><span class="c-com"># Dynamic Rule Structure (Data)</span>
+BMI_CATEGORIES = [
+    (<span class="c-num">18.5</span>, <span class="c-str">"Underweight"</span>),
+    (<span class="c-num">25.0</span>, <span class="c-str">"Normal weight"</span>),
+    (<span class="c-num">30.0</span>, <span class="c-str">"Overweight"</span>),
+    (<span class="c-fn">float</span>(<span class="c-str">"inf"</span>), <span class="c-str">"Obese"</span>), <span class="c-com"># Matches everything else</span>
+]
 
-              <span class="c-com"
-                ># Reusable Categorizer Logic (Algorithm)</span
-              >
-              <span class="c-kw">def</span>
-              <span class="c-fn">classify_value</span>(value, categories):
-              <span class="c-kw">for</span> limit, label
-              <span class="c-kw">in</span> categories:
-              <span class="c-kw">if</span> value &lt; limit:
-              <span class="c-kw">return</span> label
+<span class="c-com"># Reusable Categorizer Logic (Algorithm)</span>
+<span class="c-kw">def</span> <span class="c-fn">classify_value</span>(value, categories):
+    <span class="c-kw">for</span> limit, label <span class="c-kw">in</span> categories:
+        <span class="c-kw">if</span> value &lt; limit:
+            <span class="c-kw">return</span> label</code></pre>
             </div>
 
             <div class="diagram-container">
@@ -1154,17 +1142,14 @@
             </p>
             <div class="code-container">
               <span class="code-tag">Direct Evaluation</span>
-              <span class="c-kw">if</span> bmi &lt;
-              <span class="c-num">18.5</span>: category =
-              <span class="c-str">"Underweight"</span>
-              <span class="c-kw">elif</span> bmi &lt;
-              <span class="c-num">25.0</span>: category =
-              <span class="c-str">"Normal weight"</span>
-              <span class="c-kw">elif</span> bmi &lt;
-              <span class="c-num">30.0</span>: category =
-              <span class="c-str">"Overweight"</span>
-              <span class="c-kw">else</span>: category =
-              <span class="c-str">"Obese"</span>
+              <pre><code><span class="c-kw">if</span> bmi &lt; <span class="c-num">18.5</span>:
+        category = <span class="c-str">"Underweight"</span>
+      <span class="c-kw">elif</span> bmi &lt; <span class="c-num">25.0</span>:
+        category = <span class="c-str">"Normal weight"</span>
+      <span class="c-kw">elif</span> bmi &lt; <span class="c-num">30.0</span>:
+        category = <span class="c-str">"Overweight"</span>
+      <span class="c-kw">else</span>:
+        category = <span class="c-str">"Obese"</span></code></pre>
             </div>
           </div>
         </div>
@@ -1181,19 +1166,15 @@
             </p>
             <div class="code-container">
               <span class="code-tag">Functional</span>
-              <span class="c-kw">def</span>
-              <span class="c-fn">get_bmi_category</span>(bmi):
-              <span class="c-kw">if</span> bmi &lt;
-              <span class="c-num">18.5</span>: <span class="c-kw">return</span>
-              <span class="c-str">"Underweight"</span>
-              <span class="c-kw">elif</span> bmi &lt;
-              <span class="c-num">25.0</span>: <span class="c-kw">return</span>
-              <span class="c-str">"Normal weight"</span>
-              <span class="c-kw">elif</span> bmi &lt;
-              <span class="c-num">30.0</span>: <span class="c-kw">return</span>
-              <span class="c-str">"Overweight"</span>
-              <span class="c-kw">else</span>: <span class="c-kw">return</span>
-              <span class="c-str">"Obese"</span>
+              <pre><code><span class="c-kw">def</span> <span class="c-fn">get_bmi_category</span>(bmi):
+        <span class="c-kw">if</span> bmi &lt; <span class="c-num">18.5</span>:
+          <span class="c-kw">return</span> <span class="c-str">"Underweight"</span>
+        <span class="c-kw">elif</span> bmi &lt; <span class="c-num">25.0</span>:
+          <span class="c-kw">return</span> <span class="c-str">"Normal weight"</span>
+        <span class="c-kw">elif</span> bmi &lt; <span class="c-num">30.0</span>:
+          <span class="c-kw">return</span> <span class="c-str">"Overweight"</span>
+        <span class="c-kw">else</span>:
+          <span class="c-kw">return</span> <span class="c-str">"Obese"</span></code></pre>
             </div>
           </div>
         </div>
@@ -1209,23 +1190,17 @@
             </p>
             <div class="code-container">
               <span class="code-tag">Flexible Data Pattern</span>
-              BMI_CATEGORIES = [ (<span class="c-num">18.5</span>,
-              <span class="c-str">"Underweight"</span>), (<span class="c-num"
-                >25.0</span
-              >, <span class="c-str">"Normal weight"</span>), (<span
-                class="c-num"
-                >30.0</span
-              >, <span class="c-str">"Overweight"</span>), (<span class="c-fn"
-                >float</span
-              >(<span class="c-str">"inf"</span>),
-              <span class="c-str">"Obese"</span>) ]
+              <pre><code>BMI_CATEGORIES = [
+    (<span class="c-num">18.5</span>, <span class="c-str">"Underweight"</span>),
+    (<span class="c-num">25.0</span>, <span class="c-str">"Normal weight"</span>),
+    (<span class="c-num">30.0</span>, <span class="c-str">"Overweight"</span>),
+    (<span class="c-fn">float</span>(<span class="c-str">"inf"</span>), <span class="c-str">"Obese"</span>),
+]
 
-              <span class="c-kw">def</span>
-              <span class="c-fn">classify_value</span>(value, categories):
-              <span class="c-kw">for</span> limit, label
-              <span class="c-kw">in</span> categories:
-              <span class="c-kw">if</span> value &lt; limit:
-              <span class="c-kw">return</span> label
+<span class="c-kw">def</span> <span class="c-fn">classify_value</span>(value, categories):
+    <span class="c-kw">for</span> limit, label <span class="c-kw">in</span> categories:
+        <span class="c-kw">if</span> value &lt; limit:
+            <span class="c-kw">return</span> label</code></pre>
             </div>
           </div>
         </div>
@@ -1548,4 +1523,3 @@ GRADE_TIERS = [
     </script>
   </body>
 </html>
- 
