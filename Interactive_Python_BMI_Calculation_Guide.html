@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Python BMI Calculation Guide</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #eff6ff;
+            --secondary: #0d9488;
+            --secondary-light: #f0fdfa;
+            --neutral-dark: #1f2937;
+            --neutral-light: #f9fafb;
+            --border-color: #e5e7eb;
+            --accent-underweight: #2563eb;
+            --accent-normal: #16a34a;
+            --accent-overweight: #ea580c;
+            --accent-obese: #dc2626;
+            --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            color: var(--neutral-dark);
+            background-color: #f3f4f6;
+            line-height: 1.6;
+            padding: 0;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+            color: #ffffff;
+            padding: 3rem 1.5rem;
+            text-align: center;
+            border-bottom: 5px solid var(--secondary);
+        }
+
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .badge {
+            background-color: var(--secondary);
+            color: white;
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        header h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        header p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 1024px) {
+            .container {
+                grid-template-columns: 1.2fr 0.8fr;
+            }
+            .full-width {
+                grid-column: span 2;
+            }
+        }
+
+        .card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 0.5rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: #4b5563;
+        }
+
+        /* Formulas list and highlighted blocks */
+        .formula-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        @media (min-width: 640px) {
+            .formula-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .formula-box {
+            background-color: var(--primary-light);
+            border-left: 4px solid var(--primary);
+            padding: 1.25rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .formula-box h4 {
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .formula-box code {
+            font-family: Consolas, Monaco, 'Andale Mono', monospace;
+            font-weight: 600;
+            color: var(--neutral-dark);
+            font-size: 1.1rem;
+            display: block;
+            margin: 0.5rem 0;
+            word-break: break-all;
+        }
+
+        /* Interactive Calculator Styling */
+        .calculator-widget {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px solid var(--primary);
+        }
+
+        .toggle-container {
+            display: flex;
+            background-color: #e2e8f0;
+            padding: 0.3rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            border: none;
+            background: none;
+            padding: 0.6rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #475569;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background-color: #ffffff;
+            color: var(--primary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--neutral-dark);
+            font-size: 0.95rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.15s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.15);
+        }
+
+        .unit-label {
+            position: absolute;
+            right: 1rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .btn-calculate {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.9rem;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(30, 58, 138, 0.2);
+        }
+
+        .btn-calculate:hover {
+            background-color: #1d4ed8;
+        }
+
+        .error-message {
+            color: var(--accent-obese);
+            font-size: 0.85rem;
+            margin-top: 0.35rem;
+            display: none;
+            font-weight: 500;
+        }
+
+        /* Results Display */
+        .result-panel {
+            margin-top: 1.5rem;
+            padding: 1.25rem;
+            border-radius: 8px;
+            border: 1px dashed #cbd5e1;
+            background-color: #ffffff;
+            display: none;
+        }
+
+        .result-panel.active {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .result-val-box {
+            background-color: #f8fafc;
+            padding: 0.75rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .result-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #64748b;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .result-number {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .result-cat-box {
+            grid-column: span 2;
+            padding: 0.85rem;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: white;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Result category dynamic styles */
+        .cat-underweight { background-color: var(--accent-underweight); }
+        .cat-normal { background-color: var(--accent-normal); }
+        .cat-overweight { background-color: var(--accent-overweight); }
+        .cat-obese { background-color: var(--accent-obese); }
+
+        /* Stepper Flow chart */
+        .flow-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        @media (min-width: 640px) {
+            .flow-container {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: stretch;
+            }
+        }
+
+        .flow-step {
+            flex: 1;
+            background-color: var(--neutral-light);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .flow-step::after {
+            content: "➔";
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #cbd5e1;
+            font-size: 1.25rem;
+            z-index: 2;
+            display: none;
+        }
+
+        @media (min-width: 640px) {
+            .flow-step::after {
+                display: block;
+            }
+            .flow-step:last-child::after {
+                display: none;
+            }
+        }
+
+        .flow-num {
+            display: inline-flex;
+            width: 30px;
+            height: 30px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .flow-step h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--neutral-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .flow-step p {
+            font-size: 0.8rem;
+            margin: 0;
+        }
+
+        /* Code Block Styling */
+        pre {
+            background-color: #0f172a;
+            color: #f8fafc;
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: Consolas, Monaco, 'Andale Mono', monospace;
+            font-size: 0.9rem;
+            border-left: 4px solid var(--secondary);
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: Consolas, Monaco, 'Andale Mono', monospace;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            font-size: inherit;
+        }
+
+        .code-comment { color: #64748b; }
+        .code-keyword { color: #f43f5e; }
+        .code-string { color: #10b981; }
+
+        /* Tables */
+        .table-responsive {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Quiz Styling */
+        .quiz-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .quiz-item {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #ffffff;
+        }
+
+        .quiz-question {
+            background-color: #f8fafc;
+            padding: 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 0.95rem;
+            user-select: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .quiz-question:hover {
+            background-color: var(--primary-light);
+        }
+
+        .quiz-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background-color: #ffffff;
+        }
+
+        .quiz-answer-content {
+            padding: 1.25rem;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.925rem;
+            color: #4b5563;
+        }
+
+        .quiz-arrow {
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+        }
+
+        .quiz-item.open .quiz-arrow {
+            transform: rotate(180deg);
+        }
+
+        .quiz-item.open .quiz-answer {
+            max-height: 200px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #1e293b;
+            color: #cbd5e1;
+            padding: 2.5rem 1.5rem;
+            margin-top: 3rem;
+            border-top: 4px solid var(--secondary);
+            text-align: center;
+            font-size: 0.875rem;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .health-note {
+            background-color: #334155;
+            color: #f1f5f9;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            font-size: 0.825rem;
+            border-left: 3px solid #eab308;
+            text-align: left;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <span class="badge">Student Business Toolkit</span>
+            <h1>Interactive Python BMI Calculation Guide</h1>
+            <p>Master foundational Python programming concepts step-by-step by programming a clean, logical Body Mass Index (BMI) calculator.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        
+        <!-- Left Column: Lesson Content -->
+        <div class="left-column">
+            
+            <article class="card">
+                <h2 class="card-title">Introduction</h2>
+                <p>Building a Body Mass Index (BMI) calculator is an ideal foundational exercise for student developers. This scenario bridges fundamental mathematical concepts with critical programmatic execution. Through this exercise, you will explore the standard software pattern: <strong>Input ➔ Convert ➔ Calculate ➔ Classify ➔ Output</strong>.</p>
+                <p>In the business world, structured flows like this are standard protocol for risk assessment, automated quotes, reporting pipelines, and digital triage tools.</p>
+            </article>
+
+            <article class="card">
+                <h2 class="card-title">The BMI Formula</h2>
+                <p>Body Mass Index is calculated using simple arithmetic. However, depending on your geographic region, you may utilize either Metric or Imperial standard calculations. Good software handles both easily:</p>
+                
+                <div class="formula-grid">
+                    <div class="formula-box">
+                        <h4>Metric System</h4>
+                        <code>BMI = weight_kg / height_m ** 2</code>
+                        <small>Weight is measured in kilograms; height is measured in meters.</small>
+                    </div>
+                    <div class="formula-box">
+                        <h4>Imperial System</h4>
+                        <code>BMI = weight_lb / height_in ** 2 * 703</code>
+                        <small>Weight is measured in pounds; height is measured in inches. Multiplying by 703 converts the ratio to normal scale values.</small>
+                    </div>
+                </div>
+                <p>When drafting programmatic system requirements, always verify which unit configuration is demanded by standard operations or user preferences.</p>
+            </article>
+
+            <article class="card">
+                <h2 class="card-title">Step-by-Step Python Logic</h2>
+                <p>This program utilizes five key execution steps. This framework is highly repeatable and represents the core flow of many business systems.</p>
+                
+                <div class="flow-container">
+                    <div class="flow-step">
+                        <div class="flow-num">1</div>
+                        <h4>Input</h4>
+                        <p>Prompt user for string weight & height variables.</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-num">2</div>
+                        <h4>Convert</h4>
+                        <p>Change string types to floats to enable math.</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-num">3</div>
+                        <h4>Calculate</h4>
+                        <p>Apply the unit formula to generate the raw BMI float.</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-num">4</div>
+                        <h4>Classify</h4>
+                        <p>Evaluate numerical ranges with conditional logic.</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-num">5</div>
+                        <h4>Output</h4>
+                        <p>Print the final formatted results cleanly.</p>
+                    </div>
+                </div>
+
+                <p>In Python, we use the built-in <code>input()</code> function to collect user input, and the <code>float()</code> function to convert input strings into decimals so we can perform math calculations.</p>
+            </article>
+
+            <article class="card">
+                <h2 class="card-title">Starter Code Outline</h2>
+                <p>Here is your Python blueprint. Observe that each programmatic requirement starts with a clean structuring comment. When code is organized beforehand, writing the actual instructions is much simpler:</p>
+<pre><code><span class="code-comment"># Step 1: Ask the user for weight (string value)</span>
+<span class="code-comment"># Step 2: Ask the user for height (string value)</span>
+
+<span class="code-comment"># Step 3: Calculate BMI using the corresponding formula</span>
+<span class="code-comment"># Note: Make sure inputs are converted using float()</span>
+
+<span class="code-comment"># Step 4: Round BMI to 2 decimal places using round()</span>
+
+<span class="code-comment"># Step 5: Use if/elif/else structure to classify BMI category</span>
+
+<span class="code-comment"># Step 6: Print the BMI value and category to console</span></code></pre>
+            </article>
+
+            <article class="card">
+                <h2 class="card-title">Classification Logic</h2>
+                <p>To sort BMIs into standard categories, you must write a clean conditional branch. In Python, this is accomplished using an <code>if / elif / else</code> structure.</p>
+<pre><code><span class="code-keyword">if</span> bmi &lt; <span class="code-string">18.5</span>:
+    category = <span class="code-string">"Underweight"</span>
+<span class="code-keyword">elif</span> bmi &lt; <span class="code-string">25</span>:
+    category = <span class="code-string">"Normal weight"</span>
+<span class="code-keyword">elif</span> bmi &lt; <span class="code-string">30</span>:
+    category = <span class="code-string">"Overweight"</span>
+<span class="code-keyword">else</span>:
+    category = <span class="code-string">"Obese"</span></code></pre>
+                <p><strong>Pro Tip: Understanding conditional progression.</strong> Beginners often wonder why we write <code>elif bmi &lt; 25</code> instead of <code>elif bmi &gt;= 18.5 and bmi &lt; 25</code>. Because Python evaluates conditions from top to bottom, reaching the first <code>elif</code> implies the first condition (<code>bmi &lt; 18.5</code>) was already false. Therefore, <code>bmi</code> is guaranteed to be at least 18.5. Overcomplicating statements with redundant bounds increases risk of calculation errors!</p>
+            </article>
+
+            <article class="card">
+                <h2 class="card-title">Practice Test Cases</h2>
+                <p>Before launching program deployments, developers must run assertions to ensure calculation integrity. Use this table of metric test scenarios to check your custom Python loops:</p>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Test Case ID</th>
+                                <th>Weight (kg)</th>
+                                <th>Height (m)</th>
+                                <th>Target BMI</th>
+                                <th>Target Category</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Test Case 1</td>
+                                <td>50.0</td>
+                                <td>1.75</td>
+                                <td>16.33</td>
+                                <td style="color: var(--accent-underweight); font-weight: 600;">Underweight</td>
+                            </tr>
+                            <tr>
+                                <td>Test Case 2</td>
+                                <td>70.0</td>
+                                <td>1.75</td>
+                                <td>22.86</td>
+                                <td style="color: var(--accent-normal); font-weight: 600;">Normal weight</td>
+                            </tr>
+                            <tr>
+                                <td>Test Case 3</td>
+                                <td>90.0</td>
+                                <td>1.75</td>
+                                <td>29.39</td>
+                                <td style="color: var(--accent-overweight); font-weight: 600;">Overweight</td>
+                            </tr>
+                            <tr>
+                                <td>Test Case 4</td>
+                                <td>110.0</td>
+                                <td>1.75</td>
+                                <td>35.92</td>
+                                <td style="color: var(--accent-obese); font-weight: 600;">Obese</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+
+            <article class="card">
+                <h2 class="card-title">Mini Quiz</h2>
+                <p>Test your conceptual understanding before starting to code. Click on each block to reveal the programming solution.</p>
+                <div class="quiz-container">
+                    
+                    <div class="quiz-item" onclick="toggleQuiz(this)">
+                        <div class="quiz-question">
+                            <span>a. Why use float() instead of int()?</span>
+                            <span class="quiz-arrow">▼</span>
+                        </div>
+                        <div class="quiz-answer">
+                            <div class="quiz-answer-content">
+                                Height measurements (e.g., 1.75 meters) utilize decimal points. If you parse these entries with <code>int()</code>, Python will crash with a <code>ValueError</code> because integers only represent whole numbers.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quiz-item" onclick="toggleQuiz(this)">
+                        <div class="quiz-question">
+                            <span>b. What does the ** mathematical symbol mean in Python?</span>
+                            <span class="quiz-arrow">▼</span>
+                        </div>
+                        <div class="quiz-answer">
+                            <div class="quiz-answer-content">
+                                The double asterisk <code>**</code> represents exponentiation (powers) in Python. Therefore, <code>height_m ** 2</code> is equivalent to writing "height squared" or <code>height_m * height_m</code>.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quiz-item" onclick="toggleQuiz(this)">
+                        <div class="quiz-question">
+                            <span>c. Why do we utilize an if/elif/else structure here?</span>
+                            <span class="quiz-arrow">▼</span>
+                        </div>
+                        <div class="quiz-answer">
+                            <div class="quiz-answer-content">
+                                An if/elif/else structure ensures only one block of classification code executes. Once Python matches a true statement, it skips the remaining conditional clauses, making the code efficient and preventing a user from belonging to multiple categories simultaneously.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quiz-item" onclick="toggleQuiz(this)">
+                        <div class="quiz-question">
+                            <span>d. Why should we test several sample inputs?</span>
+                            <span class="quiz-arrow">▼</span>
+                        </div>
+                        <div class="quiz-answer">
+                            <div class="quiz-answer-content">
+                                Testing different values ("edge cases") ensures your conditional flow maps perfectly across boundary thresholds (like 18.5, 25.0, and 30.0), catching logical bugs prior to product delivery.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </article>
+
+        </div>
+
+        <!-- Right Column: Interactive Sandbox -->
+        <div class="right-column">
+            
+            <div class="card calculator-widget">
+                <h2 class="card-title" style="border: none; margin-bottom: 0.5rem;">Interactive Simulator</h2>
+                <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">Use this sandbox to test inputs and see how calculations map dynamically to categories.</p>
+
+                <div class="toggle-container">
+                    <button class="toggle-btn active" id="btn-metric" onclick="setUnitSystem('metric')">Metric System</button>
+                    <button class="toggle-btn" id="btn-imperial" onclick="setUnitSystem('imperial')">Imperial System</button>
+                </div>
+
+                <div class="form-group">
+                    <label id="lbl-weight" for="weight-input">Weight (Kilograms)</label>
+                    <div class="input-wrapper">
+                        <input type="number" step="any" id="weight-input" class="form-input" placeholder="e.g. 70">
+                        <span class="unit-label" id="unit-weight-lbl">kg</span>
+                    </div>
+                    <div class="error-message" id="err-weight">Please enter a valid weight greater than zero.</div>
+                </div>
+
+                <div class="form-group">
+                    <label id="lbl-height" for="height-input">Height (Meters)</label>
+                    <div class="input-wrapper">
+                        <input type="number" step="any" id="height-input" class="form-input" placeholder="e.g. 1.75">
+                        <span class="unit-label" id="unit-height-lbl">m</span>
+                    </div>
+                    <div class="error-message" id="err-height">Please enter a valid height greater than zero.</div>
+                </div>
+
+                <button class="btn-calculate" onclick="calculateBMI()">Calculate and Classify BMI</button>
+
+                <div class="result-panel" id="result-panel">
+                    <div class="result-grid">
+                        <div class="result-val-box">
+                            <div class="result-label">Calculated BMI</div>
+                            <div class="result-number" id="val-bmi">22.86</div>
+                        </div>
+                        <div class="result-val-box">
+                            <div class="result-label">Rounding</div>
+                            <div class="result-number" style="color: var(--secondary);" id="val-rounded">22.9</div>
+                        </div>
+                        <div class="result-cat-box" id="val-category">
+                            Normal Weight
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="background-color: var(--secondary-light); border: 1px solid rgba(13, 148, 136, 0.2);">
+                <h3 style="color: var(--secondary); margin-bottom: 0.75rem; font-weight: 700;">Coding Assignment Hints</h3>
+                <p style="font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">When writing your script:</p>
+                <ul style="padding-left: 1.25rem; font-size: 0.9rem; color: #475569; display: flex; flex-direction: column; gap: 0.5rem;">
+                    <li>Ensure you convert the inputs using <code>float()</code> immediately after the <code>input()</code> function is evaluated.</li>
+                    <li>Ensure you calculate exponents with <code>** 2</code>, not <code>^ 2</code> (in Python, <code>^</code> is a bitwise XOR operator, not an exponent).</li>
+                    <li>Format outputs nicely with <code>print(f"Your BMI is: {bmi:.2f}")</code>.</li>
+                </ul>
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>© Interactive Student Learning Tools - Python Business Applications Guide</p>
+            <div class="health-note">
+                <strong>Health Note:</strong> Body Mass Index (BMI) is a simplified screening calculation based on height and weight. It is not a comprehensive diagnostic tool and does not evaluate body composition, muscle mass, or replace qualified medical evaluation.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let currentSystem = 'metric';
+
+        function setUnitSystem(system) {
+            currentSystem = system;
+            
+            // Toggle active styling
+            document.getElementById('btn-metric').classList.toggle('active', system === 'metric');
+            document.getElementById('btn-imperial').classList.toggle('active', system === 'imperial');
+
+            // Reset error states
+            hideErrors();
+
+            // Update Labels
+            if (system === 'metric') {
+                document.getElementById('lbl-weight').innerText = 'Weight (Kilograms)';
+                document.getElementById('unit-weight-lbl').innerText = 'kg';
+                document.getElementById('weight-input').placeholder = 'e.g. 70';
+
+                document.getElementById('lbl-height').innerText = 'Height (Meters)';
+                document.getElementById('unit-height-lbl').innerText = 'm';
+                document.getElementById('height-input').placeholder = 'e.g. 1.75';
+            } else {
+                document.getElementById('lbl-weight').innerText = 'Weight (Pounds)';
+                document.getElementById('unit-weight-lbl').innerText = 'lbs';
+                document.getElementById('weight-input').placeholder = 'e.g. 150';
+
+                document.getElementById('lbl-height').innerText = 'Height (Inches)';
+                document.getElementById('unit-height-lbl').innerText = 'in';
+                document.getElementById('height-input').placeholder = 'e.g. 70';
+            }
+
+            // Clear inputs
+            document.getElementById('weight-input').value = '';
+            document.getElementById('height-input').value = '';
+            document.getElementById('result-panel').classList.remove('active');
+        }
+
+        function hideErrors() {
+            document.getElementById('err-weight').style.display = 'none';
+            document.getElementById('err-height').style.display = 'none';
+        }
+
+        function calculateBMI() {
+            hideErrors();
+
+            const weightVal = parseFloat(document.getElementById('weight-input').value);
+            const heightVal = parseFloat(document.getElementById('height-input').value);
+
+            let hasError = false;
+
+            if (isNaN(weightVal) || weightVal <= 0) {
+                document.getElementById('err-weight').style.display = 'block';
+                hasError = true;
+            }
+
+            if (isNaN(heightVal) || heightVal <= 0) {
+                document.getElementById('err-height').style.display = 'block';
+                hasError = true;
+            }
+
+            if (hasError) {
+                document.getElementById('result-panel').classList.remove('active');
+                return;
+            }
+
+            let bmi = 0;
+            if (currentSystem === 'metric') {
+                bmi = weightVal / (heightVal * heightVal);
+            } else {
+                bmi = (weightVal / (heightVal * heightVal)) * 703;
+            }
+
+            const roundedBMI = Math.round(bmi * 100) / 100;
+            const approximateBMI = Math.round(bmi * 10) / 10;
+
+            // Determine category details
+            let category = "";
+            let categoryClass = "";
+
+            if (roundedBMI < 18.5) {
+                category = "Underweight";
+                categoryClass = "cat-underweight";
+            } else if (roundedBMI < 25) {
+                category = "Normal Weight";
+                categoryClass = "cat-normal";
+            } else if (roundedBMI < 30) {
+                category = "Overweight";
+                categoryClass = "cat-overweight";
+            } else {
+                category = "Obese";
+                categoryClass = "cat-obese";
+            }
+
+            // Update UI
+            document.getElementById('val-bmi').innerText = roundedBMI.toFixed(2);
+            document.getElementById('val-rounded').innerText = approximateBMI.toFixed(1);
+            
+            const catBox = document.getElementById('val-category');
+            catBox.innerText = category;
+            catBox.className = "result-cat-box " + categoryClass;
+
+            document.getElementById('result-panel').classList.add('active');
+        }
+
+        function toggleQuiz(element) {
+            const isOpen = element.classList.contains('open');
+            
+            // Close all items
+            document.querySelectorAll('.quiz-item').forEach(item => {
+                item.classList.remove('open');
+            });
+
+            // Toggle selected item
+            if (!isOpen) {
+                element.classList.add('open');
+            }
+        }
+    </script>
+</body>
+</html>

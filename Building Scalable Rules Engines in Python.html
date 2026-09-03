@@ -1,0 +1,1551 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Refactoring Python: From Rigid If-Statements to Scalable Data Structures
+    </title>
+    <style>
+      :root {
+        --primary: #2563eb;
+        --primary-dark: #1d4ed8;
+        --primary-light: #eff6ff;
+        --secondary: #0f172a;
+        --success: #059669;
+        --success-light: #ecfdf5;
+        --warning: #d97706;
+        --warning-light: #fef3c7;
+        --danger: #dc2626;
+        --gray-50: #f8fafc;
+        --gray-100: #f1f5f9;
+        --gray-200: #e2e8f0;
+        --gray-300: #cbd5e1;
+        --gray-600: #475569;
+        --gray-700: #334155;
+        --gray-800: #1e293b;
+        --radius-sm: 6px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md:
+          0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg:
+          0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --font-mono:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
+        line-height: 1.6;
+        color: var(--gray-800);
+        background-color: var(--gray-50);
+        padding: 0;
+      }
+
+      /* Layout & Navigation */
+      header {
+        background-color: var(--secondary);
+        color: white;
+        padding: 2.5rem 1.5rem;
+        text-align: center;
+        border-bottom: 4px solid var(--primary);
+      }
+
+      .header-badge {
+        background-color: var(--primary);
+        color: white;
+        padding: 0.35rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: inline-block;
+        margin-bottom: 1rem;
+      }
+
+      header h1 {
+        font-size: 2.25rem;
+        font-weight: 800;
+        line-height: 1.25;
+        margin-bottom: 0.5rem;
+      }
+
+      header p {
+        color: var(--gray-300);
+        font-size: 1.1rem;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      main {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+      }
+
+      .intro-banner {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        box-shadow: var(--shadow-md);
+        margin-bottom: 2.5rem;
+        border-left: 6px solid var(--primary);
+      }
+
+      .intro-banner h2 {
+        margin-bottom: 1rem;
+        color: var(--secondary);
+      }
+
+      /* Two-Column Grid for Core Steps */
+      .tutorial-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+        margin-bottom: 3rem;
+      }
+
+      @media (min-width: 1024px) {
+        .tutorial-grid {
+          grid-template-columns: 1.2fr 0.8fr;
+        }
+      }
+
+      /* Cards & Content containers */
+      .card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--gray-200);
+        margin-bottom: 1.5rem;
+      }
+
+      .card-accent {
+        border-top: 5px solid var(--primary);
+      }
+
+      .card h2,
+      .card h3 {
+        color: var(--secondary);
+        margin-bottom: 1rem;
+      }
+
+      .card h3 {
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      /* Code Blocks */
+      .code-container {
+        position: relative;
+        background-color: var(--secondary);
+        border-radius: var(--radius-md);
+        padding: 1.25rem;
+        margin: 1rem 0;
+        overflow-x: auto;
+        color: #f8f8f2;
+        font-family: var(--font-mono);
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+
+      .code-tag {
+        position: absolute;
+        top: 0;
+        right: 0;
+        background-color: var(--gray-700);
+        color: var(--gray-200);
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-bottom-left-radius: var(--radius-sm);
+        text-transform: uppercase;
+      }
+
+      /* Custom syntax highlight mockup */
+      .c-kw {
+        color: #ff79c6;
+        font-weight: bold;
+      } /* keyword */
+      .c-fn {
+        color: #50fa7b;
+      } /* function */
+      .c-str {
+        color: #f1fa8c;
+      } /* string */
+      .c-num {
+        color: #bd93f9;
+      } /* number */
+      .c-com {
+        color: #6272a4;
+        font-style: italic;
+      } /* comment */
+
+      /* Visuals & Diagrams */
+      .diagram-container {
+        background-color: var(--gray-50);
+        border: 1px dashed var(--gray-300);
+        border-radius: var(--radius-md);
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .flow-step {
+        background: white;
+        border: 2px solid var(--gray-300);
+        border-radius: var(--radius-sm);
+        padding: 0.75rem 1.25rem;
+        text-align: center;
+        width: 100%;
+        max-width: 250px;
+        font-weight: 600;
+        box-shadow: var(--shadow-sm);
+        position: relative;
+      }
+
+      .flow-step.accent {
+        border-color: var(--primary);
+        background-color: var(--primary-light);
+        color: var(--primary-dark);
+      }
+
+      .flow-arrow {
+        font-size: 1.5rem;
+        color: var(--gray-600);
+        line-height: 1;
+      }
+
+      /* Business Advantage Badges */
+      .benefit-list {
+        list-style: none;
+        margin-top: 1rem;
+      }
+
+      .benefit-list li {
+        position: relative;
+        padding-left: 2rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .benefit-list li::before {
+        content: "✓";
+        position: absolute;
+        left: 0.25rem;
+        top: 0.1rem;
+        background-color: var(--success-light);
+        color: var(--success);
+        font-weight: bold;
+        border-radius: 50%;
+        width: 1.25rem;
+        height: 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+      }
+
+      /* Interactive Playground & Calculator CSS */
+      .interactive-container {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        box-shadow: var(--shadow-lg);
+        margin: 3rem 0;
+        border: 2px solid var(--primary);
+      }
+
+      .interactive-title {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        color: var(--secondary);
+        border-bottom: 2px solid var(--gray-100);
+        padding-bottom: 1rem;
+      }
+
+      .calc-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      @media (min-width: 768px) {
+        .calc-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .calculator-panel {
+        background-color: var(--gray-50);
+        border-radius: var(--radius-md);
+        padding: 1.5rem;
+        border: 1px solid var(--gray-200);
+      }
+
+      .form-group {
+        margin-bottom: 1.25rem;
+      }
+
+      .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--gray-700);
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius-sm);
+        font-size: 1rem;
+        transition: border-color 0.2s;
+      }
+
+      .form-input:focus {
+        border-color: var(--primary);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+      }
+
+      .calc-btn {
+        width: 100%;
+        padding: 0.85rem;
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        border-radius: var(--radius-sm);
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .calc-btn:hover {
+        background-color: var(--primary-dark);
+      }
+
+      /* Trace Visualizer Code execution */
+      .trace-panel {
+        background-color: var(--secondary);
+        color: white;
+        border-radius: var(--radius-md);
+        padding: 1.5rem;
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .trace-title {
+        color: var(--gray-300);
+        font-weight: bold;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid var(--gray-700);
+        padding-bottom: 0.5rem;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+      }
+
+      .trace-row {
+        padding: 0.5rem;
+        border-radius: var(--radius-sm);
+        margin-bottom: 0.5rem;
+        border-left: 3px solid transparent;
+        transition: all 0.3s ease;
+      }
+
+      .trace-row.checked {
+        background-color: rgba(220, 38, 38, 0.15);
+        border-left-color: var(--danger);
+        color: #f87171;
+      }
+
+      .trace-row.match {
+        background-color: rgba(5, 150, 105, 0.2);
+        border-left-color: var(--success);
+        color: #34d399;
+        font-weight: bold;
+        box-shadow: 0 0 8px rgba(5, 150, 105, 0.3);
+      }
+
+      .trace-row.skipped {
+        opacity: 0.4;
+        text-decoration: line-through;
+      }
+
+      /* BMI Scale visualizer slider */
+      .bmi-scale {
+        display: flex;
+        height: 25px;
+        border-radius: 50px;
+        overflow: hidden;
+        margin-top: 1.5rem;
+        position: relative;
+        border: 1px solid var(--gray-300);
+      }
+
+      .bmi-zone {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: bold;
+        color: white;
+      }
+
+      .zone-under {
+        background-color: #3b82f6;
+        width: 30%;
+      }
+      .zone-normal {
+        background-color: #10b981;
+        width: 30%;
+      }
+      .zone-over {
+        background-color: #f59e0b;
+        width: 20%;
+      }
+      .zone-obese {
+        background-color: #ef4444;
+        width: 20%;
+      }
+
+      .bmi-marker {
+        position: absolute;
+        top: -5px;
+        width: 14px;
+        height: 35px;
+        background-color: var(--secondary);
+        border: 2px solid white;
+        border-radius: 4px;
+        transform: translateX(-50%);
+        transition: left 0.5s ease-in-out;
+        box-shadow: var(--shadow-md);
+      }
+
+      /* Tabs Interface styling */
+      .tab-section {
+        margin-top: 2.5rem;
+      }
+
+      .tab-nav {
+        display: flex;
+        border-bottom: 2px solid var(--gray-200);
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        overflow-x: auto;
+      }
+
+      .tab-btn {
+        padding: 0.75rem 1.25rem;
+        background: none;
+        border: none;
+        border-bottom: 3px solid transparent;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--gray-600);
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.2s;
+      }
+
+      .tab-btn:hover {
+        color: var(--primary);
+      }
+
+      .tab-btn.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+      }
+
+      .tab-panel {
+        display: none;
+      }
+
+      .tab-panel.active {
+        display: block;
+      }
+
+      /* Visual Threshold Table */
+      .threshold-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        font-size: 0.95rem;
+      }
+
+      .threshold-table th,
+      .threshold-table td {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--gray-200);
+      }
+
+      .threshold-table th {
+        background-color: var(--gray-100);
+        color: var(--secondary);
+        font-weight: 600;
+      }
+
+      .threshold-table tr:hover {
+        background-color: var(--gray-50);
+      }
+
+      /* Business Use Case Grid cards */
+      .usecase-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+        margin-top: 1.5rem;
+      }
+
+      @media (min-width: 768px) {
+        .usecase-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      .usecase-card {
+        background-color: var(--gray-50);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-md);
+        padding: 1.25rem;
+        transition: transform 0.2s;
+      }
+
+      .usecase-card:hover {
+        transform: translateY(-2px);
+        border-color: var(--primary);
+      }
+
+      .usecase-card h4 {
+        color: var(--primary-dark);
+        margin-bottom: 0.5rem;
+      }
+
+      /* Interactive Quiz Section */
+      .quiz-container {
+        background-color: white;
+        border-radius: var(--radius-lg);
+        padding: 2.5rem 2rem;
+        box-shadow: var(--shadow-md);
+        margin: 3rem 0;
+        border: 1px solid var(--gray-200);
+      }
+
+      .quiz-title {
+        text-align: center;
+        color: var(--secondary);
+        margin-bottom: 2rem;
+      }
+
+      .quiz-item {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--gray-100);
+      }
+
+      .quiz-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
+
+      .quiz-question {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: var(--secondary);
+        margin-bottom: 1rem;
+      }
+
+      .quiz-options {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+
+      .quiz-option {
+        background-color: var(--gray-50);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-sm);
+        padding: 0.85rem 1.25rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: left;
+        font-size: 0.95rem;
+      }
+
+      .quiz-option:hover {
+        background-color: var(--primary-light);
+        border-color: var(--primary);
+      }
+
+      .quiz-option.selected-correct {
+        background-color: var(--success-light);
+        border-color: var(--success);
+        color: var(--success);
+        font-weight: 600;
+      }
+
+      .quiz-option.selected-incorrect {
+        background-color: #fef2f2;
+        border-color: var(--danger);
+        color: var(--danger);
+      }
+
+      .quiz-feedback {
+        margin-top: 0.75rem;
+        padding: 0.75rem;
+        border-radius: var(--radius-sm);
+        font-size: 0.9rem;
+        display: none;
+      }
+
+      .quiz-feedback.show-correct {
+        display: block;
+        background-color: var(--success-light);
+        color: var(--success);
+        border-left: 4px solid var(--success);
+      }
+
+      .quiz-feedback.show-incorrect {
+        display: block;
+        background-color: #fef2f2;
+        color: var(--danger);
+        border-left: 4px solid var(--danger);
+      }
+
+      /* Footer styling */
+      footer {
+        background-color: var(--secondary);
+        color: var(--gray-300);
+        text-align: center;
+        padding: 3rem 1.5rem;
+        font-size: 0.9rem;
+        border-top: 1px solid var(--gray-800);
+        margin-top: 4rem;
+      }
+
+      footer p {
+        margin-bottom: 1rem;
+      }
+
+      .summary-accent {
+        color: white;
+        font-weight: 600;
+      }
+
+      .before-after-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+      }
+
+      @media (min-width: 768px) {
+        .before-after-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .comparison-tag {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.25rem 0.5rem;
+        border-radius: var(--radius-sm);
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+      }
+
+      .tag-red {
+        background-color: #fef2f2;
+        color: var(--danger);
+      }
+      .tag-green {
+        background-color: var(--success-light);
+        color: var(--success);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <span class="header-badge">Python for Business Professionals</span>
+      <h1>Building Scalable Rules Engines in Python</h1>
+      <p>
+        Learn how to transition from brittle "spaghetti" conditional branches to
+        elegant, data-driven patterns that make your business logic easy to
+        test, update, and reuse.
+      </p>
+    </header>
+
+    <main>
+      <!-- Introduction Box -->
+      <div class="intro-banner">
+        <h2>The Growth Journey of a Business Analyst</h2>
+        <p>
+          As business analysts, we translate messy real-world limits (like
+          credit scores, tax brackets, or BMI bands) into code. Writing clean,
+          maintainable logic is critical because business policies change
+          rapidly. If changing a policy requires rewriting your fundamental code
+          architecture, you are building brittle software. We'll start with
+          standard conditional branches and build our way to a flexible rules
+          engine.
+        </p>
+      </div>
+
+      <!-- Two Column Content Area -->
+      <div class="tutorial-grid">
+        <!-- Left Column: Core Narrative -->
+        <div>
+          <!-- Step 1 Card -->
+          <div class="card card-accent">
+            <h2>Step 1: The Raw Logic</h2>
+            <p>
+              Often, a simple categorization task begins as a standard chain of
+              conditional operators. Let's look at a standard BMI categorization
+              program:
+            </p>
+
+            <div class="code-container">
+              <span class="code-tag">Snippet 1</span>
+              <span class="c-kw">if</span> bmi &lt;
+              <span class="c-num">18.5</span>: category =
+              <span class="c-str">"Underweight"</span>
+              <span class="c-kw">elif</span> bmi &lt;
+              <span class="c-num">25</span>: category =
+              <span class="c-str">"Normal weight"</span>
+              <span class="c-kw">elif</span> bmi &lt;
+              <span class="c-num">30</span>: category =
+              <span class="c-str">"Overweight"</span>
+              <span class="c-kw">else</span>: category =
+              <span class="c-str">"Obese"</span>
+            </div>
+
+            <p>
+              <strong>The Evaluation:</strong> This code is correct,
+              understandable, and standard. It gets the job done. However, it
+              mixes <strong>decision rules</strong> directly with
+              <strong>control flow logic</strong>. Every time you want to
+              evaluate a category, you must copy-paste this block, which
+              increases risk in large corporate reporting systems.
+            </p>
+          </div>
+
+          <!-- Step 2 Card -->
+          <div class="card card-accent">
+            <h2>Step 2: Consolidating inside a Function</h2>
+            <p>
+              A smart first step is isolation. We wrap our rule sequence within
+              a logical block to create a dedicated black-box evaluator.
+            </p>
+
+            <div class="code-container">
+              <span class="code-tag">Snippet 2</span>
+              <span class="c-kw">def</span>
+              <span class="c-fn">get_bmi_category</span>(bmi):
+              <span class="c-kw">if</span> bmi &lt;
+              <span class="c-num">18.5</span>: <span class="c-kw">return</span>
+              <span class="c-str">"Underweight"</span>
+              <span class="c-kw">elif</span> bmi &lt;
+              <span class="c-num">25</span>: <span class="c-kw">return</span>
+              <span class="c-str">"Normal weight"</span>
+              <span class="c-kw">elif</span> bmi &lt;
+              <span class="c-num">30</span>: <span class="c-kw">return</span>
+              <span class="c-str">"Overweight"</span>
+              <span class="c-kw">else</span>: <span class="c-kw">return</span>
+              <span class="c-str">"Obese"</span>
+            </div>
+
+            <div class="diagram-container">
+              <div class="flow-step">Input Value (e.g. 23.4)</div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-step accent">get_bmi_category()</div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-step">"Normal weight"</div>
+            </div>
+
+            <h3>Why is this cleaner?</h3>
+            <ul class="benefit-list">
+              <li>
+                <strong>Reusability:</strong> Can be used across thousands of
+                rows in your customer database easily.
+              </li>
+              <li>
+                <strong>Easier to Test:</strong> You can quickly pass 15, 22, or
+                32 to verify outputs without running the entire program.
+              </li>
+              <li>
+                <strong>Names the business query:</strong> It replaces
+                structural python operators with a human-readable term: "Get BMI
+                Category".
+              </li>
+            </ul>
+          </div>
+
+          <!-- Step 3 Card -->
+          <div class="card card-accent">
+            <h2>Step 3: Separating Data from Algorithm</h2>
+            <p>
+              Can we improve further? Yes. In software architecture, we aim to
+              design programs where the **rules (data)** are completely separate
+              from the **mechanics (algorithm)** that process them.
+            </p>
+            <p>
+              By saving limits inside a nested tuple sequence, we build a
+              scalable dataset that maps numbers to values. The processing
+              engine simply iterates over that structure:
+            </p>
+
+            <div class="code-container">
+              <span class="code-tag">Snippet 3</span>
+              <span class="c-com"># Dynamic Rule Structure (Data)</span>
+              BMI_CATEGORIES = [ (<span class="c-num">18.5</span>,
+              <span class="c-str">"Underweight"</span>), (<span class="c-num"
+                >25.0</span
+              >, <span class="c-str">"Normal weight"</span>), (<span
+                class="c-num"
+                >30.0</span
+              >, <span class="c-str">"Overweight"</span>), (<span class="c-fn"
+                >float</span
+              >(<span class="c-str">"inf"</span>),
+              <span class="c-str">"Obese"</span>)
+              <span class="c-com"># Matches everything else</span>
+              ]
+
+              <span class="c-com"
+                ># Reusable Categorizer Logic (Algorithm)</span
+              >
+              <span class="c-kw">def</span>
+              <span class="c-fn">classify_value</span>(value, categories):
+              <span class="c-kw">for</span> limit, label
+              <span class="c-kw">in</span> categories:
+              <span class="c-kw">if</span> value &lt; limit:
+              <span class="c-kw">return</span> label
+            </div>
+
+            <div class="diagram-container">
+              <div
+                style="
+                  display: flex;
+                  gap: 10px;
+                  width: 100%;
+                  justify-content: center;
+                "
+              >
+                <div class="flow-step" style="max-width: 140px">
+                  Rules Tuple (Data)
+                </div>
+                <div style="font-size: 1.5rem">+</div>
+                <div class="flow-step accent" style="max-width: 140px">
+                  Loop Runner (Algo)
+                </div>
+              </div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-step">Robust business logic</div>
+            </div>
+
+            <h3>Why is this the professional choice?</h3>
+            <ul class="benefit-list">
+              <li>
+                <strong>Maintainability:</strong> If health regulations change
+                the classification of "Overweight" to 28, you only update a
+                single data field, not your conditional program blocks.
+              </li>
+              <li>
+                <strong>Universal Reusability:</strong> The function
+                <code>classify_value</code> doesn't mention "BMI" at all! It is
+                a general numeric classification engine.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Right Column: Sidebar Interactive BMI Table & Comparison -->
+        <div>
+          <div class="card" style="position: sticky; top: 1.5rem">
+            <h3>Standard Reference Table</h3>
+            <p
+              style="
+                font-size: 0.9rem;
+                color: var(--gray-600);
+                margin-bottom: 1rem;
+              "
+            >
+              This reference layout matches the hardcoded ranges in the source
+              python rules.
+            </p>
+            <table class="threshold-table">
+              <thead>
+                <tr>
+                  <th>Upper Limit</th>
+                  <th>Category Name</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>&lt; 18.5</td>
+                  <td>
+                    <span style="color: var(--primary); font-weight: bold"
+                      >Underweight</span
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td>&lt; 25.0</td>
+                  <td>
+                    <span style="color: var(--success); font-weight: bold"
+                      >Normal weight</span
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td>&lt; 30.0</td>
+                  <td>
+                    <span style="color: var(--warning); font-weight: bold"
+                      >Overweight</span
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td>∞ (No limit)</td>
+                  <td>
+                    <span style="color: var(--danger); font-weight: bold"
+                      >Obese</span
+                    >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h3 style="margin-top: 2rem">Architectural Evolution</h3>
+            <div
+              class="before-after-grid"
+              style="grid-template-columns: 1fr; gap: 1rem"
+            >
+              <div
+                style="
+                  background: var(--gray-50);
+                  padding: 1rem;
+                  border-radius: var(--radius-md);
+                "
+              >
+                <span class="comparison-tag tag-red">Brittle (Step 1)</span>
+                <p style="font-size: 0.85rem">
+                  Business rules are deeply nested inside python keywords.
+                  Modifying boundaries requires manual variable reassignments.
+                </p>
+              </div>
+              <div
+                style="
+                  background: var(--gray-50);
+                  padding: 1rem;
+                  border-radius: var(--radius-md);
+                "
+              >
+                <span class="comparison-tag tag-green">Scalable (Step 3)</span>
+                <p style="font-size: 0.85rem">
+                  Data is clean and separate. The parsing algorithm stays
+                  constant. Code can instantly run grade distributions, credit
+                  tiers, etc.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Playground -->
+      <div class="interactive-container">
+        <h2 class="interactive-title">Interactive Rules Laboratory</h2>
+        <p
+          style="
+            text-align: center;
+            color: var(--gray-600);
+            margin-bottom: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+          "
+        >
+          Adjust the sliders or input values to calculate a BMI. Watch the rules
+          evaluation simulator process the thresholds list sequentially until a
+          match is confirmed!
+        </p>
+
+        <div class="calc-grid">
+          <!-- Inputs column -->
+          <div class="calculator-panel">
+            <h3 style="margin-bottom: 1rem">Metric Inputs</h3>
+            <div class="form-group">
+              <label for="weightInput"
+                >Weight (kg):
+                <span id="weightVal" style="color: var(--primary)">70</span>
+                kg</label
+              >
+              <input
+                type="range"
+                id="weightInput"
+                min="40"
+                max="150"
+                value="70"
+                step="1"
+                class="form-input"
+                style="padding: 0"
+              />
+            </div>
+            <div class="form-group">
+              <label for="heightInput"
+                >Height (m):
+                <span id="heightVal" style="color: var(--primary)">1.75</span>
+                m</label
+              >
+              <input
+                type="range"
+                id="heightInput"
+                min="1.20"
+                max="2.20"
+                value="1.75"
+                step="0.01"
+                class="form-input"
+                style="padding: 0"
+              />
+            </div>
+            <div
+              style="
+                margin-top: 1.5rem;
+                background: white;
+                padding: 1rem;
+                border-radius: var(--radius-sm);
+                border: 1px solid var(--gray-200);
+              "
+            >
+              <p style="font-size: 0.9rem; color: var(--gray-600)">
+                Calculated Index:
+              </p>
+              <h2
+                style="font-size: 2rem; color: var(--secondary)"
+                id="calculatedBmi"
+              >
+                22.86
+              </h2>
+              <div class="bmi-scale">
+                <div class="bmi-zone zone-under" title="Underweight"></div>
+                <div class="bmi-zone zone-normal" title="Normal"></div>
+                <div class="bmi-zone zone-over" title="Overweight"></div>
+                <div class="bmi-zone zone-obese" title="Obese"></div>
+                <div class="bmi-marker" id="bmiPointer"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Execution Tracer Column -->
+          <div class="trace-panel">
+            <div>
+              <div class="trace-title">Dynamic Python Execution Engine</div>
+              <p
+                style="
+                  color: var(--gray-300);
+                  font-size: 0.8rem;
+                  margin-bottom: 1rem;
+                  line-height: 1.4;
+                "
+              >
+                Below is our list rules loop. It runs sequentially. Green
+                indicates the return statement; Red indicates thresholds checked
+                and skipped.
+              </p>
+
+              <div id="traceRule1" class="trace-row">
+                <strong>Check 1:</strong> if bmi < 18.5:<br />
+                &nbsp;&nbsp;→ <span class="evaluation">Evaluating...</span>
+              </div>
+              <div id="traceRule2" class="trace-row">
+                <strong>Check 2:</strong> elif bmi < 25.0:<br />
+                &nbsp;&nbsp;→ <span class="evaluation">Evaluating...</span>
+              </div>
+              <div id="traceRule3" class="trace-row">
+                <strong>Check 3:</strong> elif bmi < 30.0:<br />
+                &nbsp;&nbsp;→ <span class="evaluation">Evaluating...</span>
+              </div>
+              <div id="traceRule4" class="trace-row">
+                <strong>Check 4:</strong> else (bmi < float('inf')):<br />
+                &nbsp;&nbsp;→ <span class="evaluation">Evaluating...</span>
+              </div>
+            </div>
+
+            <div
+              style="
+                margin-top: 1.5rem;
+                background: rgba(255, 255, 255, 0.05);
+                padding: 0.85rem;
+                border-radius: var(--radius-sm);
+              "
+            >
+              <span
+                style="
+                  font-size: 0.75rem;
+                  text-transform: uppercase;
+                  letter-spacing: 0.05em;
+                  color: var(--gray-300);
+                "
+                >Determined Output:</span
+              >
+              <div
+                style="font-size: 1.15rem; font-weight: bold; color: #50fa7b"
+                id="activeResult"
+              >
+                Normal weight
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Code Explorer & Business Use cases -->
+      <div class="tab-section">
+        <h2 style="text-align: center; color: var(--secondary)">
+          Explore and Deep Dive
+        </h2>
+        <div class="tab-nav">
+          <button class="tab-btn active" onclick="switchTab('original-code')">
+            Original Code (Static)
+          </button>
+          <button class="tab-btn" onclick="switchTab('function-code')">
+            Functional Approach
+          </button>
+          <button class="tab-btn" onclick="switchTab('data-code')">
+            Data Structure Engine
+          </button>
+          <button class="tab-btn" onclick="switchTab('business-relevance')">
+            Business Adaptability
+          </button>
+        </div>
+
+        <!-- Tab 1 -->
+        <div id="original-code" class="tab-panel active">
+          <div class="card">
+            <h3>The Brittle Logic</h3>
+            <p>
+              The standard conditional architecture relies directly on manual
+              branches. If rules elements overlap or aren't formatted
+              sequentially, developers must rearrange raw structural syntax tags
+              manually.
+            </p>
+            <div class="code-container">
+              <span class="code-tag">Direct Evaluation</span>
+              <span class="c-kw">if</span> bmi &lt;
+              <span class="c-num">18.5</span>: category =
+              <span class="c-str">"Underweight"</span>
+              <span class="c-kw">elif</span> bmi &lt;
+              <span class="c-num">25.0</span>: category =
+              <span class="c-str">"Normal weight"</span>
+              <span class="c-kw">elif</span> bmi &lt;
+              <span class="c-num">30.0</span>: category =
+              <span class="c-str">"Overweight"</span>
+              <span class="c-kw">else</span>: category =
+              <span class="c-str">"Obese"</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2 -->
+        <div id="function-code" class="tab-panel">
+          <div class="card">
+            <h3>The Functional Isolation Pattern</h3>
+            <p>
+              By defining our calculations inside a named module, we create a
+              distinct contract. Testing requires passing simple parameters,
+              returning clean results directly inside clean testing
+              environments.
+            </p>
+            <div class="code-container">
+              <span class="code-tag">Functional</span>
+              <span class="c-kw">def</span>
+              <span class="c-fn">get_bmi_category</span>(bmi):
+              <span class="c-kw">if</span> bmi &lt;
+              <span class="c-num">18.5</span>: <span class="c-kw">return</span>
+              <span class="c-str">"Underweight"</span>
+              <span class="c-kw">elif</span> bmi &lt;
+              <span class="c-num">25.0</span>: <span class="c-kw">return</span>
+              <span class="c-str">"Normal weight"</span>
+              <span class="c-kw">elif</span> bmi &lt;
+              <span class="c-num">30.0</span>: <span class="c-kw">return</span>
+              <span class="c-str">"Overweight"</span>
+              <span class="c-kw">else</span>: <span class="c-kw">return</span>
+              <span class="c-str">"Obese"</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3 -->
+        <div id="data-code" class="tab-panel">
+          <div class="card">
+            <h3>The Flexible Data-Driven Blueprint</h3>
+            <p>
+              Instead of manual code adjustments, developers store policies in
+              data objects. The evaluation script functions dynamically across
+              whatever ranges are passed into it.
+            </p>
+            <div class="code-container">
+              <span class="code-tag">Flexible Data Pattern</span>
+              BMI_CATEGORIES = [ (<span class="c-num">18.5</span>,
+              <span class="c-str">"Underweight"</span>), (<span class="c-num"
+                >25.0</span
+              >, <span class="c-str">"Normal weight"</span>), (<span
+                class="c-num"
+                >30.0</span
+              >, <span class="c-str">"Overweight"</span>), (<span class="c-fn"
+                >float</span
+              >(<span class="c-str">"inf"</span>),
+              <span class="c-str">"Obese"</span>) ]
+
+              <span class="c-kw">def</span>
+              <span class="c-fn">classify_value</span>(value, categories):
+              <span class="c-kw">for</span> limit, label
+              <span class="c-kw">in</span> categories:
+              <span class="c-kw">if</span> value &lt; limit:
+              <span class="c-kw">return</span> label
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 4 -->
+        <div id="business-relevance" class="tab-panel">
+          <div class="card">
+            <h3>Unlocking Universal Use Cases</h3>
+            <p>
+              Because the logic is separated from data, we can recycle the same
+              block (<code>classify_value</code>) for other core operations by
+              only swapping the configuration structure. Look how powerful this
+              is:
+            </p>
+
+            <div class="usecase-grid">
+              <div class="usecase-card">
+                <h4>Sales Commission Tiers</h4>
+                <pre
+                  style="
+                    font-size: 0.75rem;
+                    color: var(--gray-700);
+                    font-family: var(--font-mono);
+                  "
+                >
+COMMISSIONS = [
+  (10000, "0%"),
+  (50000, "5%"),
+  (100000, "10%"),
+  (float("inf"), "15%")
+]</pre>
+              </div>
+              <div class="usecase-card">
+                <h4>Credit Risk Profile</h4>
+                <pre
+                  style="
+                    font-size: 0.75rem;
+                    color: var(--gray-700);
+                    font-family: var(--font-mono);
+                  "
+                >
+CREDIT_RISK = [
+  (580, "Poor"),
+  (670, "Fair"),
+  (740, "Good"),
+  (float("inf"), "Excellent")
+]</pre>
+              </div>
+              <div class="usecase-card">
+                <h4>Student Grade Curve</h4>
+                <pre
+                  style="
+                    font-size: 0.75rem;
+                    color: var(--gray-700);
+                    font-family: var(--font-mono);
+                  "
+                >
+GRADE_TIERS = [
+  (60, "F"),
+  (70, "D"),
+  (80, "C"),
+  (90, "B"),
+  (float("inf"), "A")
+]</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Quiz -->
+      <div class="quiz-container">
+        <h2 class="quiz-title">Knowledge Evaluation Checkpoint</h2>
+
+        <!-- Question 1 -->
+        <div class="quiz-item">
+          <div class="quiz-question">
+            1. What is a key disadvantage of hardcoding nested if-elif blocks
+            inside a main program file?
+          </div>
+          <div class="quiz-options">
+            <button class="quiz-option" onclick="checkQuiz(1, 0, false)">
+              It decreases Python's physical processing speed by 50%.
+            </button>
+            <button class="quiz-option" onclick="checkQuiz(1, 1, true)">
+              It mixes data policies with program control logic, making
+              adjustments risky and code repetitive.
+            </button>
+            <button class="quiz-option" onclick="checkQuiz(1, 2, false)">
+              Python triggers compile-time warnings when variables exceed 3
+              conditional checks.
+            </button>
+          </div>
+          <div id="feedback-1" class="quiz-feedback"></div>
+        </div>
+
+        <!-- Question 2 -->
+        <div class="quiz-item">
+          <div class="quiz-question">
+            2. What is the explicit purpose of incorporating float("inf") as the
+            final upper limit value?
+          </div>
+          <div class="quiz-options">
+            <button class="quiz-option" onclick="checkQuiz(2, 0, false)">
+              It forces Python's processor engine to continuously evaluate and
+              prevent memory errors.
+            </button>
+            <button class="quiz-option" onclick="checkQuiz(2, 1, false)">
+              It resets values back down to zero once constraints are completely
+              evaluated.
+            </button>
+            <button class="quiz-option" onclick="checkQuiz(2, 2, true)">
+              It creates a fallback catch-all constraint ensuring values above
+              all prior thresholds match the final label.
+            </button>
+          </div>
+          <div id="feedback-2" class="quiz-feedback"></div>
+        </div>
+
+        <!-- Question 3 -->
+        <div class="quiz-item">
+          <div class="quiz-question">
+            3. In the architectural design equation "Data Structures +
+            Algorithms = Programs", what component acts as the data structure?
+          </div>
+          <div class="quiz-options">
+            <button class="quiz-option" onclick="checkQuiz(3, 0, true)">
+              The tuple list of limit-label pairs (BMI_CATEGORIES).
+            </button>
+            <button class="quiz-option" onclick="checkQuiz(3, 1, false)">
+              The 'for' loop logic inside classify_value().
+            </button>
+            <button class="quiz-option" onclick="checkQuiz(3, 2, false)">
+              The dynamic math equations performing user height-to-weight
+              conversions.
+            </button>
+          </div>
+          <div id="feedback-3" class="quiz-feedback"></div>
+        </div>
+
+        <!-- Question 4 -->
+        <div class="quiz-item">
+          <div class="quiz-question">
+            4. Why is the classify_value() function considered universally
+            reusable?
+          </div>
+          <div class="quiz-options">
+            <button class="quiz-option" onclick="checkQuiz(4, 0, false)">
+              It uses advanced machine learning patterns to predict data types
+              automatically.
+            </button>
+            <button class="quiz-option" onclick="checkQuiz(4, 1, true)">
+              It avoids domain-specific terminology (like "BMI" or "kg"),
+              accepting arbitrary thresholds instead.
+            </button>
+            <button class="quiz-option" onclick="checkQuiz(4, 2, false)">
+              Because Python variables have global execution properties within
+              generic loop functions.
+            </button>
+          </div>
+          <div id="feedback-4" class="quiz-feedback"></div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>
+        Interactive Refactoring Tutorial — Created for Business Analytics
+        Students.
+      </p>
+      <p>
+        Remember:
+        <span class="summary-accent"
+          >Better code isn't just shorter; it's easier to verify, explain, and
+          maintain.</span
+        >
+      </p>
+    </footer>
+
+    <script>
+      // Interactive Logic Simulator Engine
+      const weightInput = document.getElementById("weightInput");
+      const heightInput = document.getElementById("heightInput");
+      const weightValText = document.getElementById("weightVal");
+      const heightValText = document.getElementById("heightVal");
+      const calculatedBmiText = document.getElementById("calculatedBmi");
+      const activeResultText = document.getElementById("activeResult");
+      const bmiPointer = document.getElementById("bmiPointer");
+
+      const thresholds = [
+        {
+          limit: 18.5,
+          label: "Underweight",
+          rowId: "traceRule1",
+          text: "bmi < 18.5",
+        },
+        {
+          limit: 25.0,
+          label: "Normal weight",
+          rowId: "traceRule2",
+          text: "bmi < 25.0",
+        },
+        {
+          limit: 30.0,
+          label: "Overweight",
+          rowId: "traceRule3",
+          text: "bmi < 30.0",
+        },
+        {
+          limit: Infinity,
+          label: "Obese",
+          rowId: "traceRule4",
+          text: "else (bmi < inf)",
+        },
+      ];
+
+      function calculateAndTrace() {
+        const w = parseFloat(weightInput.value);
+        const h = parseFloat(heightInput.value);
+
+        weightValText.innerText = w;
+        heightValText.innerText = h.toFixed(2);
+
+        const bmi = parseFloat((w / (h * h)).toFixed(2));
+        calculatedBmiText.innerText = bmi;
+
+        // Position visual slider marker
+        // Map BMI range (roughly 14 to 35) to percentage (0% to 100%)
+        let minScale = 14;
+        let maxScale = 35;
+        let percentage = ((bmi - minScale) / (maxScale - minScale)) * 100;
+        percentage = Math.max(2, Math.min(percentage, 98)); // constrain inside bounds
+        bmiPointer.style.left = `${percentage}%`;
+
+        // Sequential evaluation simulator matching user inputs
+        let matched = false;
+
+        thresholds.forEach((rule) => {
+          const el = document.getElementById(rule.rowId);
+          const evalLabel = el.querySelector(".evaluation");
+
+          el.className = "trace-row"; // reset style
+
+          if (matched) {
+            el.classList.add("skipped");
+            evalLabel.innerText = "Skipped (Result already determined)";
+          } else {
+            if (bmi < rule.limit) {
+              el.classList.add("match");
+              evalLabel.innerText = `TRUE! Returns "${rule.label}"`;
+              activeResultText.innerText = rule.label;
+              matched = true;
+            } else {
+              el.classList.add("checked");
+              evalLabel.innerText = `False (${bmi} >= ${rule.limit === Infinity ? "inf" : rule.limit})`;
+            }
+          }
+        });
+      }
+
+      // Add Listeners
+      weightInput.addEventListener("input", calculateAndTrace);
+      heightInput.addEventListener("input", calculateAndTrace);
+
+      // Run on Page Load
+      calculateAndTrace();
+
+      // Tabs switcher function
+      function switchTab(tabId) {
+        const panels = document.querySelectorAll(".tab-panel");
+        const buttons = document.querySelectorAll(".tab-btn");
+
+        panels.forEach((panel) => {
+          panel.classList.remove("active");
+        });
+        buttons.forEach((btn) => {
+          btn.classList.remove("active");
+        });
+
+        document.getElementById(tabId).classList.add("active");
+        // Select original target button to add matching color
+        event.target.classList.add("active");
+      }
+
+      // Interactive Quiz Verification Logic
+      const explanations = {
+        1: "Correct! By separating parameters from evaluations, you can safely modify structural guidelines anytime without breaking loops.",
+        2: "Correct! Infinity operates as the ultimate ceiling boundaries, sweeping up any calculations that exceed previous thresholds.",
+        3: "Correct! The configuration variables function purely as data blocks; independent loops process them as instructions.",
+        4: "Correct! It handles numbers and labels generically, making it perfectly suited to handle any scale system like credit records or grades.",
+      };
+
+      const failedFeedback = {
+        1: "Incorrect. While organization keeps programs readable, performance changes are negligible. Try again!",
+        2: "Incorrect. float('inf') is simply python's syntax for mapping the highest numerical float ceiling. Try again!",
+        3: "Incorrect. Standard structures contain static mappings; operations on top represent algorithmic logic. Try again!",
+        4: "Incorrect. Standard variables require configuration files; the function works globally because it lacks hardcoded values. Try again!",
+      };
+
+      function checkQuiz(questionNum, optionNum, isCorrect) {
+        const item = document.querySelectorAll(".quiz-item")[questionNum - 1];
+        const buttons = item.querySelectorAll(".quiz-option");
+        const feedback = document.getElementById(`feedback-${questionNum}`);
+
+        // Reset buttons
+        buttons.forEach((btn) => {
+          btn.className = "quiz-option";
+        });
+
+        if (isCorrect) {
+          buttons[optionNum].classList.add("selected-correct");
+          feedback.innerText = explanations[questionNum];
+          feedback.className = "quiz-feedback show-correct";
+        } else {
+          buttons[optionNum].classList.add("selected-incorrect");
+          feedback.innerText = failedFeedback[questionNum];
+          feedback.className = "quiz-feedback show-incorrect";
+        }
+      }
+    </script>
+  </body>
+</html>
+ 
