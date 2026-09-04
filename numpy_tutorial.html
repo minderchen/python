@@ -1,0 +1,2086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NumPy for Business Analytics — Sheet Set 08</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08111f;
+  --bg2:#0c1a2c;
+  --panel:#0f2136;
+  --panel2:#132a44;
+  --line:#1e3c5c;
+  --ink:#e6eef8;
+  --ink2:#a8c0dc;
+  --muted:#6e88a8;
+  --amber:#f5b342;
+  --cyan:#46d5e6;
+  --coral:#ff7a68;
+  --green:#6ede8a;
+  --violet:#b48cff;
+  --radius:10px;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,sans-serif;
+  --serif:'IBM Plex Serif',Georgia,serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;padding:0;
+  font-family:var(--sans);
+  color:var(--ink);
+  background-color:var(--bg);
+  background-image:
+    linear-gradient(rgba(70,213,230,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(70,213,230,.045) 1px, transparent 1px),
+    radial-gradient(ellipse 900px 600px at 80% -10%, rgba(70,213,230,.10), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 5% 5%, rgba(245,179,66,.07), transparent 60%);
+  background-size:34px 34px,34px 34px,100% 100%,100% 100%;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px 100px}
+
+/* ---------- HEADER ---------- */
+header.masthead{padding:64px 0 28px;border-bottom:1px solid var(--line)}
+.kicker{font-family:var(--mono);font-size:.74rem;letter-spacing:.14em;color:var(--amber);margin:0 0 14px}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(2.1rem,5.2vw,3.4rem);line-height:1.08;margin:0 0 14px;letter-spacing:-.02em}
+h1 .np{color:var(--cyan)}
+.dek{font-size:1.06rem;color:var(--ink2);max-width:66ch;margin:0 0 26px}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.pill{font-family:var(--mono);font-size:.72rem;padding:6px 12px;border:1px solid var(--line);border-radius:999px;color:var(--ink2);background:rgba(15,33,54,.6)}
+.pill b{color:var(--cyan);font-weight:500}
+
+/* ---------- EQUATION BANNER ---------- */
+.equation{
+  margin:34px 0 10px;padding:26px 22px;border:1px solid var(--line);border-radius:var(--radius);
+  background:linear-gradient(160deg,rgba(19,42,68,.9),rgba(12,26,44,.75));
+  text-align:center;
+}
+.equation .eq{font-family:var(--serif);font-size:clamp(1.05rem,3.3vw,1.7rem);letter-spacing:-.01em}
+.equation .ds{color:var(--amber)}
+.equation .al{color:var(--coral)}
+.equation .plus{color:var(--muted);padding:0 6px}
+.equation .sub{font-family:var(--mono);font-size:.74rem;color:var(--muted);margin-top:12px}
+
+/* ---------- SHEETS ---------- */
+.sheet{border:1px solid var(--line);border-radius:var(--radius);margin:20px 0;background:rgba(12,26,44,.62);overflow:hidden}
+.sheet-head{display:flex;align-items:flex-start;gap:16px;padding:20px 22px;cursor:pointer;user-select:none;transition:background .16s}
+.sheet-head:hover{background:rgba(30,60,92,.32)}
+.sheet-head:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
+.sheet-no{font-family:var(--mono);font-size:.78rem;color:var(--amber);border:1px solid rgba(245,179,66,.4);border-radius:6px;padding:3px 9px;flex:none;margin-top:3px}
+.sheet-title{flex:1}
+.sheet-title h2{font-family:var(--sans);font-weight:600;font-size:1.16rem;margin:0;letter-spacing:-.01em}
+.sheet-title p{margin:4px 0 0;font-size:.9rem;color:var(--muted)}
+.chev{flex:none;width:22px;height:22px;margin-top:4px;color:var(--ink2);transition:transform .22s}
+.sheet.open .chev{transform:rotate(90deg)}
+.sheet-body{display:none;padding:4px 22px 26px;border-top:1px solid var(--line)}
+.sheet.open .sheet-body{display:block}
+
+/* ---------- TYPOGRAPHY INSIDE ---------- */
+h3{font-size:1.02rem;font-weight:600;margin:26px 0 10px;color:var(--ink);letter-spacing:-.005em}
+h4{font-size:.92rem;font-weight:600;margin:18px 0 8px;color:var(--cyan)}
+p{margin:10px 0;max-width:74ch}
+ul,ol{max-width:74ch;padding-left:22px}
+li{margin:6px 0}
+code{font-family:var(--mono);font-size:.86em;background:rgba(70,213,230,.10);color:var(--cyan);padding:1px 5px;border-radius:4px}
+strong{color:#fff;font-weight:600}
+em{color:var(--ink2)}
+a{color:var(--cyan)}
+
+/* ---------- WHY / WHAT / HOW ---------- */
+.wwh{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px;margin:18px 0 6px}
+.wwh div{border:1px solid var(--line);border-left-width:3px;border-radius:8px;padding:13px 15px;background:rgba(15,33,54,.55)}
+.wwh .w-what{border-left-color:var(--cyan)}
+.wwh .w-why{border-left-color:var(--amber)}
+.wwh .w-how{border-left-color:var(--coral)}
+.wwh h5{margin:0 0 6px;font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;font-weight:500}
+.w-what h5{color:var(--cyan)}
+.w-why h5{color:var(--amber)}
+.w-how h5{color:var(--coral)}
+.wwh p{margin:0;font-size:.88rem;color:var(--ink2);max-width:none}
+
+/* ---------- CODE BLOCKS ---------- */
+.code{background:#061020;border:1px solid var(--line);border-radius:8px;margin:14px 0;overflow:hidden}
+.code-bar{display:flex;justify-content:space-between;align-items:center;padding:7px 13px;background:rgba(30,60,92,.4);border-bottom:1px solid var(--line);font-family:var(--mono);font-size:.68rem;color:var(--muted);letter-spacing:.08em}
+.code pre{margin:0;padding:15px 16px;overflow-x:auto;font-family:var(--mono);font-size:.83rem;line-height:1.68;color:#d5e5f5}
+.k{color:var(--violet)}   /* keyword */
+.s{color:var(--green)}    /* string */
+.n{color:var(--coral)}    /* number */
+.c{color:#5d789a;font-style:italic} /* comment */
+.f{color:var(--amber)}    /* function */
+.v{color:var(--cyan)}     /* var/attr */
+
+/* ---------- REVEAL OUTPUT ---------- */
+.reveal{margin:-8px 0 16px}
+.reveal button{
+  font-family:var(--mono);font-size:.74rem;letter-spacing:.06em;
+  background:rgba(245,179,66,.10);color:var(--amber);
+  border:1px dashed rgba(245,179,66,.55);border-radius:6px;
+  padding:7px 14px;cursor:pointer;transition:background .16s
+}
+.reveal button:hover{background:rgba(245,179,66,.2)}
+.reveal .out{
+  display:none;margin-top:8px;background:#04101c;border:1px solid rgba(110,222,138,.3);
+  border-left:3px solid var(--green);border-radius:6px;padding:12px 15px;
+  font-family:var(--mono);font-size:.82rem;color:var(--green);white-space:pre;overflow-x:auto
+}
+.reveal.shown .out{display:block}
+.reveal.shown button{opacity:.45}
+
+/* ---------- CALLOUTS ---------- */
+.note{border-left:3px solid var(--cyan);background:rgba(70,213,230,.07);padding:12px 16px;border-radius:0 8px 8px 0;margin:16px 0}
+.warn{border-left:3px solid var(--coral);background:rgba(255,122,104,.08);padding:12px 16px;border-radius:0 8px 8px 0;margin:16px 0}
+.tip{border-left:3px solid var(--amber);background:rgba(245,179,66,.08);padding:12px 16px;border-radius:0 8px 8px 0;margin:16px 0}
+.note p,.warn p,.tip p{margin:4px 0;font-size:.92rem}
+.note b{color:var(--cyan)}.warn b{color:var(--coral)}.tip b{color:var(--amber)}
+
+/* ---------- TABLES ---------- */
+.tbl{width:100%;border-collapse:collapse;margin:16px 0;font-size:.87rem}
+.tbl th{text-align:left;padding:9px 12px;border-bottom:2px solid var(--line);color:var(--amber);font-weight:600;font-size:.79rem;font-family:var(--mono)}
+.tbl td{padding:9px 12px;border-bottom:1px solid rgba(30,60,92,.55);color:var(--ink2);vertical-align:top}
+.tbl tr:hover td{background:rgba(30,60,92,.22)}
+.tbl code{white-space:nowrap}
+.scrollx{overflow-x:auto}
+
+/* ---------- FIGURES ---------- */
+figure{margin:22px 0;padding:18px;border:1px solid var(--line);border-radius:var(--radius);background:rgba(6,16,32,.6)}
+figure svg{display:block;width:100%;height:auto}
+figcaption{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-top:12px;text-align:center}
+figcaption b{color:var(--amber);font-weight:500}
+
+/* ---------- QUIZ ---------- */
+.quiz{border:1px solid rgba(70,213,230,.35);border-radius:var(--radius);background:rgba(70,213,230,.045);padding:18px 20px;margin:24px 0}
+.quiz-tag{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;color:var(--cyan);margin-bottom:10px}
+.quiz .q{font-weight:600;margin:0 0 12px;font-size:.96rem}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{
+  text-align:left;font-family:var(--sans);font-size:.89rem;color:var(--ink2);
+  background:rgba(15,33,54,.75);border:1px solid var(--line);border-radius:8px;
+  padding:10px 14px;cursor:pointer;transition:all .14s
+}
+.opt:hover:not(.locked){border-color:var(--cyan);color:var(--ink)}
+.opt.correct{border-color:var(--green);background:rgba(110,222,138,.14);color:var(--green)}
+.opt.wrong{border-color:var(--coral);background:rgba(255,122,104,.13);color:var(--coral)}
+.opt.locked{cursor:default}
+.explain{display:none;margin-top:12px;padding:11px 14px;border-radius:8px;background:rgba(6,16,32,.75);border-left:3px solid var(--amber);font-size:.87rem;color:var(--ink2)}
+.explain.show{display:block}
+
+/* ---------- FLIP CARDS ---------- */
+.flipgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:13px;margin:18px 0}
+.flip{perspective:1100px;height:150px;cursor:pointer}
+.flip-in{position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d}
+.flip.flipped .flip-in{transform:rotateY(180deg)}
+.flip-f,.flip-b{position:absolute;inset:0;backface-visibility:hidden;border-radius:9px;border:1px solid var(--line);padding:15px;display:flex;align-items:center;justify-content:center;text-align:center}
+.flip-f{background:rgba(15,33,54,.85);font-weight:600;font-size:.93rem}
+.flip-b{background:rgba(70,213,230,.10);border-color:rgba(70,213,230,.45);transform:rotateY(180deg);font-size:.83rem;color:var(--ink2);font-family:var(--mono);line-height:1.55}
+.flip-hint{position:absolute;bottom:7px;right:10px;font-family:var(--mono);font-size:.6rem;color:var(--muted);letter-spacing:.1em}
+
+/* ---------- LIVE DEMO SHELL ---------- */
+.demo{border:1px solid rgba(245,179,66,.4);border-radius:var(--radius);background:rgba(245,179,66,.045);padding:18px 20px;margin:24px 0}
+.demo-tag{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;color:var(--amber);margin-bottom:12px}
+.ctrl{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:14px}
+.ctrl label{font-family:var(--mono);font-size:.75rem;color:var(--ink2);display:flex;align-items:center;gap:8px}
+.ctrl input[type=range]{width:130px;accent-color:var(--cyan)}
+.ctrl select,.ctrl input[type=text]{font-family:var(--mono);font-size:.78rem;background:#061020;color:var(--cyan);border:1px solid var(--line);border-radius:6px;padding:5px 8px}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.btn{font-family:var(--mono);font-size:.75rem;background:rgba(15,33,54,.85);color:var(--ink2);border:1px solid var(--line);border-radius:7px;padding:7px 13px;cursor:pointer;transition:all .14s}
+.btn:hover{border-color:var(--cyan);color:var(--ink)}
+.btn.on{background:rgba(70,213,230,.16);border-color:var(--cyan);color:var(--cyan)}
+.readout{font-family:var(--mono);font-size:.82rem;background:#04101c;border:1px solid var(--line);border-radius:7px;padding:12px 14px;color:var(--green);white-space:pre-wrap;margin-top:10px}
+
+/* cells grid used by demos */
+.cells{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0}
+.cell{width:44px;height:38px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:5px;font-family:var(--mono);font-size:.78rem;color:var(--muted);background:rgba(15,33,54,.6);transition:all .18s}
+.cell.hit{border-color:var(--cyan);background:rgba(70,213,230,.2);color:var(--cyan);font-weight:600}
+.cell.dim{opacity:.35}
+.idxrow{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:2px}
+.idx{width:44px;text-align:center;font-family:var(--mono);font-size:.62rem;color:var(--muted)}
+
+.matrix{display:inline-block;border-collapse:collapse;margin:6px 14px 6px 0}
+.matrix td{width:46px;height:36px;text-align:center;border:1px solid var(--line);font-family:var(--mono);font-size:.78rem;color:var(--ink2);transition:all .2s}
+.matrix td.sel{background:rgba(245,179,66,.22);border-color:var(--amber);color:var(--amber);font-weight:600}
+.matrix td.res{background:rgba(110,222,138,.18);border-color:var(--green);color:var(--green);font-weight:600}
+.matrix caption{font-family:var(--mono);font-size:.7rem;color:var(--muted);margin-bottom:5px;caption-side:top}
+
+/* bars */
+.bar-wrap{margin:8px 0}
+.bar-lab{font-family:var(--mono);font-size:.74rem;color:var(--ink2);margin-bottom:3px;display:flex;justify-content:space-between}
+.bar{height:16px;border-radius:4px;background:linear-gradient(90deg,var(--cyan),var(--violet));transition:width .8s cubic-bezier(.2,.7,.3,1)}
+.bar.slow{background:linear-gradient(90deg,var(--coral),var(--amber))}
+
+/* ---------- TOC ---------- */
+.toc{border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px;margin:26px 0;background:rgba(15,33,54,.5)}
+.toc h3{margin:0 0 12px;font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;color:var(--amber)}
+.toc ol{list-style:none;padding:0;margin:0;counter-reset:t}
+.toc li{counter-increment:t;margin:0;border-bottom:1px solid rgba(30,60,92,.5)}
+.toc li:last-child{border-bottom:none}
+.toc a{display:flex;gap:14px;padding:8px 0;text-decoration:none;color:var(--ink2);font-size:.9rem;transition:color .14s}
+.toc a:hover{color:var(--cyan)}
+.toc a::before{content:counter(t,decimal-leading-zero);font-family:var(--mono);font-size:.75rem;color:var(--muted);flex:none}
+.toc .expand{margin-top:14px}
+
+footer{margin-top:50px;padding-top:24px;border-top:1px solid var(--line);font-size:.83rem;color:var(--muted);text-align:center}
+footer b{color:var(--ink2);font-weight:500}
+
+@media (max-width:640px){
+  .sheet-head{padding:16px 15px;gap:11px}
+  .sheet-body{padding:4px 15px 22px}
+  .cell,.idx{width:36px}
+  .matrix td{width:38px;height:32px;font-size:.7rem}
+  .flip{height:165px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <p class="kicker">SHEET SET 08 · PYTHON FOR BUSINESS ANALYTICS</p>
+  <h1>NumPy: the array that makes<br>analytics <span class="np">fast and simple</span></h1>
+  <p class="dek">Every table you will ever analyze — a sales matrix, a price vector, a pixel grid — sits on one data structure: the NumPy <code>ndarray</code>. This sheet set builds it from the ground up, then shows the algorithms that only work because that structure exists.</p>
+  <div class="meta-row">
+    <span class="pill">Prereqs: <b>lists</b>, <b>dicts</b>, <b>functions</b></span>
+    <span class="pill">Framework: <b>What → Why → How</b></span>
+    <span class="pill">12 sheets · <b>12 checks</b> · 5 live demos</span>
+    <span class="pill">Install: <b>pip install numpy</b></span>
+  </div>
+</header>
+
+<div class="equation">
+  <div class="eq"><span class="ds">Data Structures</span><span class="plus">+</span><span class="al">Algorithms</span><span class="plus">=</span>Programs</div>
+  <div class="sub">N. WIRTH, 1976 — AND THE REASON NUMPY IS BUILT THE WAY IT IS</div>
+</div>
+
+<p style="color:var(--ink2);max-width:74ch">Read this equation while you work through NumPy and the library stops looking like a bag of functions. <span style="color:var(--amber)">The <code>ndarray</code> is the data structure.</span> <span style="color:var(--coral)">Ufuncs, broadcasting, and aggregations are the algorithms.</span> Pure Python has lists and <code>for</code> loops — a flexible structure with a slow algorithm. NumPy trades flexibility for a rigid structure, and gets algorithms that run 50–100× faster in return.</p>
+
+<div class="toc">
+  <h3>SHEET INDEX</h3>
+  <ol>
+    <li><a href="#s01">Where NumPy sits in the paradigm</a></li>
+    <li><a href="#s02">What an ndarray actually is</a></li>
+    <li><a href="#s03">Why not just use a list?</a></li>
+    <li><a href="#s04">How to create arrays</a></li>
+    <li><a href="#s05">Anatomy: shape, dtype, ndim, strides</a></li>
+    <li><a href="#s06">Indexing, slicing, views and copies</a></li>
+    <li><a href="#s07">Vectorization and universal functions</a></li>
+    <li><a href="#s08">Broadcasting: shapes that stretch</a></li>
+    <li><a href="#s09">Aggregation and the axis argument</a></li>
+    <li><a href="#s10">Reshaping, stacking, splitting</a></li>
+    <li><a href="#s11">Case study: quarterly sales analysis</a></li>
+    <li><a href="#s12">The bridge to pandas + recall deck</a></li>
+  </ol>
+  <div class="expand"><button class="btn" id="expandAll">Open all sheets</button> <button class="btn" id="collapseAll">Close all sheets</button></div>
+</div>
+
+<!-- ================= SHEET 01 ================= -->
+<section class="sheet open" id="s01">
+  <div class="sheet-head" tabindex="0" role="button" aria-expanded="true">
+    <span class="sheet-no">01</span>
+    <div class="sheet-title">
+      <h2>Where NumPy sits in the paradigm</h2>
+      <p>Mapping Wirth's equation onto a real library</p>
+    </div>
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+  </div>
+  <div class="sheet-body">
+
+    <div class="wwh">
+      <div class="w-what"><h5>WHAT</h5><p>NumPy is a Python library whose whole job is to provide one data structure — the N-dimensional array — plus the algorithms that operate on it.</p></div>
+      <div class="w-why"><h5>WHY</h5><p>Analytics is arithmetic on rectangles of numbers. Python's built-in structures were designed for flexibility, not arithmetic.</p></div>
+      <div class="w-how"><h5>HOW</h5><p>Store numbers of one type in one unbroken block of memory, then push loops down into compiled C.</p></div>
+    </div>
+
+    <h3>The two halves of the library</h3>
+    <p>Almost everything you will learn in NumPy falls cleanly into one of the two boxes below. When you get lost, ask yourself: <em>am I learning about the container, or about the operation?</em></p>
+
+    <figure>
+      <svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace">
+        <rect x="20" y="30" width="300" height="190" rx="10" fill="rgba(245,179,66,.07)" stroke="#f5b342" stroke-width="1.5"/>
+        <text x="40" y="60" fill="#f5b342" font-size="14" font-weight="600">DATA STRUCTURE</text>
+        <text x="40" y="82" fill="#a8c0dc" font-size="12">the ndarray</text>
+        <line x1="40" y1="94" x2="300" y2="94" stroke="#1e3c5c"/>
+        <text x="40" y="118" fill="#e6eef8" font-size="12">shape</text><text x="150" y="118" fill="#6e88a8" font-size="11">how many rows / cols</text>
+        <text x="40" y="140" fill="#e6eef8" font-size="12">dtype</text><text x="150" y="140" fill="#6e88a8" font-size="11">what kind of number</text>
+        <text x="40" y="162" fill="#e6eef8" font-size="12">ndim</text><text x="150" y="162" fill="#6e88a8" font-size="11">how many dimensions</text>
+        <text x="40" y="184" fill="#e6eef8" font-size="12">strides</text><text x="150" y="184" fill="#6e88a8" font-size="11">byte steps per axis</text>
+        <text x="40" y="206" fill="#e6eef8" font-size="12">contiguous</text><text x="150" y="206" fill="#6e88a8" font-size="11">one block of memory</text>
+
+        <rect x="380" y="30" width="300" height="190" rx="10" fill="rgba(255,122,104,.07)" stroke="#ff7a68" stroke-width="1.5"/>
+        <text x="400" y="60" fill="#ff7a68" font-size="14" font-weight="600">ALGORITHMS</text>
+        <text x="400" y="82" fill="#a8c0dc" font-size="12">what NumPy does to it</text>
+        <line x1="400" y1="94" x2="660" y2="94" stroke="#1e3c5c"/>
+        <text x="400" y="118" fill="#e6eef8" font-size="12">ufuncs</text><text x="510" y="118" fill="#6e88a8" font-size="11">a + b, np.sqrt(a)</text>
+        <text x="400" y="140" fill="#e6eef8" font-size="12">broadcasting</text><text x="510" y="140" fill="#6e88a8" font-size="11">shape alignment</text>
+        <text x="400" y="162" fill="#e6eef8" font-size="12">reductions</text><text x="510" y="162" fill="#6e88a8" font-size="11">sum, mean, std</text>
+        <text x="400" y="184" fill="#e6eef8" font-size="12">selection</text><text x="510" y="184" fill="#6e88a8" font-size="11">masks, where, sort</text>
+        <text x="400" y="206" fill="#e6eef8" font-size="12">linalg</text><text x="510" y="206" fill="#6e88a8" font-size="11">dot, solve, inv</text>
+
+        <path d="M320 110 L380 110" stroke="#46d5e6" stroke-width="1.5" marker-end="url(#ar1)"/>
+        <path d="M380 145 L320 145" stroke="#46d5e6" stroke-width="1.5" marker-end="url(#ar1)"/>
+        <text x="350" y="132" fill="#46d5e6" font-size="10" text-anchor="middle">act on</text>
+        <defs><marker id="ar1" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 z" fill="#46d5e6"/></marker></defs>
+      </svg>
+      <figcaption><b>Fig. 1</b> — NumPy is one container and a large toolkit of operations that assume that container.</figcaption>
+    </figure>
+
+    <h3>How this maps to a business question</h3>
+    <p>Suppose you are asked: <em>"Which of our four regions grew fastest last year, and which products are underperforming?"</em></p>
+
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Step</th><th>Paradigm half</th><th>NumPy piece</th></tr>
+      <tr><td>Represent sales as a regions × quarters grid</td><td>Data structure</td><td><code>np.array(...)</code> with <code>shape=(4, 4)</code></td></tr>
+      <tr><td>Compute each region's yearly total</td><td>Algorithm</td><td><code>sales.sum(axis=1)</code></td></tr>
+      <tr><td>Compute Q4-vs-Q1 growth per region</td><td>Algorithm</td><td><code>(sales[:, 3] - sales[:, 0]) / sales[:, 0]</code></td></tr>
+      <tr><td>Flag anything below the mean</td><td>Algorithm</td><td><code>sales &lt; sales.mean()</code></td></tr>
+      <tr><td>Pull out only the flagged values</td><td>Both</td><td><code>sales[mask]</code></td></tr>
+    </table></div>
+
+    <div class="note"><p><b>Read this as a habit, not a fact.</b> Before writing analytics code, ask "how should I shape this data?" first. Once the shape is right, the NumPy call that answers the question is usually a single line. When you find yourself writing a nested <code>for</code> loop over an array, that is a signal your data structure choice needs a second look.</p></div>
+
+    <div class="quiz" data-quiz>
+      <div class="quiz-tag">CHECK 1 OF 9</div>
+      <p class="q">In Wirth's equation applied to NumPy, which pair is correctly matched?</p>
+      <div class="opts">
+        <button class="opt" data-c="0">ndarray = algorithm · dtype = data structure</button>
+        <button class="opt" data-c="1">ndarray = data structure · <code>np.mean()</code> = algorithm</button>
+        <button class="opt" data-c="0">Both the ndarray and <code>np.mean()</code> are data structures</button>
+        <button class="opt" data-c="0"><code>import numpy as np</code> = the algorithm half</button>
+      </div>
+      <div class="explain">The <code>ndarray</code> is the container — it holds the data and knows its own shape and type. Functions like <code>np.mean()</code>, <code>np.sqrt()</code> and <code>+</code> are the procedures that run over that container. <code>dtype</code> is an <em>attribute</em> of the structure, not a separate thing.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= SHEET 02 ================= -->
+<section class="sheet" id="s02">
+  <div class="sheet-head" tabindex="0" role="button" aria-expanded="false">
+    <span class="sheet-no">02</span>
+    <div class="sheet-title">
+      <h2>What an ndarray actually is</h2>
+      <p>Homogeneous, fixed-size, N-dimensional, contiguous</p>
+    </div>
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+  </div>
+  <div class="sheet-body">
+
+    <div class="wwh">
+      <div class="w-what"><h5>WHAT</h5><p>An <code>ndarray</code> is a grid of values, <strong>all of the same type</strong>, stored in <strong>one continuous block of memory</strong>, with a shape describing how that block is read as rows and columns.</p></div>
+      <div class="w-why"><h5>WHY</h5><p>Same type + one block = the CPU can walk the data with fixed-size steps and no type checks. That single design decision is where all the speed comes from.</p></div>
+      <div class="w-how"><h5>HOW</h5><p><code>np.array([...])</code> copies your Python data into that block and picks the narrowest type that fits everything.</p></div>
+    </div>
+
+    <h3>Four defining properties</h3>
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Property</th><th>Meaning</th><th>Consequence for you</th></tr>
+      <tr><td><strong>Homogeneous</strong></td><td>Every element has the same <code>dtype</code></td><td>You cannot mix <code>int</code> and <code>str</code> freely — NumPy will upcast everything to one type</td></tr>
+      <tr><td><strong>Fixed size</strong></td><td>Length is set at creation</td><td>There is no <code>.append()</code>. Growing an array means building a new one</td></tr>
+      <tr><td><strong>N-dimensional</strong></td><td>1D vector, 2D matrix, 3D cube, and beyond</td><td>One API handles a price list, a sales table, and an image stack</td></tr>
+      <tr><td><strong>Contiguous</strong></td><td>Elements sit next to each other in RAM</td><td>Operations run in compiled C at memory-bus speed</td></tr>
+    </table></div>
+
+    <h3>Your first array</h3>
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>first_array.py</span></div>
+<pre><span class="k">import</span> numpy <span class="k">as</span> np
+
+<span class="c"># A list of monthly revenue in thousands</span>
+revenue = np.<span class="f">array</span>([<span class="n">120</span>, <span class="n">135</span>, <span class="n">128</span>, <span class="n">150</span>, <span class="n">162</span>, <span class="n">158</span>])
+
+<span class="f">print</span>(revenue)
+<span class="f">print</span>(<span class="f">type</span>(revenue))
+<span class="f">print</span>(revenue.<span class="v">dtype</span>)
+<span class="f">print</span>(revenue.<span class="v">shape</span>)</pre>
+    </div>
+    <div class="reveal"><button>Show output</button><div class="out">[120 135 128 150 162 158]
+&lt;class 'numpy.ndarray'&gt;
+int64
+(6,)</div></div>
+
+    <p>Two details worth noticing. First, printing an array shows <strong>no commas</strong> — that is how you tell an array from a list at a glance. Second, <code>shape</code> is a tuple: <code>(6,)</code> means one dimension of length six. The trailing comma is Python's way of writing a one-element tuple, not a typo.</p>
+
+    <h3>The memory picture</h3>
+    <p>This diagram is the single most useful mental image in NumPy. A Python list stores <em>pointers</em> to objects scattered across memory. An ndarray stores the <em>values themselves</em>, side by side.</p>
+
+    <figure>
+      <svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace">
+        <text x="10" y="22" fill="#ff7a68" font-size="13" font-weight="600">PYTHON LIST  [120, 135, 128, 150]</text>
+        <rect x="10" y="36" width="260" height="34" rx="5" fill="rgba(255,122,104,.09)" stroke="#ff7a68"/>
+        <g font-size="11" fill="#ff7a68">
+          <rect x="20" y="43" width="55" height="20" rx="3" fill="rgba(255,122,104,.2)"/><text x="30" y="57">ptr→</text>
+          <rect x="82" y="43" width="55" height="20" rx="3" fill="rgba(255,122,104,.2)"/><text x="92" y="57">ptr→</text>
+          <rect x="144" y="43" width="55" height="20" rx="3" fill="rgba(255,122,104,.2)"/><text x="154" y="57">ptr→</text>
+          <rect x="206" y="43" width="55" height="20" rx="3" fill="rgba(255,122,104,.2)"/><text x="216" y="57">ptr→</text>
+        </g>
+        <path d="M47 70 L110 120" stroke="#ff7a68" stroke-width="1" stroke-dasharray="3 3"/>
+        <path d="M109 70 L300 118" stroke="#ff7a68" stroke-width="1" stroke-dasharray="3 3"/>
+        <path d="M171 70 L60 118" stroke="#ff7a68" stroke-width="1" stroke-dasharray="3 3"/>
+        <path d="M233 70 L440 118" stroke="#ff7a68" stroke-width="1" stroke-dasharray="3 3"/>
+        <g font-size="10">
+          <rect x="30" y="120" width="70" height="42" rx="4" fill="rgba(15,33,54,.9)" stroke="#1e3c5c"/>
+          <text x="40" y="137" fill="#e6eef8">int obj</text><text x="40" y="152" fill="#46d5e6">128</text>
+          <rect x="90" y="120" width="70" height="42" rx="4" fill="rgba(15,33,54,.9)" stroke="#1e3c5c"/>
+          <text x="100" y="137" fill="#e6eef8">int obj</text><text x="100" y="152" fill="#46d5e6">120</text>
+          <rect x="275" y="118" width="70" height="42" rx="4" fill="rgba(15,33,54,.9)" stroke="#1e3c5c"/>
+          <text x="285" y="135" fill="#e6eef8">int obj</text><text x="285" y="150" fill="#46d5e6">135</text>
+          <rect x="415" y="118" width="70" height="42" rx="4" fill="rgba(15,33,54,.9)" stroke="#1e3c5c"/>
+          <text x="425" y="135" fill="#e6eef8">int obj</text><text x="425" y="150" fill="#46d5e6">150</text>
+        </g>
+        <text x="500" y="140" fill="#6e88a8" font-size="10">objects scattered;</text>
+        <text x="500" y="154" fill="#6e88a8" font-size="10">each carries type +</text>
+        <text x="500" y="168" fill="#6e88a8" font-size="10">refcount overhead</text>
+
+        <line x1="10" y1="192" x2="690" y2="192" stroke="#1e3c5c"/>
+
+        <text x="10" y="222" fill="#46d5e6" font-size="13" font-weight="600">NUMPY ARRAY  np.array([120, 135, 128, 150])</text>
+        <rect x="10" y="236" width="440" height="44" rx="5" fill="rgba(70,213,230,.08)" stroke="#46d5e6"/>
+        <g font-size="12" fill="#46d5e6">
+          <rect x="20" y="245" width="100" height="26" rx="3" fill="rgba(70,213,230,.18)"/><text x="52" y="263">120</text>
+          <rect x="126" y="245" width="100" height="26" rx="3" fill="rgba(70,213,230,.18)"/><text x="158" y="263">135</text>
+          <rect x="232" y="245" width="100" height="26" rx="3" fill="rgba(70,213,230,.18)"/><text x="264" y="263">128</text>
+          <rect x="338" y="245" width="100" height="26" rx="3" fill="rgba(70,213,230,.18)"/><text x="370" y="263">150</text>
+        </g>
+        <text x="20" y="298" fill="#6e88a8" font-size="10">byte 0</text>
+        <text x="126" y="298" fill="#6e88a8" font-size="10">byte 8</text>
+        <text x="232" y="298" fill="#6e88a8" font-size="10">byte 16</text>
+        <text x="338" y="298" fill="#6e88a8" font-size="10">byte 24</text>
+        <text x="470" y="255" fill="#f5b342" font-size="10">one block, one dtype,</text>
+        <text x="470" y="269" fill="#f5b342" font-size="10">fixed 8-byte stride</text>
+      </svg>
+      <figcaption><b>Fig. 2</b> — A list is an address book. An array is a filing cabinet with identical drawers.</figcaption>
+    </figure>
+
+    <div class="note"><p><b>Why the stride matters.</b> Because every element is exactly 8 bytes wide, NumPy can find element <em>i</em> with one multiplication: <code>start + i * 8</code>. No pointer chasing, no type lookup. That is a hardware-friendly access pattern, and CPUs reward it heavily through cache prefetching.</p></div>
+
+    <h3>Homogeneity in action</h3>
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>upcasting.py</span></div>
+<pre><span class="c"># Mixing int and float → everything becomes float</span>
+a = np.<span class="f">array</span>([<span class="n">1</span>, <span class="n">2</span>, <span class="n">3.5</span>])
+<span class="f">print</span>(a, a.<span class="v">dtype</span>)
+
+<span class="c"># Mixing numbers and text → everything becomes a string</span>
+b = np.<span class="f">array</span>([<span class="n">1</span>, <span class="n">2</span>, <span class="s">'north'</span>])
+<span class="f">print</span>(b, b.<span class="v">dtype</span>)
+
+<span class="c"># Booleans are treated as 1 and 0</span>
+c = np.<span class="f">array</span>([<span class="k">True</span>, <span class="k">False</span>, <span class="k">True</span>])
+<span class="f">print</span>(c.<span class="f">sum</span>())</pre>
+    </div>
+    <div class="reveal"><button>Show output</button><div class="out">[1.  2.  3.5] float64
+['1' '2' 'north'] &lt;U21
+2</div></div>
+
+    <div class="warn"><p><b>Trap.</b> That second result is a common bug in real analytics work. One stray text value in a column of numbers silently turns the whole array into strings, and every later arithmetic operation fails. Always check <code>arr.dtype</code> after loading data from a file.</p></div>
+
+    <div class="quiz" data-quiz>
+      <div class="quiz-tag">CHECK 2 OF 9</div>
+      <p class="q">What is <code>np.array([10, 20, 30.0]).dtype</code>?</p>
+      <div class="opts">
+        <button class="opt" data-c="0"><code>int64</code>, because two of the three values are integers</button>
+        <button class="opt" data-c="1"><code>float64</code>, because the array must hold one type and float can hold all three</button>
+        <button class="opt" data-c="0"><code>object</code>, because the types are mixed</button>
+        <button class="opt" data-c="0">It raises a <code>TypeError</code></button>
+      </div>
+      <div class="explain">Homogeneity forces a decision. NumPy picks the narrowest type that can represent every value without loss — <code>float64</code> here. The integers <code>10</code> and <code>20</code> become <code>10.0</code> and <code>20.0</code>. Going the other way would lose the <code>.0</code> on 30, so NumPy never downcasts.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= SHEET 03 ================= -->
+<section class="sheet" id="s03">
+  <div class="sheet-head" tabindex="0" role="button" aria-expanded="false">
+    <span class="sheet-no">03</span>
+    <div class="sheet-title">
+      <h2>Why not just use a list?</h2>
+      <p>Speed, memory, and syntax — the three arguments</p>
+    </div>
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+  </div>
+  <div class="sheet-body">
+
+    <p>You already know lists. They work. So the honest question is: what does NumPy buy you that a list plus a <code>for</code> loop does not?</p>
+
+    <h3>Argument 1 — Syntax: the loop disappears</h3>
+    <p>Say every product price rises 8%. Here is the same task twice.</p>
+
+    <div class="code">
+      <div class="code-bar"><span>PYTHON — PURE LIST</span><span>before</span></div>
+<pre>prices = [<span class="n">19.99</span>, <span class="n">45.50</span>, <span class="n">12.75</span>, <span class="n">88.00</span>]
+
+new_prices = []
+<span class="k">for</span> p <span class="k">in</span> prices:
+    new_prices.<span class="f">append</span>(p * <span class="n">1.08</span>)
+
+<span class="f">print</span>(new_prices)</pre>
+    </div>
+    <div class="code">
+      <div class="code-bar"><span>PYTHON — NUMPY</span><span>after</span></div>
+<pre>prices = np.<span class="f">array</span>([<span class="n">19.99</span>, <span class="n">45.50</span>, <span class="n">12.75</span>, <span class="n">88.00</span>])
+
+new_prices = prices * <span class="n">1.08</span>
+
+<span class="f">print</span>(new_prices)</pre>
+    </div>
+    <div class="reveal"><button>Show output</button><div class="out">[21.5892 49.14   13.77   95.04  ]</div></div>
+
+    <p>Three lines became one, and the one that survived reads like the sentence you would say out loud: <em>multiply prices by 1.08</em>. This is called <strong>vectorization</strong>, and it is Sheet 07's whole topic. Notice that <code>prices * 1.08</code> on a plain list would not error — it would repeat the list, which is worse than an error.</p>
+
+    <h3>Argument 2 — Speed: the loop moves to C</h3>
+    <p>The Python loop above executes 4 times in Python's interpreter. Each iteration unboxes a float object, multiplies, boxes the result, and appends. The NumPy version hands the whole block to a compiled C routine that does the multiplication with no interpreter overhead at all.</p>
+
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>benchmark.py</span></div>
+<pre><span class="k">import</span> numpy <span class="k">as</span> np, time
+
+n = <span class="n">1_000_000</span>
+py_list = <span class="f">list</span>(<span class="f">range</span>(n))
+np_arr  = np.<span class="f">arange</span>(n)
+
+t0 = time.<span class="f">perf_counter</span>()
+result_list = [x * <span class="n">2</span> <span class="k">for</span> x <span class="k">in</span> py_list]
+t1 = time.<span class="f">perf_counter</span>()
+
+t2 = time.<span class="f">perf_counter</span>()
+result_arr = np_arr * <span class="n">2</span>
+t3 = time.<span class="f">perf_counter</span>()
+
+<span class="f">print</span>(<span class="s">f"list:  {(t1-t0)*1000:.1f} ms"</span>)
+<span class="f">print</span>(<span class="s">f"numpy: {(t3-t2)*1000:.1f} ms"</span>)
+<span class="f">print</span>(<span class="s">f"speedup: {(t1-t0)/(t3-t2):.0f}x"</span>)</pre>
+    </div>
+    <div class="reveal"><button>Show typical output</button><div class="out">list:  61.4 ms
+numpy: 1.2 ms
+speedup: 51x</div></div>
+
+    <div class="demo">
+      <div class="demo-tag">LIVE DEMO — SCALE THE DATASET</div>
+      <div class="ctrl">
+        <label>Elements: <input type="range" id="szRange" min="3" max="8" step="1" value="6"><span id="szLab" style="color:var(--cyan)">1,000,000</span></label>
+      </div>
+      <div class="bar-wrap"><div class="bar-lab"><span>Python list comprehension</span><span id="tList">—</span></div><div class="bar slow" id="barList" style="width:0%"></div></div>
+      <div class="bar-wrap"><div class="bar-lab"><span>NumPy vectorized</span><span id="tNp">—</span></div><div class="bar" id="barNp" style="width:0%"></div></div>
+      <div class="readout" id="speedOut">Drag the slider to see how the gap grows.</div>
+      <p style="font-size:.8rem;color:var(--muted);margin-top:10px">Modelled from typical timings on commodity hardware. Run the benchmark above on your own machine — the ratio will be in the same range.</p>
+    </div>
+
+    <h3>Argument 3 — Memory: less per number</h3>
+    <p>A Python <code>int</code> is a full object with a type pointer, a reference count, and a variable-width value. That is roughly 28 bytes for a small integer, plus 8 more for the list's pointer to it. A NumPy <code>int64</code> is exactly 8 bytes, and there is one array object for the whole block instead of one object per element.</p>
+
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Container</th><th>1 million integers</th><th>Roughly</th></tr>
+      <tr><td>Python <code>list</code> of <code>int</code></td><td>~36 MB</td><td>28 B object + 8 B pointer each</td></tr>
+      <tr><td><code>np.array(dtype=int64)</code></td><td>~8 MB</td><td>8 B each, one header</td></tr>
+      <tr><td><code>np.array(dtype=int32)</code></td><td>~4 MB</td><td>4 B each — use when values fit</td></tr>
+      <tr><td><code>np.array(dtype=int8)</code></td><td>~1 MB</td><td>1 B each — flags, small codes</td></tr>
+    </table></div>
+
+    <div class="tip"><p><b>Practical note.</b> On a 4 GB laptop the difference between 36 MB and 8 MB rarely matters. On a 20-million-row transaction table it decides whether your analysis runs at all. Choosing a narrower dtype is the cheapest optimization in analytics.</p></div>
+
+    <h3>When a list is still the right choice</h3>
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Use a list when…</th><th>Use an array when…</th></tr>
+      <tr><td>Elements are different types (a record: name, date, amount)</td><td>Elements are all numbers of one type</td></tr>
+      <tr><td>You are appending items one at a time in a loop</td><td>The size is known and fixed</td></tr>
+      <tr><td>The collection is small and you want readable Python</td><td>You need arithmetic across the whole collection</td></tr>
+      <tr><td>You need nesting of unequal lengths</td><td>Your data is genuinely rectangular</td></tr>
+    </table></div>
+
+    <div class="quiz" data-quiz>
+      <div class="quiz-tag">CHECK 3 OF 9</div>
+      <p class="q">Given <code>lst = [1, 2, 3]</code> and <code>arr = np.array([1, 2, 3])</code>, what do <code>lst * 2</code> and <code>arr * 2</code> produce?</p>
+      <div class="opts">
+        <button class="opt" data-c="0">Both give <code>[2, 4, 6]</code></button>
+        <button class="opt" data-c="1"><code>lst * 2</code> gives <code>[1, 2, 3, 1, 2, 3]</code>; <code>arr * 2</code> gives <code>[2 4 6]</code></button>
+        <button class="opt" data-c="0"><code>lst * 2</code> raises a <code>TypeError</code>; <code>arr * 2</code> gives <code>[2 4 6]</code></button>
+        <button class="opt" data-c="0">Both raise errors — you must loop</button>
+      </div>
+      <div class="explain">For a list, <code>*</code> means <em>repeat the sequence</em>. For an array, <code>*</code> means <em>multiply every element</em>. This is one of the most dangerous silent differences for beginners: the list version does not crash, it just quietly gives you six numbers instead of three doubled ones.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= SHEET 04 ================= -->
+<section class="sheet" id="s04">
+  <div class="sheet-head" tabindex="0" role="button" aria-expanded="false">
+    <span class="sheet-no">04</span>
+    <div class="sheet-title">
+      <h2>How to create arrays</h2>
+      <p>Six constructors that cover almost every situation</p>
+    </div>
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+  </div>
+  <div class="sheet-body">
+
+    <div class="wwh">
+      <div class="w-what"><h5>WHAT</h5><p>Constructors are functions that build a fresh ndarray — either from data you already have, or from a rule.</p></div>
+      <div class="w-why"><h5>WHY</h5><p>Because arrays are fixed-size, you must allocate the right shape up front. Picking the right constructor saves a reshape later.</p></div>
+      <div class="w-how"><h5>HOW</h5><p>From data: <code>np.array</code>. From a rule: <code>zeros</code>, <code>ones</code>, <code>full</code>, <code>arange</code>, <code>linspace</code>, <code>eye</code>, or a random generator.</p></div>
+    </div>
+
+    <h3>From existing Python data</h3>
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>from_data.py</span></div>
+<pre><span class="c"># 1D — a vector of unit prices</span>
+prices = np.<span class="f">array</span>([<span class="n">19.99</span>, <span class="n">45.50</span>, <span class="n">12.75</span>])
+
+<span class="c"># 2D — a nested list becomes rows and columns</span>
+sales = np.<span class="f">array</span>([[<span class="n">120</span>, <span class="n">135</span>, <span class="n">128</span>, <span class="n">150</span>],
+                  [<span class="n">98</span>,  <span class="n">104</span>, <span class="n">115</span>, <span class="n">122</span>],
+                  [<span class="n">210</span>, <span class="n">198</span>, <span class="n">225</span>, <span class="n">240</span>]])
+
+<span class="c"># Force a dtype at creation time</span>
+codes = np.<span class="f">array</span>([<span class="n">1</span>, <span class="n">0</span>, <span class="n">1</span>, <span class="n">1</span>], dtype=np.<span class="v">int8</span>)
+
+<span class="f">print</span>(sales.<span class="v">shape</span>, sales.<span class="v">ndim</span>)
+<span class="f">print</span>(codes.<span class="v">dtype</span>, codes.<span class="v">nbytes</span>, <span class="s">'bytes'</span>)</pre>
+    </div>
+    <div class="reveal"><button>Show output</button><div class="out">(3, 4) 2
+int8 4 bytes</div></div>
+
+    <div class="note"><p><b>Nesting rule.</b> One pair of brackets per dimension. <code>[1,2,3]</code> is 1D. <code>[[1,2],[3,4]]</code> is 2D. <code>[[[1],[2]],[[3],[4]]]</code> is 3D. If the inner lists have <em>different</em> lengths, NumPy cannot build a rectangle and will raise an error — a useful early warning that your data is not really tabular.</p></div>
+
+    <h3>From a rule</h3>
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>constructors.py</span></div>
+<pre>np.<span class="f">zeros</span>(<span class="n">5</span>)                 <span class="c"># [0. 0. 0. 0. 0.]  — placeholder to fill in</span>
+np.<span class="f">zeros</span>((<span class="n">3</span>, <span class="n">4</span>))            <span class="c"># 3x4 grid of 0.0</span>
+np.<span class="f">ones</span>((<span class="n">2</span>, <span class="n">3</span>))             <span class="c"># 2x3 grid of 1.0</span>
+np.<span class="f">full</span>((<span class="n">2</span>, <span class="n">2</span>), <span class="n">0.07</span>)        <span class="c"># every cell = 0.07 (e.g. a tax rate grid)</span>
+np.<span class="f">eye</span>(<span class="n">3</span>)                   <span class="c"># 3x3 identity matrix</span>
+
+np.<span class="f">arange</span>(<span class="n">0</span>, <span class="n">10</span>, <span class="n">2</span>)          <span class="c"># [0 2 4 6 8]   — step-based, stop is EXCLUSIVE</span>
+np.<span class="f">linspace</span>(<span class="n">0</span>, <span class="n">1</span>, <span class="n">5</span>)         <span class="c"># [0. 0.25 0.5 0.75 1.] — count-based, stop INCLUSIVE</span>
+
+rng = np.<span class="f">default_rng</span>(seed=<span class="n">42</span>)   <span class="c"># modern random generator</span>
+rng.<span class="f">integers</span>(<span class="n">50</span>, <span class="n">200</span>, size=(<span class="n">3</span>, <span class="n">4</span>))
+rng.<span class="f">normal</span>(loc=<span class="n">100</span>, scale=<span class="n">15</span>, size=<span class="n">5</span>)</pre>
+    </div>
+    <div class="reveal"><button>Show output of the last two</button><div class="out">[[ 63 166 148 115]
+ [114 178  62 154]
+ [ 80  64 128 196]]
+
+[101.9  95.3  99.7  87.2 113.2]</div></div>
+
+    <h3><code>arange</code> vs <code>linspace</code> — the one that trips people up</h3>
+    <div class="scrollx"><table class="tbl">
+      <tr><th></th><th><code>np.arange(start, stop, step)</code></th><th><code>np.linspace(start, stop, num)</code></th></tr>
+      <tr><td>You specify</td><td>the <strong>gap</strong> between values</td><td>the <strong>number</strong> of values</td></tr>
+      <tr><td>Endpoint</td><td>excluded</td><td>included by default</td></tr>
+      <tr><td>Count</td><td>you find out afterwards</td><td>exactly what you asked for</td></tr>
+      <tr><td>Floats</td><td>risky — rounding can add or drop a value</td><td>safe — count is guaranteed</td></tr>
+      <tr><td>Typical use</td><td>integer indices, row numbers</td><td>plot axes, scenario grids</td></tr>
+    </table></div>
+
+    <div class="tip"><p><b>Rule of thumb.</b> Integers → <code>arange</code>. Anything with a decimal point → <code>linspace</code>. <code>np.arange(0, 1, 0.1)</code> can produce 10 or 11 elements depending on float rounding; <code>np.linspace(0, 1, 11)</code> always produces 11.</p></div>
+
+    <h3>Seeding: why <code>default_rng(seed=42)</code> matters</h3>
+    <p>A seed makes random numbers reproducible. Run the same seeded code tomorrow and you get identical values. In analytics that is not a nicety — it is how a colleague reproduces your model results, and how you tell a real change in output from random noise.</p>
+
+    <div class="warn"><p><b>Legacy warning.</b> You will see <code>np.random.rand()</code> and <code>np.random.seed()</code> in older tutorials. They still work but NumPy now recommends the generator form: <code>rng = np.default_rng(seed)</code>, then <code>rng.normal(...)</code>. Use the new form in new code.</p></div>
+
+    <div class="quiz" data-quiz>
+      <div class="quiz-tag">CHECK 4 OF 9</div>
+      <p class="q">You need 100 evenly spaced values between 0 and 5 inclusive, for a price-sensitivity chart. Which call is correct?</p>
+      <div class="opts">
+        <button class="opt" data-c="0"><code>np.arange(0, 5, 100)</code></button>
+        <button class="opt" data-c="0"><code>np.arange(0, 5, 0.05)</code></button>
+        <button class="opt" data-c="1"><code>np.linspace(0, 5, 100)</code></button>
+        <button class="opt" data-c="0"><code>np.zeros(100) + 5</code></button>
+      </div>
+      <div class="explain">You specified a <em>count</em> (100) and needed the endpoint <em>included</em> — both point to <code>linspace</code>. Option 1 is wrong because <code>arange</code>'s third argument is the step, so it would give just <code>[0]</code>. Option 2 gives 100 values but stops at 4.95, missing the endpoint.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= SHEET 05 ================= -->
+<section class="sheet" id="s05">
+  <div class="sheet-head" tabindex="0" role="button" aria-expanded="false">
+    <span class="sheet-no">05</span>
+    <div class="sheet-title">
+      <h2>Anatomy: shape, dtype, ndim, strides</h2>
+      <p>Reading an array's metadata before you touch its values</p>
+    </div>
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+  </div>
+  <div class="sheet-body">
+
+    <div class="wwh">
+      <div class="w-what"><h5>WHAT</h5><p>Every array carries a small set of attributes describing the block of memory it wraps.</p></div>
+      <div class="w-why"><h5>WHY</h5><p>Most NumPy errors are shape errors. Reading <code>.shape</code> first turns a confusing traceback into an obvious fix.</p></div>
+      <div class="w-how"><h5>HOW</h5><p>They are attributes, not methods — <code>arr.shape</code>, no parentheses.</p></div>
+    </div>
+
+    <figure>
+      <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace">
+        <text x="200" y="24" fill="#f5b342" font-size="12">axis 1  →  columns (quarters)</text>
+        <path d="M200 32 L440 32" stroke="#f5b342" stroke-width="1.2" marker-end="url(#ar2)"/>
+        <text x="26" y="120" fill="#46d5e6" font-size="12" transform="rotate(-90 26 120)">axis 0 → rows</text>
+        <path d="M46 60 L46 200" stroke="#46d5e6" stroke-width="1.2" marker-end="url(#ar3)"/>
+        <defs>
+          <marker id="ar2" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 z" fill="#f5b342"/></marker>
+          <marker id="ar3" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 z" fill="#46d5e6"/></marker>
+        </defs>
+
+        <g font-size="12">
+          <text x="90" y="52" fill="#6e88a8" font-size="10">Q1</text><text x="165" y="52" fill="#6e88a8" font-size="10">Q2</text>
+          <text x="240" y="52" fill="#6e88a8" font-size="10">Q3</text><text x="315" y="52" fill="#6e88a8" font-size="10">Q4</text>
+          <text x="62" y="86" fill="#6e88a8" font-size="10">0</text><text x="62" y="126" fill="#6e88a8" font-size="10">1</text><text x="62" y="166" fill="#6e88a8" font-size="10">2</text>
+
+          <rect x="78" y="66" width="70" height="30" fill="rgba(70,213,230,.12)" stroke="#1e3c5c"/><text x="97" y="86" fill="#e6eef8">120</text>
+          <rect x="153" y="66" width="70" height="30" fill="rgba(70,213,230,.12)" stroke="#1e3c5c"/><text x="172" y="86" fill="#e6eef8">135</text>
+          <rect x="228" y="66" width="70" height="30" fill="rgba(70,213,230,.12)" stroke="#1e3c5c"/><text x="247" y="86" fill="#e6eef8">128</text>
+          <rect x="303" y="66" width="70" height="30" fill="rgba(70,213,230,.12)" stroke="#1e3c5c"/><text x="322" y="86" fill="#e6eef8">150</text>
+
+          <rect x="78" y="106" width="70" height="30" fill="rgba(70,213,230,.12)" stroke="#1e3c5c"/><text x="103" y="126" fill="#e6eef8">98</text>
+          <rect x="153" y="106" width="70" height="30" fill="rgba(70,213,230,.12)" stroke="#1e3c5c"/><text x="172" y="126" fill="#e6eef8">104</text>
+          <rect x="228" y="106" width="70" height="30" fill="rgba(70,213,230,.12)" stroke="#1e3c5c"/><text x="247" y="126" fill="#e6eef8">115</text>
+          <rect x="303" y="106" width="70" height="30" fill="rgba(70,213,230,.12)" stroke="#1e3c5c"/><text x="322" y="126" fill="#e6eef8">122</text>
+
+          <rect x="78" y="146" width="70" height="30" fill="rgba(70,213,230,.12)" stroke="#1e3c5c"/><text x="97" y="166" fill="#e6eef8">210</text>
+          <rect x="153" y="146" width="70" height="30" fill="rgba(70,213,230,.12)" stroke="#1e3c5c"/><text x="172" y="166" fill="#e6eef8">198</text>
+          <rect x="228" y="146" width="70" height="30" fill="rgba(70,213,230,.12)" stroke="#1e3c5c"/><text x="247" y="166" fill="#e6eef8">225</text>
+          <rect x="303" y="146" width="70" height="30" fill="rgba(70,213,230,.12)" stroke="#1e3c5c"/><text x="322" y="166" fill="#e6eef8">240</text>
+        </g>
+
+        <g font-size="11">
+          <text x="430" y="84" fill="#f5b342">sales.shape</text><text x="565" y="84" fill="#46d5e6">(3, 4)</text>
+          <text x="430" y="106" fill="#f5b342">sales.ndim</text><text x="565" y="106" fill="#46d5e6">2</text>
+          <text x="430" y="128" fill="#f5b342">sales.size</text><text x="565" y="128" fill="#46d5e6">12</text>
+          <text x="430" y="150" fill="#f5b342">sales.dtype</text><text x="565" y="150" fill="#46d5e6">int64</text>
+          <text x="430" y="172" fill="#f5b342">sales.itemsize</text><text x="565" y="172" fill="#46d5e6">8</text>
+          <text x="430" y="194" fill="#f5b342">sales.nbytes</text><text x="565" y="194" fill="#46d5e6">96</text>
+          <text x="430" y="216" fill="#f5b342">sales.strides</text><text x="565" y="216" fill="#46d5e6">(32, 8)</text>
+        </g>
+
+        <line x1="20" y1="240" x2="680" y2="240" stroke="#1e3c5c"/>
+        <text x="20" y="262" fill="#a8c0dc" font-size="11">In memory it is one flat run of 12 numbers, read left-to-right, row by row (C order):</text>
+        <text x="20" y="284" fill="#6ede8a" font-size="11">120 135 128 150 | 98 104 115 122 | 210 198 225 240</text>
+      </svg>
+      <figcaption><b>Fig. 3</b> — The 3×4 grid is a reading instruction laid over a flat block. <b>strides=(32, 8)</b> means: skip 32 bytes to move down a row, 8 bytes to move right a column.</figcaption>
+    </figure>
+
+    <h3>The attribute checklist</h3>
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Attribute</th><th>Returns</th><th>Use it to…</th></tr>
+      <tr><td><code>.shape</code></td><td>tuple of lengths per axis</td><td>debug 90% of NumPy errors</td></tr>
+      <tr><td><code>.ndim</code></td><td>number of axes</td><td>tell a vector from a matrix</td></tr>
+      <tr><td><code>.size</code></td><td>total element count</td><td>sanity-check a reshape</td></tr>
+      <tr><td><code>.dtype</code></td><td>element type</td><td>catch strings hiding in numeric data</td></tr>
+      <tr><td><code>.itemsize</code></td><td>bytes per element</td><td>estimate memory</td></tr>
+      <tr><td><code>.nbytes</code></td><td><code>size × itemsize</code></td><td>see the real footprint</td></tr>
+      <tr><td><code>.T</code></td><td>transposed view</td><td>flip rows and columns for free</td></tr>
+    </table></div>
+
+    <h3>The dtype menu</h3>
+    <div class="scrollx"><table class="tbl">
+      <tr><th>dtype</th><th>Bytes</th><th>Range or meaning</th><th>Analytics use</th></tr>
+      <tr><td><code>bool</code></td><td>1</td><td>True / False</td><td>filter masks</td></tr>
+      <tr><td><code>int8</code></td><td>1</td><td>−128 to 127</td><td>ratings, small category codes</td></tr>
+      <tr><td><code>int32</code></td><td>4</td><td>±2.1 billion</td><td>counts, IDs, unit volumes</td></tr>
+      <tr><td><code>int64</code></td><td>8</td><td>±9.2 quintillion</td><td>default integer</td></tr>
+      <tr><td><code>float32</code></td><td>4</td><td>~7 significant digits</td><td>large model inputs where precision is loose</td></tr>
+      <tr><td><code>float64</code></td><td>8</td><td>~16 significant digits</td><td>default for money and rates</td></tr>
+      <tr><td><code>&lt;U10</code></td><td>40</td><td>Unicode string, max 10 chars</td><td>labels — but pandas handles text better</td></tr>
+    </table></div>
+
+    <div class="demo">
+      <div class="demo-tag">LIVE DEMO — MEMORY CALCULATOR</div>
+      <div class="ctrl">
+        <label>Rows <input type="text" id="mRows" value="1000000" size="9"></label>
+        <label>Columns <input type="text" id="mCols" value="12" size="4"></label>
+        <label>dtype
+          <select id="mType">
+            <option value="8">float64 (8 B)</option>
+            <option value="4">float32 (4 B)</option>
+            <option value="8" data-n="int64">int64 (8 B)</option>
+            <option value="4" data-n="int32">int32 (4 B)</option>
+            <option value="1" data-n="int8">int8 (1 B)</option>
+            <option value="1" data-n="bool">bool (1 B)</option>
+          </select>
+        </label>
+      </div>
+      <div class="readout" id="memOut">—</div>
+    </div>
+
+    <div class="warn"><p><b>Overflow is silent.</b> Fixed-width integers wrap around instead of erroring. <code>np.array([127], dtype=np.int8) + 1</code> gives <code>-128</code>, not <code>128</code>. If you narrow a dtype to save memory, confirm your values actually fit in the range first.</p></div>
+
+    <div class="quiz" data-quiz>
+      <div class="quiz-tag">CHECK 5 OF 9</div>
+      <p class="q">An array reports <code>shape=(500, 8)</code> and <code>dtype=float64</code>. What is <code>.nbytes</code>?</p>
+      <div class="opts">
+        <button class="opt" data-c="0">508</button>
+        <button class="opt" data-c="0">4,000</button>
+        <button class="opt" data-c="1">32,000</button>
+        <button class="opt" data-c="0">64,000</button>
+      </div>
+      <div class="explain"><code>size</code> is 500 × 8 = 4,000 elements. Each <code>float64</code> is 8 bytes. So <code>nbytes</code> = 4,000 × 8 = 32,000 bytes, or about 31 KB. The pattern is always <code>size × itemsize</code>.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= SHEET 06 ================= -->
+<section class="sheet" id="s06">
+  <div class="sheet-head" tabindex="0" role="button" aria-expanded="false">
+    <span class="sheet-no">06</span>
+    <div class="sheet-title">
+      <h2>Indexing, slicing, views and copies</h2>
+      <p>Getting the right cells out — and the trap nobody warns you about</p>
+    </div>
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+  </div>
+  <div class="sheet-body">
+
+    <div class="wwh">
+      <div class="w-what"><h5>WHAT</h5><p>Selection syntax for pulling out single cells, ranges, or arbitrary subsets of an array.</p></div>
+      <div class="w-why"><h5>WHY</h5><p>Real questions are always about a subset: this region, these months, the rows above target.</p></div>
+      <div class="w-how"><h5>HOW</h5><p>Three mechanisms — basic slicing (fast, returns a view), boolean masking, and fancy indexing (both return copies).</p></div>
+    </div>
+
+    <h3>1D slicing: <code>arr[start:stop:step]</code></h3>
+    <p>Same rules as Python lists. <code>start</code> is included, <code>stop</code> is excluded, negative indices count from the end.</p>
+
+    <div class="demo">
+      <div class="demo-tag">LIVE DEMO — SLICE EXPLORER</div>
+      <div class="ctrl">
+        <label>start <input type="range" id="slStart" min="-12" max="12" value="0"><span id="slStartV" style="color:var(--cyan);width:26px;display:inline-block">0</span></label>
+        <label>stop <input type="range" id="slStop" min="-12" max="12" value="12"><span id="slStopV" style="color:var(--cyan);width:26px;display:inline-block">12</span></label>
+        <label>step <input type="range" id="slStep" min="-3" max="3" value="1"><span id="slStepV" style="color:var(--cyan);width:26px;display:inline-block">1</span></label>
+      </div>
+      <div class="idxrow" id="slIdx"></div>
+      <div class="cells" id="slCells"></div>
+      <div class="readout" id="slOut">—</div>
+    </div>
+
+    <h3>2D indexing: <code>arr[rows, cols]</code></h3>
+    <p>One bracket, one comma. Write the row selector, then the column selector. Using <code>arr[1][2]</code> works but is slower and does not extend to slices — always prefer <code>arr[1, 2]</code>.</p>
+
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>indexing_2d.py</span></div>
+<pre>sales = np.<span class="f">array</span>([[<span class="n">120</span>, <span class="n">135</span>, <span class="n">128</span>, <span class="n">150</span>],   <span class="c"># North</span>
+                  [<span class="n">98</span>,  <span class="n">104</span>, <span class="n">115</span>, <span class="n">122</span>],   <span class="c"># South</span>
+                  [<span class="n">210</span>, <span class="n">198</span>, <span class="n">225</span>, <span class="n">240</span>]])  <span class="c"># West</span>
+
+sales[<span class="n">1</span>, <span class="n">2</span>]        <span class="c"># 115   — South, Q3 (a single number)</span>
+sales[<span class="n">0</span>]           <span class="c"># [120 135 128 150] — the whole North row</span>
+sales[:, <span class="n">3</span>]        <span class="c"># [150 122 240] — Q4 for every region</span>
+sales[<span class="n">0</span>:<span class="n">2</span>, <span class="n">1</span>:<span class="n">3</span>]    <span class="c"># [[135 128]  — first two regions, Q2-Q3</span>
+                    <span class="c">#  [104 115]]</span>
+sales[-<span class="n">1</span>, -<span class="n">1</span>]      <span class="c"># 240   — last region, last quarter</span>
+sales[:, ::<span class="n">2</span>]      <span class="c"># every other quarter: Q1 and Q3</span></pre>
+    </div>
+
+    <div class="note"><p><b>Dimension bookkeeping.</b> An integer index <em>removes</em> an axis; a slice <em>keeps</em> it. So <code>sales[:, 3]</code> has shape <code>(3,)</code> — a flat vector — while <code>sales[:, 3:4]</code> has shape <code>(3, 1)</code> — still 2D, a single column. That difference matters a lot in Sheet 08.</p></div>
+
+    <h3>Views vs copies — the trap</h3>
+    <p>Basic slicing does not copy data. It hands you a new array object that <em>looks at the same memory</em>. Writing to the slice writes to the original. This is a feature — it is why slicing a million-row array is instant — but it surprises everyone once.</p>
+
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>view_trap.py</span></div>
+<pre>original = np.<span class="f">array</span>([<span class="n">10</span>, <span class="n">20</span>, <span class="n">30</span>, <span class="n">40</span>, <span class="n">50</span>])
+
+chunk = original[<span class="n">1</span>:<span class="n">4</span>]      <span class="c"># a VIEW, not a copy</span>
+chunk[<span class="n">0</span>] = <span class="n">999</span>
+
+<span class="f">print</span>(chunk)
+<span class="f">print</span>(original)             <span class="c"># the original changed too!</span>
+
+safe = original[<span class="n">1</span>:<span class="n">4</span>].<span class="f">copy</span>()  <span class="c"># explicit copy</span>
+safe[<span class="n">0</span>] = <span class="n">-1</span>
+<span class="f">print</span>(original)             <span class="c"># untouched this time</span></pre>
+    </div>
+    <div class="reveal"><button>Show output</button><div class="out">[999  30  40]
+[ 10 999  30  40  50]
+[ 10 999  30  40  50]</div></div>
+
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Operation</th><th>Returns</th><th>Shares memory?</th></tr>
+      <tr><td><code>arr[1:4]</code>, <code>arr[:, 2]</code>, <code>arr.T</code>, <code>arr.reshape(...)</code></td><td>view</td><td>yes — edits propagate</td></tr>
+      <tr><td><code>arr[[0, 2, 4]]</code> (fancy indexing)</td><td>copy</td><td>no</td></tr>
+      <tr><td><code>arr[arr &gt; 100]</code> (boolean mask)</td><td>copy</td><td>no</td></tr>
+      <tr><td><code>arr.copy()</code>, <code>arr.flatten()</code></td><td>copy</td><td>no</td></tr>
+    </table></div>
+
+    <div class="tip"><p><b>Diagnostic.</b> <code>b.base is a</code> returns <code>True</code> when <code>b</code> is a view of <code>a</code>. When in doubt, check it — or just call <code>.copy()</code> whenever you plan to modify a subset.</p></div>
+
+    <h3>Boolean masking — the analyst's workhorse</h3>
+    <p>A comparison on an array produces an array of <code>True</code>/<code>False</code>, one per element. Feed that back into the brackets and you get only the matching elements. This is how you express "show me the rows where…" without a loop.</p>
+
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>masking.py</span></div>
+<pre>revenue = np.<span class="f">array</span>([<span class="n">120</span>, <span class="n">98</span>, <span class="n">210</span>, <span class="n">135</span>, <span class="n">88</span>, <span class="n">240</span>])
+
+mask = revenue &gt; <span class="n">130</span>
+<span class="f">print</span>(mask)                 <span class="c"># the boolean array itself</span>
+<span class="f">print</span>(revenue[mask])         <span class="c"># only the passing values</span>
+<span class="f">print</span>(mask.<span class="f">sum</span>())            <span class="c"># how many passed — True counts as 1</span>
+<span class="f">print</span>(revenue[revenue &gt; <span class="n">130</span>].<span class="f">mean</span>())
+
+<span class="c"># Combine conditions with &amp; (and), | (or), ~ (not)</span>
+<span class="c"># Each condition MUST be wrapped in parentheses</span>
+mid = revenue[(revenue &gt; <span class="n">100</span>) &amp; (revenue &lt; <span class="n">220</span>)]
+<span class="f">print</span>(mid)</pre>
+    </div>
+    <div class="reveal"><button>Show output</button><div class="out">[False False  True  True False  True]
+[210 135 240]
+3
+195.0
+[120 210 135]</div></div>
+
+    <div class="warn"><p><b>Use <code>&amp;</code> and <code>|</code>, never <code>and</code> / <code>or</code>.</b> Python's <code>and</code> asks a single yes/no question about a whole object; an array of six booleans has no single answer, so NumPy raises <em>"The truth value of an array with more than one element is ambiguous."</em> The bitwise operators work element by element. And because <code>&amp;</code> binds tighter than <code>&gt;</code>, every condition needs its own parentheses.</p></div>
+
+    <h3>Fancy indexing and <code>np.where</code></h3>
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>fancy_where.py</span></div>
+<pre>revenue = np.<span class="f">array</span>([<span class="n">120</span>, <span class="n">98</span>, <span class="n">210</span>, <span class="n">135</span>, <span class="n">88</span>, <span class="n">240</span>])
+
+<span class="c"># Fancy indexing: pass a list of positions, in any order, with repeats</span>
+<span class="f">print</span>(revenue[[<span class="n">0</span>, <span class="n">3</span>, <span class="n">5</span>]])       <span class="c"># [120 135 240]</span>
+<span class="f">print</span>(revenue[[<span class="n">5</span>, <span class="n">5</span>, <span class="n">0</span>]])       <span class="c"># [240 240 120]</span>
+
+<span class="c"># np.where(condition, value_if_true, value_if_false) — vectorized if/else</span>
+status = np.<span class="f">where</span>(revenue &gt;= <span class="n">130</span>, <span class="s">'on target'</span>, <span class="s">'below'</span>)
+<span class="f">print</span>(status)
+
+<span class="c"># np.where with one argument returns the POSITIONS that are True</span>
+<span class="f">print</span>(np.<span class="f">where</span>(revenue &gt;= <span class="n">130</span>))</pre>
+    </div>
+    <div class="reveal"><button>Show output</button><div class="out">[120 135 240]
+[240 240 120]
+['below' 'below' 'on target' 'on target' 'below' 'on target']
+(array([2, 3, 5]),)</div></div>
+
+    <div class="quiz" data-quiz>
+      <div class="quiz-tag">CHECK 6 OF 9</div>
+      <p class="q"><code>a = np.array([1,2,3,4,5])</code>; <code>b = a[1:3]</code>; <code>b[0] = 99</code>. What is <code>a</code> afterwards?</p>
+      <div class="opts">
+        <button class="opt" data-c="0"><code>[1 2 3 4 5]</code> — <code>b</code> is an independent copy</button>
+        <button class="opt" data-c="1"><code>[1 99 3 4 5]</code> — <code>b</code> is a view into <code>a</code>'s memory</button>
+        <button class="opt" data-c="0"><code>[99 2 3 4 5]</code></button>
+        <button class="opt" data-c="0">An error — views are read-only</button>
+      </div>
+      <div class="explain">Basic slicing returns a <strong>view</strong>. <code>b[0]</code> is the same memory location as <code>a[1]</code>, so writing 99 through <code>b</code> changes <code>a</code>. If you need independence, write <code>b = a[1:3].copy()</code>. Note that boolean masking and fancy indexing behave differently — those always return copies.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= SHEET 07 ================= -->
+<section class="sheet" id="s07">
+  <div class="sheet-head" tabindex="0" role="button" aria-expanded="false">
+    <span class="sheet-no">07</span>
+    <div class="sheet-title">
+      <h2>Vectorization and universal functions</h2>
+      <p>What "universal" means, and why it needs the ndarray</p>
+    </div>
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+  </div>
+  <div class="sheet-body">
+
+    <div class="wwh">
+      <div class="w-what"><h5>WHAT</h5><p>A <strong>ufunc</strong> (universal function) applies one scalar operation to every element of an array, in compiled C, with no Python loop.</p></div>
+      <div class="w-why"><h5>WHY</h5><p>The loop is where Python is slow. Deleting the loop is the whole optimization.</p></div>
+      <div class="w-how"><h5>HOW</h5><p>Write the operation as if the array were a single number: <code>a + b</code>, <code>np.sqrt(a)</code>, <code>a &gt; 100</code>.</p></div>
+    </div>
+
+
+    <h3>Unpacking the name</h3>
+    <p>The word is worth taking apart, because it describes exactly what the thing does. A <strong>ufunc</strong> takes a <em>scalar</em> operation — add these two numbers, take this square root, compare these two values — and applies it to every element of an array in one call, with the loop running in compiled C rather than in Python.</p>
+
+    <p>The part that surprises most people: you have been using ufuncs since Sheet 03 without meeting the word.</p>
+
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>already_using_them.py</span></div>
+<pre>prices = np.<span class="f">array</span>([<span class="n">19.99</span>, <span class="n">45.50</span>, <span class="n">12.75</span>])
+
+prices * <span class="n">1.08</span>        <span class="c"># the * IS a ufunc — np.multiply</span>
+np.<span class="f">sqrt</span>(prices)      <span class="c"># so is this</span>
+prices &gt; <span class="n">20</span>          <span class="c"># and this — np.greater</span>
+
+<span class="c"># Same call, any number of dimensions — that is the "universal" part</span>
+np.<span class="f">sqrt</span>(<span class="n">16</span>)                          <span class="c"># a scalar        -> 4.0</span>
+np.<span class="f">sqrt</span>(np.<span class="f">array</span>([<span class="n">4</span>, <span class="n">9</span>, <span class="n">16</span>]))         <span class="c"># a vector        -> [2. 3. 4.]</span>
+np.<span class="f">sqrt</span>(np.<span class="f">array</span>([[<span class="n">4</span>, <span class="n">9</span>], [<span class="n">16</span>, <span class="n">25</span>]]))  <span class="c"># a matrix        -> [[2. 3.] [4. 5.]]</span></pre>
+    </div>
+
+    <div class="note"><p><b>What "universal" means.</b> One function handles a scalar, a vector, a matrix, or a five-dimensional block without you changing a character. The operator <code>*</code> is just friendly syntax for <code>np.multiply</code>; <code>a * b</code> and <code>np.multiply(a, b)</code> are the same call.</p></div>
+
+    <h3>Think it through before reading on</h3>
+    <p>In Sheet 02 you saw that an ndarray is <strong>homogeneous</strong> — one dtype — and <strong>contiguous</strong> — one unbroken block of memory. Ufuncs only work because of those two properties.</p>
+
+    <div class="tip"><p><b>Question.</b> What would go wrong if NumPy tried to run a fast C loop over a Python list like <code>[1, 2, 'north', 4.5]</code>? Think about what the C code would have to check at every step — and what it does <em>not</em> have to check when every element is guaranteed to be an 8-byte float sitting immediately after the last one.</p></div>
+
+    <div class="reveal"><button>Reveal the answer</button><div class="out">Three things break, and each one maps to a property the ndarray guarantees.
+
+1. WHERE IS THE NEXT ELEMENT?
+   In a list the C code must follow a pointer to find each object,
+   and those objects sit at unpredictable addresses.
+   In an array it is always "current address + 8 bytes" — one addition.
+
+2. WHAT TYPE IS THIS ONE?
+   In a list, element 2 is a string. The C code would have to inspect
+   the type of EVERY element and branch: int? float? str? error?
+   In an array the dtype is checked ONCE, before the loop starts.
+
+3. WHICH MACHINE INSTRUCTION APPLIES?
+   Multiplying an int and multiplying a float are different CPU
+   instructions. Mixed types mean the decision is remade per element.
+   One dtype means the instruction is chosen once and reused.
+
+The list also cannot use SIMD, where the CPU multiplies 4 or 8 adjacent
+floats in a single instruction. That trick needs the values side by side.
+
+So: homogeneous removes the type check, contiguous removes the pointer
+chase. Remove both and the "fast C loop" is just the Python loop again,
+written in C.</div></div>
+
+    <p>This is the equation from Sheet 01 doing real work. The ufunc is not fast because someone wrote clever code — it is fast because the data structure underneath it made a fast algorithm <em>legal</em>. Change the structure to a list and the same algorithm becomes impossible.</p>
+
+    <figure>
+      <svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace">
+        <text x="20" y="24" fill="#ff7a68" font-size="12" font-weight="600">LOOPING — Python does the walking</text>
+        <rect x="20" y="34" width="300" height="80" rx="6" fill="rgba(255,122,104,.06)" stroke="#ff7a68"/>
+        <g font-size="10" fill="#a8c0dc">
+          <text x="34" y="54">interpreter → unbox → multiply → box → store</text>
+          <text x="34" y="70">interpreter → unbox → multiply → box → store</text>
+          <text x="34" y="86">interpreter → unbox → multiply → box → store</text>
+          <text x="34" y="102">… repeated n times, each with full overhead</text>
+        </g>
+        <text x="20" y="136" fill="#ff7a68" font-size="11">cost ≈ n × (interpreter overhead + work)</text>
+
+        <text x="380" y="24" fill="#46d5e6" font-size="12" font-weight="600">VECTORIZED — C does the walking</text>
+        <rect x="380" y="34" width="300" height="80" rx="6" fill="rgba(70,213,230,.07)" stroke="#46d5e6"/>
+        <g font-size="10" fill="#a8c0dc">
+          <text x="394" y="58">one call crosses into compiled code</text>
+          <text x="394" y="78">a tight C loop walks the contiguous block</text>
+          <text x="394" y="98">CPU applies SIMD instructions on batches</text>
+        </g>
+        <text x="380" y="136" fill="#46d5e6" font-size="11">cost ≈ 1 × overhead + n × work</text>
+
+        <line x1="20" y1="158" x2="680" y2="158" stroke="#1e3c5c"/>
+        <text x="20" y="182" fill="#f5b342" font-size="11">The work per element is identical. What disappears is the per-element Python tax.</text>
+        <text x="20" y="204" fill="#6e88a8" font-size="10">This is only possible because the array is contiguous and homogeneous — the data structure</text>
+        <text x="20" y="220" fill="#6e88a8" font-size="10">is what makes the fast algorithm legal. Structure and algorithm, again.</text>
+      </svg>
+      <figcaption><b>Fig. 4</b> — Vectorization does not do less work. It pays the interpreter tax once instead of n times.</figcaption>
+    </figure>
+
+    <h3>The ufunc catalogue</h3>
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Category</th><th>Operations</th><th>Business example</th></tr>
+      <tr><td>Arithmetic</td><td><code>+ - * / // % **</code></td><td><code>revenue - cost</code> → margin per row</td></tr>
+      <tr><td>Comparison</td><td><code>&gt; &gt;= &lt; &lt;= == !=</code></td><td><code>units &lt; reorder_point</code> → restock flags</td></tr>
+      <tr><td>Math</td><td><code>np.sqrt, np.exp, np.log, np.abs</code></td><td><code>np.log(revenue)</code> → tame a skewed distribution</td></tr>
+      <tr><td>Rounding</td><td><code>np.round, np.floor, np.ceil</code></td><td><code>np.round(price, 2)</code> → currency display</td></tr>
+      <tr><td>Logical</td><td><code>&amp; | ~ np.logical_and</code></td><td>combine filter conditions</td></tr>
+      <tr><td>Conditional</td><td><code>np.where, np.clip</code></td><td><code>np.clip(discount, 0, 0.3)</code> → cap discounts</td></tr>
+    </table></div>
+
+    <h3>A worked margin calculation</h3>
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>margins.py</span></div>
+<pre>units   = np.<span class="f">array</span>([<span class="n">340</span>, <span class="n">125</span>, <span class="n">890</span>, <span class="n">410</span>, <span class="n">67</span>])
+price   = np.<span class="f">array</span>([<span class="n">19.99</span>, <span class="n">45.50</span>, <span class="n">4.25</span>, <span class="n">12.75</span>, <span class="n">99.00</span>])
+cost    = np.<span class="f">array</span>([<span class="n">11.20</span>, <span class="n">31.00</span>, <span class="n">2.10</span>, <span class="n">8.40</span>,  <span class="n">61.50</span>])
+
+revenue      = units * price                <span class="c"># element-wise, no loop</span>
+gross_profit = units * (price - cost)
+margin_pct   = (price - cost) / price * <span class="n">100</span>
+
+<span class="f">print</span>(np.<span class="f">round</span>(revenue, <span class="n">2</span>))
+<span class="f">print</span>(np.<span class="f">round</span>(margin_pct, <span class="n">1</span>))
+
+<span class="c"># Vectorized if/else: label each product</span>
+tier = np.<span class="f">where</span>(margin_pct &gt;= <span class="n">40</span>, <span class="s">'high'</span>,
+       np.<span class="f">where</span>(margin_pct &gt;= <span class="n">30</span>, <span class="s">'mid'</span>, <span class="s">'low'</span>))
+<span class="f">print</span>(tier)
+
+<span class="c"># Cap any discount at 30% without a loop</span>
+proposed = np.<span class="f">array</span>([<span class="n">0.10</span>, <span class="n">0.45</span>, <span class="n">0.05</span>, <span class="n">0.60</span>, <span class="n">0.22</span>])
+<span class="f">print</span>(np.<span class="f">clip</span>(proposed, <span class="n">0</span>, <span class="n">0.30</span>))</pre>
+    </div>
+    <div class="reveal"><button>Show output</button><div class="out">[6796.6  5687.5  3782.5  5227.5  6633.  ]
+[44.  31.9 50.6 34.1 37.9]
+['high' 'mid' 'high' 'mid' 'mid']
+[0.1  0.3  0.05 0.3  0.22]</div></div>
+
+    <p>Every line above operates on all five products at once. Swap in a five-million-row array and not a single character of this code changes — that is the scaling property vectorization gives you for free.</p>
+
+    <div class="note"><p><b>Shapes must match.</b> Element-wise operations between two arrays require compatible shapes. <code>units</code> and <code>price</code> are both <code>(5,)</code>, so NumPy pairs them position by position. If they were <code>(5,)</code> and <code>(4,)</code> you would get a broadcast error. What "compatible" means exactly is the next sheet.</p></div>
+
+    <div class="quiz" data-quiz>
+      <div class="quiz-tag">CHECK 7 OF 9</div>
+      <p class="q">Which line correctly labels values above 100 as <code>'high'</code> and everything else as <code>'low'</code>, without a loop?</p>
+      <div class="opts">
+        <button class="opt" data-c="0"><code>if arr &gt; 100: 'high' else: 'low'</code></button>
+        <button class="opt" data-c="0"><code>[('high' if x &gt; 100 else 'low') for x in arr]</code></button>
+        <button class="opt" data-c="1"><code>np.where(arr &gt; 100, 'high', 'low')</code></button>
+        <button class="opt" data-c="0"><code>arr.where(&gt; 100, 'high', 'low')</code></button>
+      </div>
+      <div class="explain"><code>np.where</code> is the vectorized if/else. Option 1 raises the "truth value is ambiguous" error, because a whole array cannot be a single condition. Option 2 gives the right answer but is a Python loop in disguise — it returns a list and loses all the speed. Option 4 is not real syntax; <code>where</code> is a NumPy function, not an array method.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= SHEET 08 ================= -->
+<section class="sheet" id="s08">
+  <div class="sheet-head" tabindex="0" role="button" aria-expanded="false">
+    <span class="sheet-no">08</span>
+    <div class="sheet-title">
+      <h2>Broadcasting: shapes that stretch</h2>
+      <p>How NumPy combines arrays of different shapes</p>
+    </div>
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+  </div>
+  <div class="sheet-body">
+
+    <div class="wwh">
+      <div class="w-what"><h5>WHAT</h5><p>A set of rules that lets NumPy pair a small array with a big one by conceptually repeating the small one — without ever copying it.</p></div>
+      <div class="w-why"><h5>WHY</h5><p>"Apply this tax rate to every cell" or "subtract each column's mean from that column" are one-liners because of broadcasting.</p></div>
+      <div class="w-how"><h5>HOW</h5><p>Align shapes from the right. Each pair of dimensions must be equal, or one of them must be 1.</p></div>
+    </div>
+
+    <p>You already used broadcasting in Sheet 03 without noticing: <code>prices * 1.08</code> paired a <code>(4,)</code> array with a single number. The scalar was stretched across all four positions.</p>
+
+    <h3>The two rules</h3>
+    <ol>
+      <li>Line the shapes up <strong>from the right</strong>. If one has fewer dimensions, pad it on the left with 1s.</li>
+      <li>For each aligned pair of dimensions, they are compatible if they are <strong>equal</strong>, or if <strong>one of them is 1</strong>. Any other combination is an error.</li>
+    </ol>
+
+    <figure>
+      <svg viewBox="0 0 700 290" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace">
+        <text x="20" y="22" fill="#6ede8a" font-size="12" font-weight="600">WORKS — (3,4) + (4,)  → row vector stretched down</text>
+        <g font-size="11">
+          <rect x="20" y="34" width="46" height="26" fill="rgba(70,213,230,.14)" stroke="#1e3c5c"/><text x="34" y="52" fill="#e6eef8">1</text>
+          <rect x="68" y="34" width="46" height="26" fill="rgba(70,213,230,.14)" stroke="#1e3c5c"/><text x="82" y="52" fill="#e6eef8">2</text>
+          <rect x="116" y="34" width="46" height="26" fill="rgba(70,213,230,.14)" stroke="#1e3c5c"/><text x="130" y="52" fill="#e6eef8">3</text>
+          <rect x="164" y="34" width="46" height="26" fill="rgba(70,213,230,.14)" stroke="#1e3c5c"/><text x="178" y="52" fill="#e6eef8">4</text>
+          <rect x="20" y="62" width="46" height="26" fill="rgba(70,213,230,.14)" stroke="#1e3c5c"/><text x="34" y="80" fill="#e6eef8">5</text>
+          <rect x="68" y="62" width="46" height="26" fill="rgba(70,213,230,.14)" stroke="#1e3c5c"/><text x="82" y="80" fill="#e6eef8">6</text>
+          <rect x="116" y="62" width="46" height="26" fill="rgba(70,213,230,.14)" stroke="#1e3c5c"/><text x="130" y="80" fill="#e6eef8">7</text>
+          <rect x="164" y="62" width="46" height="26" fill="rgba(70,213,230,.14)" stroke="#1e3c5c"/><text x="178" y="80" fill="#e6eef8">8</text>
+          <rect x="20" y="90" width="46" height="26" fill="rgba(70,213,230,.14)" stroke="#1e3c5c"/><text x="30" y="108" fill="#e6eef8">9</text>
+          <rect x="68" y="90" width="46" height="26" fill="rgba(70,213,230,.14)" stroke="#1e3c5c"/><text x="78" y="108" fill="#e6eef8">10</text>
+          <rect x="116" y="90" width="46" height="26" fill="rgba(70,213,230,.14)" stroke="#1e3c5c"/><text x="126" y="108" fill="#e6eef8">11</text>
+          <rect x="164" y="90" width="46" height="26" fill="rgba(70,213,230,.14)" stroke="#1e3c5c"/><text x="174" y="108" fill="#e6eef8">12</text>
+        </g>
+        <text x="222" y="80" fill="#f5b342" font-size="16">+</text>
+        <g font-size="11">
+          <rect x="246" y="62" width="46" height="26" fill="rgba(245,179,66,.2)" stroke="#f5b342"/><text x="262" y="80" fill="#f5b342">10</text>
+          <rect x="294" y="62" width="46" height="26" fill="rgba(245,179,66,.2)" stroke="#f5b342"/><text x="310" y="80" fill="#f5b342">20</text>
+          <rect x="342" y="62" width="46" height="26" fill="rgba(245,179,66,.2)" stroke="#f5b342"/><text x="358" y="80" fill="#f5b342">30</text>
+          <rect x="390" y="62" width="46" height="26" fill="rgba(245,179,66,.2)" stroke="#f5b342"/><text x="406" y="80" fill="#f5b342">40</text>
+        </g>
+        <g stroke="#f5b342" stroke-width=".8" stroke-dasharray="3 3" opacity=".55">
+          <rect x="246" y="34" width="190" height="26" fill="none"/>
+          <rect x="246" y="90" width="190" height="26" fill="none"/>
+        </g>
+        <text x="248" y="132" fill="#6e88a8" font-size="9">the (4,) row is reused for every row — no memory copied</text>
+        <text x="460" y="80" fill="#6ede8a" font-size="14">= (3,4)</text>
+
+        <line x1="20" y1="150" x2="680" y2="150" stroke="#1e3c5c"/>
+
+        <text x="20" y="176" fill="#6ede8a" font-size="12" font-weight="600">WORKS — (3,4) + (3,1)  → column vector stretched across</text>
+        <g font-size="10" fill="#a8c0dc">
+          <text x="20" y="198">shape A:  3 × 4</text>
+          <text x="20" y="214">shape B:  3 × 1     ← the 1 stretches to 4</text>
+          <text x="20" y="230" fill="#6ede8a">result:   3 × 4</text>
+        </g>
+
+        <text x="380" y="176" fill="#ff7a68" font-size="12" font-weight="600">FAILS — (3,4) + (3,)</text>
+        <g font-size="10" fill="#a8c0dc">
+          <text x="380" y="198">shape A:  3 × 4</text>
+          <text x="380" y="214">shape B:      3     ← aligned right: 4 vs 3</text>
+          <text x="380" y="230" fill="#ff7a68">ValueError: not broadcastable</text>
+          <text x="380" y="252" fill="#f5b342" font-size="9">fix: reshape B to (3,1) with B[:, None]</text>
+        </g>
+      </svg>
+      <figcaption><b>Fig. 5</b> — Broadcasting stretches size-1 dimensions. The stretch is virtual: NumPy re-reads the same memory rather than duplicating it.</figcaption>
+    </figure>
+
+    <div class="demo">
+      <div class="demo-tag">LIVE DEMO — SHAPE COMPATIBILITY CHECKER</div>
+      <div class="ctrl">
+        <label>Shape A <input type="text" id="shA" value="3,4" size="8"></label>
+        <label>Shape B <input type="text" id="shB" value="4" size="8"></label>
+        <button class="btn" id="shGo">Check</button>
+      </div>
+      <div class="btnrow">
+        <button class="btn preset" data-a="3,4" data-b="4">(3,4) + (4,)</button>
+        <button class="btn preset" data-a="3,4" data-b="3,1">(3,4) + (3,1)</button>
+        <button class="btn preset" data-a="3,4" data-b="3">(3,4) + (3,)</button>
+        <button class="btn preset" data-a="5,1" data-b="1,3">(5,1) + (1,3)</button>
+        <button class="btn preset" data-a="2,3,4" data-b="4">(2,3,4) + (4,)</button>
+      </div>
+      <div class="readout" id="shOut">—</div>
+    </div>
+
+    <h3>Two patterns you will use constantly</h3>
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>broadcast_patterns.py</span></div>
+<pre>sales = np.<span class="f">array</span>([[<span class="n">120</span>, <span class="n">135</span>, <span class="n">128</span>, <span class="n">150</span>],
+                  [<span class="n">98</span>,  <span class="n">104</span>, <span class="n">115</span>, <span class="n">122</span>],
+                  [<span class="n">210</span>, <span class="n">198</span>, <span class="n">225</span>, <span class="n">240</span>]])
+
+<span class="c"># PATTERN 1: apply a per-QUARTER factor (shape (4,) matches columns)</span>
+seasonal = np.<span class="f">array</span>([<span class="n">1.00</span>, <span class="n">1.05</span>, <span class="n">0.95</span>, <span class="n">1.20</span>])
+adjusted = sales * seasonal
+<span class="f">print</span>(np.<span class="f">round</span>(adjusted, <span class="n">1</span>))
+
+<span class="c"># PATTERN 2: apply a per-REGION factor — must be a COLUMN, shape (3,1)</span>
+region_fx = np.<span class="f">array</span>([<span class="n">1.0</span>, <span class="n">0.8</span>, <span class="n">1.3</span>]).<span class="f">reshape</span>(<span class="n">3</span>, <span class="n">1</span>)
+converted = sales * region_fx
+<span class="f">print</span>(converted)
+
+<span class="c"># PATTERN 3: centre each column on its own mean</span>
+centred = sales - sales.<span class="f">mean</span>(axis=<span class="n">0</span>)   <span class="c"># mean is (4,) → broadcasts down</span>
+<span class="f">print</span>(np.<span class="f">round</span>(centred, <span class="n">1</span>))</pre>
+    </div>
+    <div class="reveal"><button>Show output</button><div class="out">[[120.  141.8 121.6 180. ]
+ [ 98.  109.2 109.2 146.4]
+ [210.  207.9 213.8 288. ]]
+
+[[120.  135.  128.  150. ]
+ [ 78.4  83.2  92.  97.6]
+ [273.  257.4 292.5 312. ]]
+
+[[-22.7 -10.7 -28.  -20.7]
+ [-44.7 -41.7 -41.  -48.7]
+ [ 67.3  52.3  69.   69.3]]</div></div>
+
+    <div class="tip"><p><b>The <code>[:, None]</code> idiom.</b> Turning a <code>(3,)</code> vector into a <code>(3,1)</code> column is so common it has shorthand: <code>v[:, None]</code> or <code>v[:, np.newaxis]</code>. Both insert a new axis of length 1. Reach for it whenever you want a per-<em>row</em> factor rather than a per-column one.</p></div>
+
+    <div class="quiz" data-quiz>
+      <div class="quiz-tag">CHECK 8 OF 9</div>
+      <p class="q">You have <code>sales</code> with shape <code>(12, 5)</code> — 12 months × 5 products — and <code>discount</code> with shape <code>(12,)</code>, one rate per month. Why does <code>sales * discount</code> fail, and what fixes it?</p>
+      <div class="opts">
+        <button class="opt" data-c="0">It does not fail — 12 matches the first dimension</button>
+        <button class="opt" data-c="1">Right-aligned, 5 vs 12 do not match; use <code>sales * discount[:, None]</code></button>
+        <button class="opt" data-c="0">Broadcasting never works on 2D arrays; loop over the rows</button>
+        <button class="opt" data-c="0">Convert <code>discount</code> to a list first</button>
+      </div>
+      <div class="explain">Broadcasting aligns from the <strong>right</strong>, so <code>(12,5)</code> and <code>(12,)</code> line up as 5-vs-12 — incompatible. Reshaping <code>discount</code> to <code>(12,1)</code> aligns it as 12-vs-12 on the left and 1-vs-5 on the right, where the 1 stretches. Whenever your vector should vary <em>down the rows</em>, it needs a trailing axis of 1.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= SHEET 09 ================= -->
+<section class="sheet" id="s09">
+  <div class="sheet-head" tabindex="0" role="button" aria-expanded="false">
+    <span class="sheet-no">09</span>
+    <div class="sheet-title">
+      <h2>Aggregation and the axis argument</h2>
+      <p>Collapsing a grid into the number a manager asked for</p>
+    </div>
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+  </div>
+  <div class="sheet-body">
+
+    <div class="wwh">
+      <div class="w-what"><h5>WHAT</h5><p>Reductions take many values and return fewer: <code>sum</code>, <code>mean</code>, <code>std</code>, <code>min</code>, <code>max</code>, <code>argmax</code>, <code>median</code>, <code>percentile</code>.</p></div>
+      <div class="w-why"><h5>WHY</h5><p>Analysis is summarization. The whole job is turning a grid of numbers into a defensible statement.</p></div>
+      <div class="w-how"><h5>HOW</h5><p>Call the reduction with an <code>axis</code> argument that names the dimension to collapse.</p></div>
+    </div>
+
+    <h3>The one sentence to memorize</h3>
+    <div class="note"><p><b><code>axis</code> is the dimension that <em>disappears</em>.</b> Not the one you keep. <code>axis=0</code> collapses the rows, so you are left with one value per column. <code>axis=1</code> collapses the columns, leaving one value per row. Omit <code>axis</code> and everything collapses to a single number.</p></div>
+
+    <div class="demo">
+      <div class="demo-tag">LIVE DEMO — AXIS EXPLORER</div>
+      <p style="font-size:.86rem;color:var(--ink2);margin-top:0">Quarterly sales, three regions. Pick an axis and watch what collapses.</p>
+      <div class="btnrow">
+        <button class="btn on" id="axNone">sales.sum()</button>
+        <button class="btn" id="ax0">sales.sum(axis=0)</button>
+        <button class="btn" id="ax1">sales.sum(axis=1)</button>
+      </div>
+      <div id="axGrid"></div>
+      <div class="readout" id="axOut">—</div>
+    </div>
+
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>aggregation.py</span></div>
+<pre>sales = np.<span class="f">array</span>([[<span class="n">120</span>, <span class="n">135</span>, <span class="n">128</span>, <span class="n">150</span>],   <span class="c"># North</span>
+                  [<span class="n">98</span>,  <span class="n">104</span>, <span class="n">115</span>, <span class="n">122</span>],   <span class="c"># South</span>
+                  [<span class="n">210</span>, <span class="n">198</span>, <span class="n">225</span>, <span class="n">240</span>]])  <span class="c"># West</span>
+
+sales.<span class="f">sum</span>()              <span class="c"># 1745 — company total</span>
+sales.<span class="f">sum</span>(axis=<span class="n">0</span>)        <span class="c"># [428 437 468 512] — total per QUARTER</span>
+sales.<span class="f">sum</span>(axis=<span class="n">1</span>)        <span class="c"># [533 439 873]     — total per REGION</span>
+
+sales.<span class="f">mean</span>(axis=<span class="n">1</span>)       <span class="c"># [133.25 109.75 218.25] avg quarter per region</span>
+sales.<span class="f">std</span>(axis=<span class="n">1</span>)        <span class="c"># volatility per region</span>
+sales.<span class="f">max</span>(axis=<span class="n">0</span>)        <span class="c"># best region's figure in each quarter</span>
+
+sales.<span class="f">argmax</span>(axis=<span class="n">0</span>)     <span class="c"># [2 2 2 2] — WHICH region led each quarter</span>
+sales.<span class="f">cumsum</span>(axis=<span class="n">1</span>)     <span class="c"># running year-to-date per region</span>
+
+np.<span class="f">median</span>(sales)        <span class="c"># 141.5</span>
+np.<span class="f">percentile</span>(sales, <span class="n">90</span>)  <span class="c"># 90th percentile across all cells</span></pre>
+    </div>
+    <div class="reveal"><button>Show cumsum output</button><div class="out">[[120 255 383 533]
+ [ 98 202 317 439]
+ [210 408 633 873]]</div></div>
+
+    <h3>Value vs position: <code>max</code> and <code>argmax</code></h3>
+    <p>These two are constantly confused. <code>max</code> answers <em>how much</em>. <code>argmax</code> answers <em>which one</em>. In business questions you usually need both.</p>
+
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>which_one.py</span></div>
+<pre>regions = np.<span class="f">array</span>([<span class="s">'North'</span>, <span class="s">'South'</span>, <span class="s">'West'</span>])
+totals  = sales.<span class="f">sum</span>(axis=<span class="n">1</span>)          <span class="c"># [533 439 873]</span>
+
+best_i = totals.<span class="f">argmax</span>()              <span class="c"># 2</span>
+<span class="f">print</span>(<span class="s">f"Top region: {regions[best_i]} at {totals[best_i]:,}"</span>)
+
+<span class="c"># Rank all regions, highest first</span>
+order = totals.<span class="f">argsort</span>()[::-<span class="n">1</span>]
+<span class="f">print</span>(regions[order])
+<span class="f">print</span>(totals[order])</pre>
+    </div>
+    <div class="reveal"><button>Show output</button><div class="out">Top region: West at 873
+['West' 'North' 'South']
+[873 533 439]</div></div>
+
+    <div class="warn"><p><b>Missing data poisons reductions.</b> If any element is <code>np.nan</code>, then <code>sum</code>, <code>mean</code> and friends all return <code>nan</code>. Use the nan-safe versions — <code>np.nansum</code>, <code>np.nanmean</code>, <code>np.nanstd</code> — which skip the gaps. Check first with <code>np.isnan(arr).sum()</code>.</p></div>
+
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>nan_handling.py</span></div>
+<pre>data = np.<span class="f">array</span>([<span class="n">120.0</span>, np.<span class="v">nan</span>, <span class="n">128.0</span>, <span class="n">150.0</span>])
+
+<span class="f">print</span>(data.<span class="f">mean</span>())            <span class="c"># nan — one gap ruins it</span>
+<span class="f">print</span>(np.<span class="f">nanmean</span>(data))       <span class="c"># 132.67 — gap skipped</span>
+<span class="f">print</span>(np.<span class="f">isnan</span>(data).<span class="f">sum</span>())   <span class="c"># 1 — how many are missing</span>
+
+clean = data[~np.<span class="f">isnan</span>(data)]  <span class="c"># drop them entirely</span>
+filled = np.<span class="f">where</span>(np.<span class="f">isnan</span>(data), np.<span class="f">nanmean</span>(data), data)  <span class="c"># impute</span></pre>
+    </div>
+
+    <div class="quiz" data-quiz>
+      <div class="quiz-tag">CHECK 9 OF 9</div>
+      <p class="q"><code>sales</code> has shape <code>(3, 4)</code> — 3 regions × 4 quarters. Which call gives the <strong>total for each quarter</strong>?</p>
+      <div class="opts">
+        <button class="opt" data-c="1"><code>sales.sum(axis=0)</code> → shape <code>(4,)</code></button>
+        <button class="opt" data-c="0"><code>sales.sum(axis=1)</code> → shape <code>(4,)</code></button>
+        <button class="opt" data-c="0"><code>sales.sum()</code> → shape <code>(4,)</code></button>
+        <button class="opt" data-c="0"><code>sales.sum(axis=2)</code></button>
+      </div>
+      <div class="explain">A quarter is a <em>column</em>. To get one number per column you must collapse the rows, which is axis 0. The result has shape <code>(4,)</code> — the axis-0 length of 3 vanished. Option 2 collapses the quarters and gives a per-region total of shape <code>(3,)</code>. Option 4 errors: a 2D array only has axes 0 and 1.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= SHEET 10 ================= -->
+<section class="sheet" id="s10">
+  <div class="sheet-head" tabindex="0" role="button" aria-expanded="false">
+    <span class="sheet-no">10</span>
+    <div class="sheet-title">
+      <h2>Reshaping, stacking, splitting</h2>
+      <p>Changing the shape without changing the data</p>
+    </div>
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+  </div>
+  <div class="sheet-body">
+
+    <div class="wwh">
+      <div class="w-what"><h5>WHAT</h5><p>Operations that reorganize the same values into a different shape, or combine several arrays into one.</p></div>
+      <div class="w-why"><h5>WHY</h5><p>Data rarely arrives in the shape your calculation needs. Reshaping is usually cheaper than rewriting the calculation.</p></div>
+      <div class="w-how"><h5>HOW</h5><p><code>reshape</code>, <code>ravel</code>, <code>.T</code>, <code>vstack</code>, <code>hstack</code>, <code>concatenate</code>, <code>split</code>.</p></div>
+    </div>
+
+    <h3>Reshape: same block, new reading instruction</h3>
+    <p>Remember Fig. 3 — the grid is only an interpretation of a flat run of numbers. <code>reshape</code> changes the interpretation. The <code>size</code> must stay the same, and the result is usually a <em>view</em>, so it costs nothing.</p>
+
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>reshaping.py</span></div>
+<pre>flat = np.<span class="f">arange</span>(<span class="n">12</span>)             <span class="c"># [0 1 2 ... 11]</span>
+
+grid = flat.<span class="f">reshape</span>(<span class="n">3</span>, <span class="n">4</span>)       <span class="c"># 3 rows, 4 cols — filled row by row</span>
+tall = flat.<span class="f">reshape</span>(<span class="n">4</span>, <span class="n">3</span>)       <span class="c"># 4 rows, 3 cols</span>
+auto = flat.<span class="f">reshape</span>(<span class="n">3</span>, -<span class="n">1</span>)      <span class="c"># -1 means "you work it out" → 3x4</span>
+col  = flat.<span class="f">reshape</span>(-<span class="n">1</span>, <span class="n">1</span>)      <span class="c"># 12x1 column vector</span>
+
+<span class="f">print</span>(grid)
+<span class="f">print</span>(grid.<span class="v">T</span>)                 <span class="c"># transpose: 4x3, rows become columns</span>
+<span class="f">print</span>(grid.<span class="f">ravel</span>())            <span class="c"># back to flat (a view)</span>
+<span class="f">print</span>(grid.<span class="f">flatten</span>())          <span class="c"># back to flat (a copy)</span></pre>
+    </div>
+    <div class="reveal"><button>Show output</button><div class="out">[[ 0  1  2  3]
+ [ 4  5  6  7]
+ [ 8  9 10 11]]
+
+[[ 0  4  8]
+ [ 1  5  9]
+ [ 2  6 10]
+ [ 3  7 11]]
+
+[ 0  1  2  3  4  5  6  7  8  9 10 11]
+[ 0  1  2  3  4  5  6  7  8  9 10 11]</div></div>
+
+    <div class="tip"><p><b>The <code>-1</code> placeholder.</b> You may use it once per reshape. <code>arr.reshape(-1, 4)</code> means "four columns, as many rows as that takes." It is the safe way to reshape when the row count depends on the data you loaded.</p></div>
+
+    <h3>Combining arrays</h3>
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>stacking.py</span></div>
+<pre>q1_q2 = np.<span class="f">array</span>([[<span class="n">120</span>, <span class="n">135</span>], [<span class="n">98</span>, <span class="n">104</span>]])
+q3_q4 = np.<span class="f">array</span>([[<span class="n">128</span>, <span class="n">150</span>], [<span class="n">115</span>, <span class="n">122</span>]])
+
+np.<span class="f">hstack</span>([q1_q2, q3_q4])   <span class="c"># side by side → (2, 4)  more quarters</span>
+np.<span class="f">vstack</span>([q1_q2, q3_q4])   <span class="c"># stacked      → (4, 2)  more regions</span>
+
+<span class="c"># concatenate is the general form; axis says which way to join</span>
+np.<span class="f">concatenate</span>([q1_q2, q3_q4], axis=<span class="n">1</span>)   <span class="c"># same as hstack</span>
+np.<span class="f">concatenate</span>([q1_q2, q3_q4], axis=<span class="n">0</span>)   <span class="c"># same as vstack</span>
+
+<span class="c"># Splitting back apart</span>
+left, right = np.<span class="f">hsplit</span>(np.<span class="f">hstack</span>([q1_q2, q3_q4]), <span class="n">2</span>)</pre>
+    </div>
+    <div class="reveal"><button>Show hstack and vstack</button><div class="out">hstack → [[120 135 128 150]
+          [ 98 104 115 122]]   shape (2, 4)
+
+vstack → [[120 135]
+          [ 98 104]
+          [128 150]
+          [115 122]]           shape (4, 2)</div></div>
+
+    <div class="warn"><p><b>Stacking is a copy, always.</b> Unlike reshaping, joining arrays must allocate new memory. Building a big array by repeatedly stacking inside a loop is quadratic and slow — collect the pieces in a Python list and call <code>np.vstack(pieces)</code> once at the end.</p></div>
+
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Goal</th><th>Call</th><th>Cost</th></tr>
+      <tr><td>Rearrange one array's shape</td><td><code>reshape</code>, <code>.T</code>, <code>ravel</code></td><td>free (view)</td></tr>
+      <tr><td>Add an axis of length 1</td><td><code>arr[:, None]</code>, <code>np.expand_dims</code></td><td>free (view)</td></tr>
+      <tr><td>Flatten with guaranteed independence</td><td><code>flatten()</code></td><td>copy</td></tr>
+      <tr><td>Join arrays end to end</td><td><code>vstack</code>, <code>hstack</code>, <code>concatenate</code></td><td>copy</td></tr>
+      <tr><td>Break one array into pieces</td><td><code>hsplit</code>, <code>vsplit</code>, <code>array_split</code></td><td>views</td></tr>
+    </table></div>
+
+  </div>
+</section>
+
+<!-- ================= SHEET 11 ================= -->
+<section class="sheet" id="s11">
+  <div class="sheet-head" tabindex="0" role="button" aria-expanded="false">
+    <span class="sheet-no">11</span>
+    <div class="sheet-title">
+      <h2>Case study: quarterly sales analysis</h2>
+      <p>Everything so far, applied to one real question set</p>
+    </div>
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+  </div>
+  <div class="sheet-body">
+
+    <p>Four regions, four quarters, figures in thousands of dollars. Your director wants five answers by lunchtime. Work through each step, predict the output, then reveal it.</p>
+
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>setup</span></div>
+<pre><span class="k">import</span> numpy <span class="k">as</span> np
+
+regions  = np.<span class="f">array</span>([<span class="s">'North'</span>, <span class="s">'South'</span>, <span class="s">'West'</span>, <span class="s">'East'</span>])
+quarters = np.<span class="f">array</span>([<span class="s">'Q1'</span>, <span class="s">'Q2'</span>, <span class="s">'Q3'</span>, <span class="s">'Q4'</span>])
+
+sales = np.<span class="f">array</span>([[<span class="n">120</span>, <span class="n">135</span>, <span class="n">128</span>, <span class="n">150</span>],
+                  [<span class="n">98</span>,  <span class="n">104</span>, <span class="n">115</span>, <span class="n">122</span>],
+                  [<span class="n">210</span>, <span class="n">198</span>, <span class="n">225</span>, <span class="n">240</span>],
+                  [<span class="n">145</span>, <span class="n">150</span>, <span class="n">140</span>, <span class="n">158</span>]])
+
+<span class="f">print</span>(sales.<span class="v">shape</span>, sales.<span class="v">dtype</span>, sales.<span class="f">sum</span>())</pre>
+    </div>
+    <div class="reveal"><button>Show output</button><div class="out">(4, 4) int64 2438</div></div>
+
+    <h4>Question 1 — What did each region and each quarter deliver?</h4>
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>q1</span></div>
+<pre>region_totals  = sales.<span class="f">sum</span>(axis=<span class="n">1</span>)   <span class="c"># collapse quarters</span>
+quarter_totals = sales.<span class="f">sum</span>(axis=<span class="n">0</span>)   <span class="c"># collapse regions</span>
+
+<span class="k">for</span> name, total <span class="k">in</span> <span class="f">zip</span>(regions, region_totals):
+    <span class="f">print</span>(<span class="s">f"{name:6} {total:5,}"</span>)
+<span class="f">print</span>(<span class="s">'Quarters:'</span>, quarter_totals)</pre>
+    </div>
+    <div class="reveal"><button>Show output</button><div class="out">North    533
+South    439
+West     873
+East     593
+Quarters: [573 587 608 670]</div></div>
+
+    <h4>Question 2 — Who grew fastest from Q1 to Q4?</h4>
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>q2</span></div>
+<pre>growth = (sales[:, -<span class="n">1</span>] - sales[:, <span class="n">0</span>]) / sales[:, <span class="n">0</span>] * <span class="n">100</span>
+
+<span class="f">print</span>(np.<span class="f">round</span>(growth, <span class="n">1</span>))
+winner = growth.<span class="f">argmax</span>()
+<span class="f">print</span>(<span class="s">f"Fastest growth: {regions[winner]} at {growth[winner]:.1f}%"</span>)</pre>
+    </div>
+    <div class="reveal"><button>Show output</button><div class="out">[25.  24.5 14.3  9. ]
+Fastest growth: North at 25.0%</div></div>
+
+    <div class="note"><p><b>Notice the tension.</b> West has the largest total (873) but the third-fastest growth. North is the smallest of the top three but growing quickest. Neither number alone answers "which region is doing best" — which is exactly why analysts compute several and present the pair.</p></div>
+
+    <h4>Question 3 — What share of the business does each region hold?</h4>
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>q3</span></div>
+<pre>share = region_totals / sales.<span class="f">sum</span>() * <span class="n">100</span>   <span class="c"># broadcasting a scalar</span>
+
+<span class="k">for</span> name, s <span class="k">in</span> <span class="f">zip</span>(regions, share):
+    bar = <span class="s">'#'</span> * <span class="f">int</span>(s)
+    <span class="f">print</span>(<span class="s">f"{name:6} {s:5.1f}%  {bar}"</span>)</pre>
+    </div>
+    <div class="reveal"><button>Show output</button><div class="out">North   21.9%  #####################
+South   18.0%  ##################
+West    35.8%  ###################################
+East    24.3%  ########################</div></div>
+
+    <h4>Question 4 — Which cells fell below the company-wide average?</h4>
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>q4</span></div>
+<pre>avg  = sales.<span class="f">mean</span>()              <span class="c"># 152.375</span>
+mask = sales &lt; avg                 <span class="c"># boolean array, same shape</span>
+
+<span class="f">print</span>(<span class="s">f"Average cell: {avg:.2f}"</span>)
+<span class="f">print</span>(<span class="s">f"Cells below average: {mask.<span class="f">sum</span>()} of {sales.<span class="v">size</span>}"</span>)
+<span class="f">print</span>(mask.<span class="f">sum</span>(axis=<span class="n">1</span>))          <span class="c"># how many weak quarters per region</span>
+
+<span class="c"># np.where with no value arguments returns coordinates</span>
+rows, cols = np.<span class="f">where</span>(mask)
+<span class="k">for</span> r, c <span class="k">in</span> <span class="f">zip</span>(rows[:<span class="n">4</span>], cols[:<span class="n">4</span>]):
+    <span class="f">print</span>(<span class="s">f"  {regions[r]} {quarters[c]}: {sales[r, c]}"</span>)</pre>
+    </div>
+    <div class="reveal"><button>Show output</button><div class="out">Average cell: 152.38
+Cells below average: 11 of 16
+[4 4 0 3]
+  North Q1: 120
+  North Q2: 135
+  North Q3: 128
+  North Q4: 150</div></div>
+
+    <h4>Question 5 — Which region is most volatile?</h4>
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>q5</span></div>
+<pre>means = sales.<span class="f">mean</span>(axis=<span class="n">1</span>)
+stds  = sales.<span class="f">std</span>(axis=<span class="n">1</span>)
+cv    = stds / means * <span class="n">100</span>          <span class="c"># coefficient of variation</span>
+
+<span class="k">for</span> name, m, s, c <span class="k">in</span> <span class="f">zip</span>(regions, means, stds, cv):
+    <span class="f">print</span>(<span class="s">f"{name:6} mean {m:7.2f}  sd {s:6.2f}  cv {c:5.1f}%"</span>)
+
+<span class="c"># Quarter-over-quarter change, per region</span>
+<span class="f">print</span>(np.<span class="f">diff</span>(sales, axis=<span class="n">1</span>))</pre>
+    </div>
+    <div class="reveal"><button>Show output</button><div class="out">North   mean  133.25  sd  11.03  cv   8.3%
+South   mean  109.75  sd   9.34  cv   8.5%
+West    mean  218.25  sd  15.79  cv   7.2%
+East    mean  148.25  sd   6.65  cv   4.5%
+
+[[ 15  -7  22]
+ [  6  11   7]
+ [-12  27  15]
+ [  5 -10  18]]</div></div>
+
+    <div class="tip"><p><b>Why the CV and not the standard deviation?</b> West's raw standard deviation (15.79) is the largest, but West is also the largest region — big numbers wobble by big amounts. Dividing by the mean makes the regions comparable, and it flips the answer: East is actually the steadiest and South the least steady. Choosing the right normalization is analysis; NumPy just does the arithmetic.</p></div>
+
+    <h3>The whole analysis, in one place</h3>
+    <p>Count the lines. Fourteen statements answered five business questions across sixteen data points — and the identical code would run unchanged on sixteen million.</p>
+
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>summary</span></div>
+<pre>region_totals  = sales.<span class="f">sum</span>(axis=<span class="n">1</span>)
+quarter_totals = sales.<span class="f">sum</span>(axis=<span class="n">0</span>)
+growth         = (sales[:, -<span class="n">1</span>] - sales[:, <span class="n">0</span>]) / sales[:, <span class="n">0</span>] * <span class="n">100</span>
+share          = region_totals / sales.<span class="f">sum</span>() * <span class="n">100</span>
+mask           = sales &lt; sales.<span class="f">mean</span>()
+cv             = sales.<span class="f">std</span>(axis=<span class="n">1</span>) / sales.<span class="f">mean</span>(axis=<span class="n">1</span>) * <span class="n">100</span>
+
+<span class="f">print</span>(<span class="s">f"Top by volume:  {regions[region_totals.<span class="f">argmax</span>()]}"</span>)
+<span class="f">print</span>(<span class="s">f"Top by growth:  {regions[growth.<span class="f">argmax</span>()]}"</span>)
+<span class="f">print</span>(<span class="s">f"Steadiest:      {regions[cv.<span class="f">argmin</span>()]}"</span>)
+<span class="f">print</span>(<span class="s">f"Weakest cells:  {mask.<span class="f">sum</span>()}"</span>)</pre>
+    </div>
+    <div class="reveal"><button>Show output</button><div class="out">Top by volume:  West
+Top by growth:  North
+Steadiest:      East
+Weakest cells:  11</div></div>
+
+  </div>
+</section>
+
+<!-- ================= SHEET 12 ================= -->
+<section class="sheet" id="s12">
+  <div class="sheet-head" tabindex="0" role="button" aria-expanded="false">
+    <span class="sheet-no">12</span>
+    <div class="sheet-title">
+      <h2>The bridge to pandas, plus recall deck</h2>
+      <p>Where NumPy ends, and what to keep in working memory</p>
+    </div>
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+  </div>
+  <div class="sheet-body">
+
+    <h3>pandas is NumPy with labels</h3>
+    <p>The case study had a real weakness: <code>regions</code> and <code>quarters</code> lived in separate arrays, and keeping them aligned with <code>sales</code> was your job. A <code>DataFrame</code> attaches those labels to the array itself. Underneath, the numbers are still an ndarray.</p>
+
+    <div class="code">
+      <div class="code-bar"><span>PYTHON</span><span>bridge.py</span></div>
+<pre><span class="k">import</span> pandas <span class="k">as</span> pd
+
+df = pd.<span class="f">DataFrame</span>(sales, index=regions, columns=quarters)
+<span class="f">print</span>(df)
+
+<span class="c"># The ndarray is still in there</span>
+<span class="f">print</span>(<span class="f">type</span>(df.<span class="f">to_numpy</span>()))
+
+<span class="c"># Same axis logic you already learned</span>
+<span class="f">print</span>(df.<span class="f">sum</span>(axis=<span class="n">1</span>))     <span class="c"># per region — now labelled</span>
+<span class="f">print</span>(df[<span class="s">'Q4'</span>].<span class="f">mean</span>())    <span class="c"># select by NAME, not position</span></pre>
+    </div>
+    <div class="reveal"><button>Show output</button><div class="out">        Q1   Q2   Q3   Q4
+North  120  135  128  150
+South   98  104  115  122
+West   210  198  225  240
+East   145  150  140  158
+
+&lt;class 'numpy.ndarray'&gt;
+
+North    533
+South    439
+West     873
+East     593
+dtype: int64
+
+167.5</div></div>
+
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Reach for NumPy when…</th><th>Reach for pandas when…</th></tr>
+      <tr><td>Data is a pure numeric matrix</td><td>Columns have names and mixed types</td></tr>
+      <tr><td>You need raw speed on a hot loop</td><td>You need joins, group-bys, or time series</td></tr>
+      <tr><td>You are doing linear algebra or simulation</td><td>You are reading CSV or Excel files</td></tr>
+      <tr><td>You are feeding a model (scikit-learn wants arrays)</td><td>You are cleaning and exploring raw data</td></tr>
+    </table></div>
+
+    <div class="note"><p><b>Not a replacement.</b> Every pandas <code>Series</code> and <code>DataFrame</code> column is backed by a NumPy array, and <code>.values</code> or <code>.to_numpy()</code> hands it to you. The shape thinking, dtype thinking, axis thinking and broadcasting rules you learned here all carry over directly. You are not moving on from NumPy — you are putting labels on it.</p></div>
+
+    <h3>Recall deck</h3>
+    <p>Say your answer out loud, then tap to check. Come back to these tomorrow, then in three days.</p>
+
+    <div class="flipgrid">
+      <div class="flip"><div class="flip-in">
+        <div class="flip-f">What makes an ndarray fast?<span class="flip-hint">TAP</span></div>
+        <div class="flip-b">One dtype, one contiguous block → fixed-stride access and compiled C loops</div>
+      </div></div>
+      <div class="flip"><div class="flip-in">
+        <div class="flip-f">Difference between<br><code>arange</code> and <code>linspace</code>?<span class="flip-hint">TAP</span></div>
+        <div class="flip-b">arange: you set the STEP, stop excluded.<br>linspace: you set the COUNT, stop included</div>
+      </div></div>
+      <div class="flip"><div class="flip-in">
+        <div class="flip-f">What does <code>axis=0</code> mean?<span class="flip-hint">TAP</span></div>
+        <div class="flip-b">Collapse the ROWS → one result per column. The axis named is the one that disappears</div>
+      </div></div>
+      <div class="flip"><div class="flip-in">
+        <div class="flip-f">The two broadcasting rules<span class="flip-hint">TAP</span></div>
+        <div class="flip-b">1. Align shapes from the RIGHT<br>2. Each pair must be equal, or one must be 1</div>
+      </div></div>
+      <div class="flip"><div class="flip-in">
+        <div class="flip-f">Which selections return a view?<span class="flip-hint">TAP</span></div>
+        <div class="flip-b">Basic slicing, reshape, .T → VIEW<br>Boolean masks, fancy indexing, .copy() → COPY</div>
+      </div></div>
+      <div class="flip"><div class="flip-in">
+        <div class="flip-f">Why <code>&amp;</code> and not <code>and</code>?<span class="flip-hint">TAP</span></div>
+        <div class="flip-b">and needs ONE truth value; an array has many. &amp; works element-wise. Parenthesize each condition</div>
+      </div></div>
+      <div class="flip"><div class="flip-in">
+        <div class="flip-f"><code>max</code> vs <code>argmax</code><span class="flip-hint">TAP</span></div>
+        <div class="flip-b">max = HOW MUCH (the value)<br>argmax = WHICH ONE (the index)</div>
+      </div></div>
+      <div class="flip"><div class="flip-in">
+        <div class="flip-f">Vectorized if/else?<span class="flip-hint">TAP</span></div>
+        <div class="flip-b">np.where(condition, if_true, if_false)<br>Nest it for three or more tiers</div>
+      </div></div>
+      <div class="flip"><div class="flip-in">
+        <div class="flip-f">Turn a (3,) vector<br>into a (3,1) column<span class="flip-hint">TAP</span></div>
+        <div class="flip-b">v[:, None]  or  v.reshape(-1, 1)<br>Needed for per-ROW broadcasting</div>
+      </div></div>
+      <div class="flip"><div class="flip-in">
+        <div class="flip-f">One nan is in your data.<br>What happens to <code>mean()</code>?<span class="flip-hint">TAP</span></div>
+        <div class="flip-b">It returns nan. Use np.nanmean, or filter with ~np.isnan(arr)</div>
+      </div></div>
+      <div class="flip"><div class="flip-in">
+        <div class="flip-f">What does <code>shape=(6,)</code> mean?<span class="flip-hint">TAP</span></div>
+        <div class="flip-b">1-dimensional, 6 elements. The trailing comma is tuple syntax, not a missing value</div>
+      </div></div>
+      <div class="flip"><div class="flip-in">
+        <div class="flip-f">Wirth's equation,<br>NumPy edition<span class="flip-hint">TAP</span></div>
+        <div class="flip-b">ndarray (structure) + ufuncs, broadcasting, reductions (algorithms) = analytics program</div>
+      </div></div>
+    </div>
+
+    <h3>Final round</h3>
+
+    <div class="quiz" data-quiz>
+      <div class="quiz-tag">FINAL ROUND — 1 OF 3</div>
+      <p class="q"><code>a = np.arange(12).reshape(3, 4)</code>. What is <code>a[1:, 2:].shape</code>?</p>
+      <div class="opts">
+        <button class="opt" data-c="0"><code>(3, 4)</code></button>
+        <button class="opt" data-c="1"><code>(2, 2)</code></button>
+        <button class="opt" data-c="0"><code>(1, 2)</code></button>
+        <button class="opt" data-c="0"><code>(2,)</code></button>
+      </div>
+      <div class="explain"><code>1:</code> takes rows 1 and 2 → 2 rows. <code>2:</code> takes columns 2 and 3 → 2 columns. Both selectors are slices, so both axes survive and the result stays 2D at <code>(2, 2)</code>. It holds <code>[[6, 7], [10, 11]]</code>.</div>
+    </div>
+
+    <div class="quiz" data-quiz>
+      <div class="quiz-tag">FINAL ROUND — 2 OF 3</div>
+      <p class="q">You have <code>revenue</code> and <code>cost</code>, both shape <code>(1000,)</code>, and you want the average margin percentage only for products where revenue exceeds 500. Which is correct and fully vectorized?</p>
+      <div class="opts">
+        <button class="opt" data-c="0"><code>((revenue - cost) / revenue).mean() if revenue &gt; 500</code></button>
+        <button class="opt" data-c="1"><code>m = revenue &gt; 500; ((revenue[m] - cost[m]) / revenue[m]).mean() * 100</code></button>
+        <button class="opt" data-c="0"><code>revenue.mean(where = revenue and 500)</code></button>
+        <button class="opt" data-c="0"><code>np.where(revenue &gt; 500).mean()</code></button>
+      </div>
+      <div class="explain">Build the boolean mask once, then apply the same mask to both arrays so the rows stay aligned. Option 1 is not valid Python and would hit the ambiguous-truth-value error anyway. Option 4 confuses <code>np.where</code>'s one-argument form, which returns index positions, not values.</div>
+    </div>
+
+    <div class="quiz" data-quiz>
+      <div class="quiz-tag">FINAL ROUND — 3 OF 3</div>
+      <p class="q">Monthly figures are in <code>data</code>, shape <code>(24, 6)</code> — 24 months × 6 products. You want each product's column expressed as a percentage of that product's own annual total. Which line is right?</p>
+      <div class="opts">
+        <button class="opt" data-c="0"><code>data / data.sum()</code></button>
+        <button class="opt" data-c="1"><code>data / data.sum(axis=0) * 100</code></button>
+        <button class="opt" data-c="0"><code>data / data.sum(axis=1) * 100</code></button>
+        <button class="opt" data-c="0"><code>data / data.sum(axis=0)[:, None] * 100</code></button>
+      </div>
+      <div class="explain">A product is a column, so its total means collapsing the rows: <code>axis=0</code>, giving shape <code>(6,)</code>. Right-aligned against <code>(24, 6)</code>, the 6 matches the 6 and the row axis stretches — exactly what you want. Option 1 divides by the grand total. Option 3 produces a <code>(24,)</code> array that cannot align. Option 4 reshapes the <code>(6,)</code> into <code>(6,1)</code>, which then fails against 24 columns.</div>
+    </div>
+
+    <h3>Cheat sheet</h3>
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Task</th><th>Code</th></tr>
+      <tr><td>Import</td><td><code>import numpy as np</code></td></tr>
+      <tr><td>Build from data</td><td><code>np.array([[1,2],[3,4]])</code></td></tr>
+      <tr><td>Placeholders</td><td><code>np.zeros((3,4))</code> · <code>np.ones(5)</code> · <code>np.full((2,2), 7)</code></td></tr>
+      <tr><td>Ranges</td><td><code>np.arange(0,10,2)</code> · <code>np.linspace(0,1,11)</code></td></tr>
+      <tr><td>Random</td><td><code>rng = np.default_rng(42); rng.normal(100, 15, 50)</code></td></tr>
+      <tr><td>Inspect</td><td><code>a.shape</code> · <code>a.dtype</code> · <code>a.ndim</code> · <code>a.size</code> · <code>a.nbytes</code></td></tr>
+      <tr><td>Select cell / row / column</td><td><code>a[1,2]</code> · <code>a[0]</code> · <code>a[:,3]</code></td></tr>
+      <tr><td>Slice a block</td><td><code>a[0:2, 1:3]</code> · <code>a[::2]</code> · <code>a[-1,-1]</code></td></tr>
+      <tr><td>Filter</td><td><code>a[a &gt; 100]</code> · <code>a[(a&gt;10) &amp; (a&lt;90)]</code></td></tr>
+      <tr><td>Conditional label</td><td><code>np.where(a &gt; 100, 'hi', 'lo')</code> · <code>np.clip(a, 0, 1)</code></td></tr>
+      <tr><td>Element-wise math</td><td><code>a + b</code> · <code>a * 1.08</code> · <code>np.sqrt(a)</code> · <code>np.log(a)</code></td></tr>
+      <tr><td>Per column / per row</td><td><code>a.sum(axis=0)</code> · <code>a.mean(axis=1)</code></td></tr>
+      <tr><td>Which one</td><td><code>a.argmax()</code> · <code>a.argsort()[::-1]</code></td></tr>
+      <tr><td>Missing data</td><td><code>np.nanmean(a)</code> · <code>a[~np.isnan(a)]</code></td></tr>
+      <tr><td>Reshape</td><td><code>a.reshape(3,-1)</code> · <code>a.T</code> · <code>a[:, None]</code> · <code>a.ravel()</code></td></tr>
+      <tr><td>Combine</td><td><code>np.vstack([a,b])</code> · <code>np.hstack([a,b])</code></td></tr>
+      <tr><td>Safety</td><td><code>b = a[1:4].copy()</code> when you plan to edit</td></tr>
+    </table></div>
+
+    <h3>Where to go next</h3>
+    <ul>
+      <li><strong>pandas</strong> — labelled tables, CSV and Excel loading, group-by, time series. The natural next sheet set.</li>
+      <li><strong>Matplotlib</strong> — plotting takes NumPy arrays directly, so everything here feeds straight into charts.</li>
+      <li><strong>scikit-learn</strong> — models expect a 2D array of shape <code>(n_samples, n_features)</code>. The shape thinking from Sheet 05 is exactly what you need.</li>
+      <li><strong><code>np.linalg</code></strong> — <code>dot</code>, <code>solve</code>, <code>inv</code>: the linear algebra behind regression and optimization.</li>
+    </ul>
+
+  </div>
+</section>
+
+<footer>
+  <p><b>Sheet Set 08 · NumPy</b> — Python Programming for Business Analytics</p>
+  <p>Data Structures + Algorithms = Programs. The array is the structure; everything else acts on it.</p>
+</footer>
+
+</div><!-- /wrap -->
+
+<script>
+(function(){
+  'use strict';
+
+  /* ---------- ACCORDION SHEETS ---------- */
+  document.querySelectorAll('.sheet-head').forEach(function(h){
+    function toggle(){
+      var s = h.closest('.sheet');
+      var open = s.classList.toggle('open');
+      h.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    h.addEventListener('click', toggle);
+    h.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); }
+    });
+  });
+  document.getElementById('expandAll').addEventListener('click', function(){
+    document.querySelectorAll('.sheet').forEach(function(s){
+      s.classList.add('open');
+      s.querySelector('.sheet-head').setAttribute('aria-expanded','true');
+    });
+  });
+  document.getElementById('collapseAll').addEventListener('click', function(){
+    document.querySelectorAll('.sheet').forEach(function(s){
+      s.classList.remove('open');
+      s.querySelector('.sheet-head').setAttribute('aria-expanded','false');
+    });
+  });
+  document.querySelectorAll('.toc a').forEach(function(a){
+    a.addEventListener('click', function(){
+      var t = document.querySelector(a.getAttribute('href'));
+      if(t){ t.classList.add('open'); t.querySelector('.sheet-head').setAttribute('aria-expanded','true'); }
+    });
+  });
+
+  /* ---------- REVEAL OUTPUTS ---------- */
+  document.querySelectorAll('.reveal button').forEach(function(b){
+    b.addEventListener('click', function(){ b.parentElement.classList.add('shown'); });
+  });
+
+  /* ---------- QUIZZES ---------- */
+  document.querySelectorAll('[data-quiz]').forEach(function(q){
+    var opts = q.querySelectorAll('.opt');
+    var exp  = q.querySelector('.explain');
+    opts.forEach(function(o){
+      o.addEventListener('click', function(){
+        if(q.dataset.done) return;
+        q.dataset.done = '1';
+        opts.forEach(function(x){
+          x.classList.add('locked');
+          if(x.dataset.c === '1') x.classList.add('correct');
+        });
+        if(o.dataset.c !== '1') o.classList.add('wrong');
+        exp.classList.add('show');
+      });
+    });
+  });
+
+  /* ---------- FLIP CARDS ---------- */
+  document.querySelectorAll('.flip').forEach(function(f){
+    f.setAttribute('tabindex','0');
+    f.addEventListener('click', function(){ f.classList.toggle('flipped'); });
+    f.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); f.classList.toggle('flipped'); }
+    });
+  });
+
+  /* ---------- DEMO 1: SPEED ---------- */
+  var szRange = document.getElementById('szRange');
+  function fmt(n){ return n.toLocaleString('en-US'); }
+  function updateSpeed(){
+    var n = Math.pow(10, parseInt(szRange.value, 10));
+    document.getElementById('szLab').textContent = fmt(n);
+    // modelled: list ~62ns/elem, numpy ~1.1ns/elem + 5us fixed overhead
+    var listMs = n * 62e-6;
+    var npMs   = n * 1.1e-6 + 0.005;
+    var maxMs  = Math.max(listMs, npMs);
+    document.getElementById('barList').style.width = (listMs / maxMs * 100) + '%';
+    document.getElementById('barNp').style.width   = Math.max(npMs / maxMs * 100, 0.6) + '%';
+    document.getElementById('tList').textContent = listMs.toFixed(2) + ' ms';
+    document.getElementById('tNp').textContent   = npMs.toFixed(2) + ' ms';
+    var ratio = listMs / npMs;
+    document.getElementById('speedOut').textContent =
+      fmt(n) + ' elements  ->  NumPy is about ' + ratio.toFixed(0) + 'x faster\n' +
+      'The gap widens with n because the list pays the interpreter tax once per element,\n' +
+      'while NumPy pays it once per call.';
+  }
+  szRange.addEventListener('input', updateSpeed);
+  updateSpeed();
+
+  /* ---------- DEMO 2: MEMORY ---------- */
+  var mRows = document.getElementById('mRows'),
+      mCols = document.getElementById('mCols'),
+      mType = document.getElementById('mType');
+  function human(b){
+    if(b < 1024) return b + ' B';
+    if(b < 1048576) return (b/1024).toFixed(1) + ' KB';
+    if(b < 1073741824) return (b/1048576).toFixed(1) + ' MB';
+    return (b/1073741824).toFixed(2) + ' GB';
+  }
+  function updateMem(){
+    var r = parseInt(mRows.value.replace(/[^0-9]/g,''), 10) || 0;
+    var c = parseInt(mCols.value.replace(/[^0-9]/g,''), 10) || 0;
+    var w = parseInt(mType.value, 10);
+    var size = r * c;
+    var bytes = size * w;
+    var listBytes = size * 36; // 28B object + 8B pointer, rough
+    document.getElementById('memOut').textContent =
+      'shape      = (' + fmt(r) + ', ' + c + ')\n' +
+      'size       = ' + fmt(size) + ' elements\n' +
+      'itemsize   = ' + w + ' bytes\n' +
+      'nbytes     = ' + fmt(bytes) + '  (' + human(bytes) + ')\n' +
+      '\nsame data as a nested Python list: roughly ' + human(listBytes) +
+      '  ->  ' + (listBytes / (bytes || 1)).toFixed(1) + 'x larger';
+  }
+  [mRows, mCols, mType].forEach(function(el){ el.addEventListener('input', updateMem); });
+  updateMem();
+
+  /* ---------- DEMO 3: SLICE EXPLORER ---------- */
+  var vals = [10,20,30,40,50,60,70,80,90,100,110,120];
+  var slStart = document.getElementById('slStart'),
+      slStop  = document.getElementById('slStop'),
+      slStep  = document.getElementById('slStep');
+  var idxRow  = document.getElementById('slIdx'),
+      cellRow = document.getElementById('slCells');
+  vals.forEach(function(v,i){
+    var d = document.createElement('div'); d.className='idx'; d.textContent=i; idxRow.appendChild(d);
+    var c = document.createElement('div'); c.className='cell'; c.textContent=v; cellRow.appendChild(c);
+  });
+  function pySlice(arr, a, b, s){
+    var n = arr.length, out = [], idx = [];
+    if(s === 0) return null;
+    var start, stop;
+    if(s > 0){
+      start = (a === null) ? 0 : (a < 0 ? Math.max(n + a, 0) : Math.min(a, n));
+      stop  = (b === null) ? n : (b < 0 ? Math.max(n + b, 0) : Math.min(b, n));
+      for(var i = start; i < stop; i += s){ out.push(arr[i]); idx.push(i); }
+    } else {
+      start = (a === null) ? n - 1 : (a < 0 ? Math.max(n + a, -1) : Math.min(a, n - 1));
+      stop  = (b === null) ? -1 : (b < 0 ? Math.max(n + b, -1) : Math.min(b, n - 1));
+      for(var j = start; j > stop; j += s){ if(j >= 0 && j < n){ out.push(arr[j]); idx.push(j); } }
+    }
+    return {vals: out, idx: idx};
+  }
+  function updateSlice(){
+    var a = parseInt(slStart.value,10), b = parseInt(slStop.value,10), s = parseInt(slStep.value,10);
+    document.getElementById('slStartV').textContent = a;
+    document.getElementById('slStopV').textContent  = b;
+    document.getElementById('slStepV').textContent  = s;
+    var cells = cellRow.children;
+    if(s === 0){
+      for(var k=0;k<cells.length;k++){ cells[k].className='cell dim'; }
+      document.getElementById('slOut').textContent = 'ValueError: slice step cannot be zero';
+      return;
+    }
+    var r = pySlice(vals, a, b, s);
+    var set = {}; r.idx.forEach(function(i){ set[i]=1; });
+    for(var m=0;m<cells.length;m++){ cells[m].className = set[m] ? 'cell hit' : 'cell dim'; }
+    var txt = 'arr[' + a + ':' + b + (s === 1 ? '' : ':' + s) + ']\n';
+    txt += r.vals.length ? '-> [' + r.vals.join(' ') + ']' : '-> []   (empty — start/stop/step disagree)';
+    txt += '\n   shape (' + r.vals.length + ',)';
+    document.getElementById('slOut').textContent = txt;
+  }
+  [slStart, slStop, slStep].forEach(function(el){ el.addEventListener('input', updateSlice); });
+  updateSlice();
+
+  /* ---------- DEMO 4: BROADCAST CHECKER ---------- */
+  function parseShape(str){
+    var parts = str.split(',').map(function(x){ return x.trim(); }).filter(function(x){ return x !== ''; });
+    var out = [];
+    for(var i=0;i<parts.length;i++){
+      var v = parseInt(parts[i],10);
+      if(isNaN(v) || v < 1) return null;
+      out.push(v);
+    }
+    return out.length ? out : null;
+  }
+  function checkBroadcast(){
+    var A = parseShape(document.getElementById('shA').value);
+    var B = parseShape(document.getElementById('shB').value);
+    var out = document.getElementById('shOut');
+    if(!A || !B){
+      out.textContent = 'Enter shapes as comma-separated positive integers, e.g. 3,4';
+      return;
+    }
+    var la = A.length, lb = B.length, L = Math.max(la, lb);
+    var pa = new Array(L - la).fill(1).concat(A);
+    var pb = new Array(L - lb).fill(1).concat(B);
+    var lines = [];
+    lines.push('A: (' + A.join(', ') + ')   ->  padded (' + pa.join(', ') + ')');
+    lines.push('B: (' + B.join(', ') + ')   ->  padded (' + pb.join(', ') + ')');
+    lines.push('');
+    var ok = true, result = [];
+    for(var i=0;i<L;i++){
+      var x = pa[i], y = pb[i], verdict;
+      if(x === y){ verdict = 'equal        -> ' + x; result.push(x); }
+      else if(x === 1){ verdict = 'A stretches  -> ' + y; result.push(y); }
+      else if(y === 1){ verdict = 'B stretches  -> ' + x; result.push(x); }
+      else { verdict = 'INCOMPATIBLE'; ok = false; result.push('X'); }
+      lines.push('  axis ' + i + ':  ' + String(x).padStart(3) + ' vs ' + String(y).padStart(3) + '   ' + verdict);
+    }
+    lines.push('');
+    lines.push(ok ? 'OK  result shape = (' + result.join(', ') + ')'
+                  : 'ValueError: operands could not be broadcast together');
+    if(!ok) lines.push('fix: give the smaller array a trailing axis of 1, e.g. b[:, None]');
+    out.textContent = lines.join('\n');
+    out.style.color = ok ? 'var(--green)' : 'var(--coral)';
+  }
+  document.getElementById('shGo').addEventListener('click', checkBroadcast);
+  document.getElementById('shA').addEventListener('input', checkBroadcast);
+  document.getElementById('shB').addEventListener('input', checkBroadcast);
+  document.querySelectorAll('.preset').forEach(function(p){
+    p.addEventListener('click', function(){
+      document.getElementById('shA').value = p.dataset.a;
+      document.getElementById('shB').value = p.dataset.b;
+      checkBroadcast();
+    });
+  });
+  checkBroadcast();
+
+  /* ---------- DEMO 5: AXIS EXPLORER ---------- */
+  var S = [[120,135,128,150],[98,104,115,122],[210,198,225,240]];
+  var regionNames = ['North','South','West'];
+  var quarterNames = ['Q1','Q2','Q3','Q4'];
+  var axGrid = document.getElementById('axGrid');
+
+  function drawAxis(mode){
+    var colT = [0,0,0,0], rowT = [0,0,0], grand = 0;
+    for(var r=0;r<3;r++) for(var c=0;c<4;c++){ colT[c]+=S[r][c]; rowT[r]+=S[r][c]; grand+=S[r][c]; }
+
+    var html = '<table class="matrix"><caption>sales  shape (3, 4)</caption>';
+    html += '<tr><td style="border:none"></td>';
+    quarterNames.forEach(function(q){ html += '<td style="border:none;color:#6e88a8;font-size:.66rem">'+q+'</td>'; });
+    html += (mode === 'ax1') ? '<td style="border:none;color:#6ede8a;font-size:.66rem">sum</td>' : '<td style="border:none"></td>';
+    html += '</tr>';
+    for(var r2=0;r2<3;r2++){
+      html += '<tr><td style="border:none;color:#6e88a8;font-size:.66rem">'+regionNames[r2]+'</td>';
+      for(var c2=0;c2<4;c2++){
+        html += '<td class="sel">'+S[r2][c2]+'</td>';
+      }
+      html += (mode === 'ax1') ? '<td class="res">'+rowT[r2]+'</td>' : '<td style="border:none"></td>';
+      html += '</tr>';
+    }
+    if(mode === 'ax0'){
+      html += '<tr><td style="border:none;color:#6ede8a;font-size:.66rem">sum</td>';
+      for(var c3=0;c3<4;c3++){ html += '<td class="res">'+colT[c3]+'</td>'; }
+      html += '<td style="border:none"></td></tr>';
+    }
+    if(mode === 'none'){
+      html += '<tr><td style="border:none"></td><td class="res" colspan="4">'+grand+'</td><td style="border:none"></td></tr>';
+    }
+    html += '</table>';
+    axGrid.innerHTML = html;
+
+    var out = document.getElementById('axOut');
+    if(mode === 'none'){
+      out.textContent = 'sales.sum()\n-> ' + grand + '\n\nEvery axis collapses. Result is a single scalar,\nshape ().  "Total company revenue."';
+    } else if(mode === 'ax0'){
+      out.textContent = 'sales.sum(axis=0)\n-> [' + colT.join(' ') + ']\n\nAxis 0 (rows) disappears. Shape (3, 4) -> (4,)\nOne number per QUARTER. "Total per quarter."';
+    } else {
+      out.textContent = 'sales.sum(axis=1)\n-> [' + rowT.join(' ') + ']\n\nAxis 1 (columns) disappears. Shape (3, 4) -> (3,)\nOne number per REGION. "Total per region."';
+    }
+  }
+  function setAxis(mode, btn){
+    ['axNone','ax0','ax1'].forEach(function(id){ document.getElementById(id).classList.remove('on'); });
+    btn.classList.add('on');
+    drawAxis(mode);
+  }
+  document.getElementById('axNone').addEventListener('click', function(){ setAxis('none', this); });
+  document.getElementById('ax0').addEventListener('click', function(){ setAxis('ax0', this); });
+  document.getElementById('ax1').addEventListener('click', function(){ setAxis('ax1', this); });
+  drawAxis('none');
+
+})();
+</script>
+</body>
+</html>
