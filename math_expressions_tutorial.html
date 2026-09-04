@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mathematical Expressions in Python — Business Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F2EC;
+  --card:#FFFFFF;
+  --ink:#1C2321;
+  --ink-soft:#4A544F;
+  --rule:#DDD9CE;
+
+  --green:#2E7D46;
+  --green-deep:#1B5B31;
+  --green-pale:#E8F2EA;
+  --green-band:linear-gradient(90deg,#2E7D46 0%,#256B3B 100%);
+
+  --amber:#B45309;
+  --amber-pale:#FBF0E0;
+  --plum:#6B3FA0;
+  --plum-pale:#F1EBF8;
+  --clay:#B23A2E;
+  --clay-pale:#FBEBE9;
+  --slate:#0F5C6B;
+  --slate-pale:#E4F0F2;
+
+  --code-bg:#17231D;
+  --code-ink:#E8EDE9;
+
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:2rem}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:17px;line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- progress ---------- */
+#progress{position:fixed;top:0;left:0;height:4px;width:0;background:var(--green);z-index:200;transition:width .12s linear}
+
+/* ---------- layout ---------- */
+.shell{display:grid;grid-template-columns:250px minmax(0,1fr);gap:0;max-width:1240px;margin:0 auto}
+nav.toc{
+  position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;
+  padding:2.2rem 1rem 3rem 1.4rem;border-right:1px solid var(--rule);
+}
+nav.toc h2{font-family:var(--mono);font-size:.72rem;font-weight:700;letter-spacing:.06em;color:var(--green-deep);margin:0 0 .9rem}
+nav.toc a{
+  display:flex;gap:.55rem;align-items:baseline;
+  font-size:.86rem;color:var(--ink-soft);text-decoration:none;
+  padding:.34rem .5rem;border-radius:5px;line-height:1.35;
+}
+nav.toc a span{font-family:var(--mono);font-size:.72rem;color:#A6A198;min-width:1.1rem}
+nav.toc a:hover{background:var(--green-pale);color:var(--green-deep)}
+nav.toc a.on{background:var(--green-pale);color:var(--green-deep);font-weight:600}
+nav.toc a.on span{color:var(--green)}
+main{padding:2.4rem 2.6rem 6rem;min-width:0}
+
+/* ---------- hero ---------- */
+.hero{margin-bottom:3rem}
+.hero .kicker{font-family:var(--mono);font-size:.78rem;color:var(--green);font-weight:700;margin-bottom:.5rem}
+.hero h1{
+  font-size:clamp(2rem,4.6vw,3.1rem);line-height:1.08;margin:.1rem 0 .8rem;
+  font-weight:700;letter-spacing:-.02em;
+}
+.hero p.lede{font-size:1.12rem;color:var(--ink-soft);max-width:62ch;margin:0}
+.formula{
+  margin:1.8rem 0 0;padding:1.1rem 1.3rem;background:var(--card);
+  border:1px solid var(--rule);border-left:5px solid var(--green);border-radius:4px;
+  font-family:var(--mono);font-size:1.02rem;font-weight:500;
+}
+.formula em{color:var(--green-deep);font-style:normal;font-weight:700}
+
+/* ---------- sections ---------- */
+section{margin:0 0 3.4rem;scroll-margin-top:1.5rem}
+.band{
+  display:flex;align-items:center;gap:.85rem;
+  background:var(--green-band);color:#fff;border-radius:8px 8px 0 0;
+  padding:.7rem 1.1rem;
+}
+.band .num{
+  width:30px;height:30px;flex:none;border-radius:50%;background:rgba(255,255,255,.22);
+  display:grid;place-items:center;font-family:var(--mono);font-weight:700;font-size:.95rem;
+}
+.band h2{margin:0;font-size:1.15rem;font-weight:700;letter-spacing:.01em}
+.panel{
+  background:var(--card);border:1px solid var(--rule);border-top:none;
+  border-radius:0 0 8px 8px;padding:1.5rem 1.6rem 1.7rem;
+}
+h3{font-size:1.05rem;margin:1.9rem 0 .55rem;font-weight:700;color:var(--green-deep)}
+h3:first-child{margin-top:0}
+h4{font-size:.95rem;margin:1.3rem 0 .4rem;font-weight:700}
+p{max-width:70ch}
+
+/* ---------- what / why / how ---------- */
+.wwh{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:.9rem;margin:1.2rem 0 1.5rem}
+.wwh div{padding:.95rem 1rem;border-radius:6px;border:1px solid var(--rule);background:#FCFCFA}
+.wwh h5{
+  margin:0 0 .4rem;font-family:var(--mono);font-size:.75rem;font-weight:700;letter-spacing:.04em;
+}
+.wwh p{margin:0;font-size:.93rem;line-height:1.5;max-width:none}
+.wwh .w{border-top:3px solid var(--slate)} .wwh .w h5{color:var(--slate)}
+.wwh .y{border-top:3px solid var(--amber)} .wwh .y h5{color:var(--amber)}
+.wwh .h{border-top:3px solid var(--plum)} .wwh .h h5{color:var(--plum)}
+
+/* ---------- code ---------- */
+.codewrap{margin:1.1rem 0;border-radius:7px;overflow:hidden;border:1px solid #0D1712}
+.codewrap pre{
+  margin:0;background:var(--code-bg);color:var(--code-ink);
+  padding:1rem 1.1rem;overflow-x:auto;font-family:var(--mono);font-size:.87rem;line-height:1.65;
+}
+.codebar{
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  background:#101A15;padding:.4rem .7rem .4rem 1.1rem;
+}
+.codebar .fname{font-family:var(--mono);font-size:.72rem;color:#8FA697}
+button.run{
+  font-family:var(--mono);font-size:.74rem;font-weight:700;color:#17231D;background:#7FC79A;
+  border:none;border-radius:4px;padding:.35rem .8rem;cursor:pointer;
+}
+button.run:hover{background:#9BD7B1}
+.out{
+  background:#0B120E;color:#C9D9CE;font-family:var(--mono);font-size:.84rem;
+  padding:.85rem 1.1rem;border-top:1px dashed #33463B;white-space:pre-wrap;
+}
+.out b{color:#F2C879;font-weight:500}
+code.inline{
+  font-family:var(--mono);font-size:.86em;background:var(--green-pale);
+  color:var(--green-deep);padding:.1em .35em;border-radius:3px;
+}
+.c-com{color:#7C9285;font-style:italic}
+.c-str{color:#E6B980}
+.c-kw{color:#8FD1F0;font-weight:500}
+.c-bi{color:#C3A6F0}
+.c-num{color:#F0A6A0}
+.c-op{color:#FFD59B}
+
+/* ---------- operator table ---------- */
+table.ops{width:100%;border-collapse:collapse;margin:1.1rem 0;font-size:.94rem}
+table.ops th{
+  background:var(--green-pale);color:var(--green-deep);text-align:left;
+  padding:.6rem .8rem;font-size:.82rem;font-weight:700;border:1px solid #CBDFD1;
+}
+table.ops td{padding:.55rem .8rem;border:1px solid var(--rule);vertical-align:middle}
+table.ops td.sym{font-family:var(--mono);font-weight:700;font-size:1.05rem;color:var(--green-deep);text-align:center;width:78px;background:#FAFBF9}
+table.ops td.ex{font-family:var(--mono);font-size:.88rem;background:#FAFBF9}
+table.ops td.res{font-family:var(--mono);font-weight:700;color:var(--clay);width:96px}
+table.ops tbody tr:hover{background:#F7FAF7}
+table.ops .note{font-size:.82rem;color:var(--ink-soft);display:block;margin-top:.15rem}
+
+/* generic table */
+table.grid{width:100%;border-collapse:collapse;font-size:.92rem;margin:1rem 0}
+table.grid th{background:#F1EFE8;text-align:left;padding:.5rem .7rem;border:1px solid var(--rule);font-size:.82rem}
+table.grid td{padding:.5rem .7rem;border:1px solid var(--rule)}
+table.grid td.m{font-family:var(--mono);font-size:.86rem}
+
+/* ---------- callouts ---------- */
+.call{border-radius:6px;padding:.9rem 1.05rem;margin:1.1rem 0;font-size:.94rem;border-left:4px solid}
+.call p{margin:.35rem 0 0;max-width:none}
+.call p:first-child{margin-top:0}
+.call strong.tag{font-family:var(--mono);font-size:.76rem;font-weight:700;letter-spacing:.03em;display:block;margin-bottom:.3rem}
+.call.warn{background:var(--clay-pale);border-color:var(--clay)} .call.warn .tag{color:var(--clay)}
+.call.tip{background:var(--amber-pale);border-color:var(--amber)} .call.tip .tag{color:var(--amber)}
+.call.biz{background:var(--slate-pale);border-color:var(--slate)} .call.biz .tag{color:var(--slate)}
+.call.key{background:var(--green-pale);border-color:var(--green)} .call.key .tag{color:var(--green-deep)}
+
+/* ---------- figures ---------- */
+figure{margin:1.4rem 0;text-align:center}
+figure svg{max-width:100%;height:auto}
+figcaption{font-size:.83rem;color:var(--ink-soft);margin-top:.5rem;font-style:italic}
+.sv-band{fill:var(--green)} .sv-lab{font-family:"JetBrains Mono",monospace;font-size:12px}
+
+/* ---------- playground ---------- */
+.pg{background:#FAFBF9;border:1px solid var(--rule);border-radius:8px;padding:1.2rem 1.3rem;margin:1.2rem 0}
+.pg .inputs{display:flex;gap:1.4rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem}
+.pg label{font-family:var(--mono);font-size:.82rem;font-weight:700;color:var(--green-deep);display:flex;align-items:center;gap:.5rem}
+.pg input[type=number]{
+  font-family:var(--mono);font-size:.95rem;width:92px;padding:.35rem .5rem;
+  border:1.5px solid var(--rule);border-radius:5px;background:#fff;
+}
+.pg input:focus{outline:2px solid var(--green);outline-offset:1px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.6rem}
+.pcell{background:#fff;border:1px solid var(--rule);border-radius:6px;padding:.6rem .75rem}
+.pcell .e{font-family:var(--mono);font-size:.84rem;color:var(--ink-soft)}
+.pcell .v{font-family:var(--mono);font-size:1.12rem;font-weight:700;color:var(--green-deep);margin-top:.15rem;word-break:break-all}
+.pcell .t{font-size:.72rem;color:#8C8B84;font-family:var(--mono)}
+.pcell.err .v{color:var(--clay);font-size:.9rem}
+
+/* ---------- stepper ---------- */
+.stepper{background:#FAFBF9;border:1px solid var(--rule);border-radius:8px;padding:1.2rem 1.3rem;margin:1.2rem 0}
+.stepline{
+  font-family:var(--mono);font-size:1.16rem;text-align:center;padding:1.2rem .6rem;
+  background:#fff;border:1px solid var(--rule);border-radius:6px;letter-spacing:.02em;
+  overflow-x:auto;white-space:nowrap;
+}
+.stepline mark{background:#FDE79B;color:#7A4B00;padding:.12em .3em;border-radius:3px;font-weight:700}
+.stepline .done{color:#9AA69E}
+.stepcap{min-height:3.1rem;margin-top:.85rem;font-size:.93rem;color:var(--ink-soft);text-align:center}
+.stepcap b{color:var(--green-deep)}
+.stepnav{display:flex;gap:.6rem;justify-content:center;align-items:center;margin-top:.6rem}
+.stepnav button{
+  font-family:var(--mono);font-size:.8rem;font-weight:700;padding:.45rem 1rem;border-radius:5px;
+  border:1.5px solid var(--green);background:#fff;color:var(--green-deep);cursor:pointer;
+}
+.stepnav button:hover:not(:disabled){background:var(--green-pale)}
+.stepnav button:disabled{opacity:.35;cursor:not-allowed}
+.stepnav .count{font-family:var(--mono);font-size:.78rem;color:var(--ink-soft);min-width:52px;text-align:center}
+
+/* ---------- quiz ---------- */
+.quiz{background:var(--card);border:1px solid var(--rule);border-top:3px solid var(--plum);border-radius:6px;padding:1.1rem 1.25rem;margin:1.4rem 0}
+.quiz .qh{font-family:var(--mono);font-size:.74rem;font-weight:700;color:var(--plum);margin-bottom:.6rem}
+.quiz .qq{font-weight:600;margin:0 0 .7rem;max-width:none}
+.quiz .qq code{font-family:var(--mono);background:#F1EFE8;padding:.08em .3em;border-radius:3px;font-size:.9em}
+.quiz .opt{
+  display:block;width:100%;text-align:left;background:#FCFCFA;border:1.5px solid var(--rule);
+  border-radius:5px;padding:.5rem .8rem;margin-bottom:.4rem;cursor:pointer;
+  font-family:var(--sans);font-size:.93rem;color:var(--ink);
+}
+.quiz .opt code,.quiz .opt{font-family:var(--mono);font-size:.9rem}
+.quiz .opt:hover:not(:disabled){border-color:var(--plum);background:var(--plum-pale)}
+.quiz .opt:disabled{cursor:default}
+.quiz .opt.right{border-color:var(--green);background:var(--green-pale);font-weight:700}
+.quiz .opt.wrong{border-color:var(--clay);background:var(--clay-pale)}
+.quiz .fb{font-size:.9rem;margin-top:.6rem;padding:.65rem .8rem;border-radius:5px;background:#F5F3EC;display:none}
+.quiz .fb.show{display:block}
+.quiz .fb b{color:var(--green-deep)}
+.quiz .fb.no b{color:var(--clay)}
+
+/* ---------- flip cards ---------- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin:1.2rem 0}
+.flip{perspective:900px;height:132px;cursor:pointer}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{
+  position:absolute;inset:0;backface-visibility:hidden;border-radius:7px;
+  display:grid;place-items:center;text-align:center;padding:.8rem;border:1px solid var(--rule);
+}
+.flip .f{background:#fff}
+.flip .f span{font-family:var(--mono);font-size:.92rem;font-weight:700;color:var(--ink)}
+.flip .b{background:var(--green-deep);color:#fff;transform:rotateY(180deg)}
+.flip .b span{font-size:.86rem;line-height:1.45}
+.flip .hint{position:absolute;bottom:.4rem;right:.6rem;font-family:var(--mono);font-size:.62rem;color:#B3AFA6}
+
+.checklist{list-style:none;padding:0;margin:1rem 0}
+.checklist li{padding:.35rem 0 .35rem 1.7rem;position:relative;font-size:.95rem;border-bottom:1px dotted var(--rule)}
+.checklist li::before{content:"□";position:absolute;left:.25rem;font-family:var(--mono);color:var(--green);font-size:1.05rem}
+
+footer{border-top:1px solid var(--rule);padding-top:1.2rem;font-size:.85rem;color:var(--ink-soft)}
+
+@media (max-width:880px){
+  .shell{grid-template-columns:1fr}
+  nav.toc{position:static;height:auto;border-right:none;border-bottom:1px solid var(--rule);padding:1.2rem}
+  nav.toc .links{display:flex;flex-wrap:wrap;gap:.3rem}
+  nav.toc a{font-size:.8rem;padding:.25rem .5rem;border:1px solid var(--rule);border-radius:20px}
+  main{padding:1.5rem 1.1rem 4rem}
+  .panel{padding:1.1rem}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<div class="shell">
+<nav class="toc">
+  <h2>Contents</h2>
+  <div class="links">
+    <a href="#s1"><span>1</span>The big idea</a>
+    <a href="#s2"><span>2</span>Anatomy of an expression</a>
+    <a href="#s3"><span>3</span>The seven operators</a>
+    <a href="#s4"><span>4</span>Operator playground</a>
+    <a href="#s5"><span>5</span>The division trio</a>
+    <a href="#s6"><span>6</span>Exponentiation at work</a>
+    <a href="#s7"><span>7</span>Order of operations</a>
+    <a href="#s8"><span>8</span>Types in, types out</a>
+    <a href="#s9"><span>9</span>Where beginners slip</a>
+    <a href="#s10"><span>10</span>Shorthand assignment</a>
+    <a href="#s11"><span>11</span>Analytics lab</a>
+    <a href="#s12"><span>12</span>Recall & cheat sheet</a>
+  </div>
+</nav>
+
+<main>
+
+<header class="hero">
+  <div class="kicker">Python for Business Analytics · Card 2</div>
+  <h1>Mathematical Expressions</h1>
+  <p class="lede">Every revenue figure, margin percentage and growth rate you will ever compute starts here: values joined by operators to produce a new value. Seven symbols do almost all the work.</p>
+  <div class="formula">
+    Programs = <em>Data Structures</em> + <em>Algorithms</em><br>
+    <span style="color:#4A544F">An expression is that formula in miniature: <em style="color:#2E7D46">operands</em> are the data, <em style="color:#2E7D46">operators</em> are the algorithm.</span>
+  </div>
+</header>
+
+<!-- ========================= 1 ========================= -->
+<section id="s1">
+  <div class="band"><div class="num">1</div><h2>The big idea: data meets process</h2></div>
+  <div class="panel">
+
+    <p>Niklaus Wirth's formula says a program is data structures plus algorithms. That sounds abstract until you look at a single line of Python:</p>
+
+<div class="codewrap"><div class="codebar"><span class="fname">the smallest possible program</span><button class="run">Run ▸</button></div><pre><code>revenue = 1250 * 29.99
+print(revenue)</code></pre><div class="out">37487.5</div></div>
+
+    <p>The numbers <code class="inline">1250</code> and <code class="inline">29.99</code> are data. The <code class="inline">*</code> is the process applied to that data. The result is new data, stored in a variable so a later step can use it. Scale that pattern up and you have a pricing engine, a forecast model, or a pandas pipeline.</p>
+
+    <figure>
+      <svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagram mapping operands to data structures and operators to algorithms">
+        <rect x="20" y="30" width="200" height="120" rx="8" fill="#E4F0F2" stroke="#0F5C6B" stroke-width="1.5"/>
+        <text x="120" y="58" text-anchor="middle" class="sv-lab" fill="#0F5C6B" font-weight="700">DATA STRUCTURES</text>
+        <text x="120" y="80" text-anchor="middle" class="sv-lab" fill="#0F5C6B" font-size="11">the operands</text>
+        <text x="120" y="108" text-anchor="middle" class="sv-lab" fill="#1C2321" font-size="14">1250</text>
+        <text x="120" y="130" text-anchor="middle" class="sv-lab" fill="#1C2321" font-size="14">29.99</text>
+
+        <rect x="480" y="30" width="200" height="120" rx="8" fill="#F1EBF8" stroke="#6B3FA0" stroke-width="1.5"/>
+        <text x="580" y="58" text-anchor="middle" class="sv-lab" fill="#6B3FA0" font-weight="700">ALGORITHM</text>
+        <text x="580" y="80" text-anchor="middle" class="sv-lab" fill="#6B3FA0" font-size="11">the operator + its rules</text>
+        <text x="580" y="112" text-anchor="middle" class="sv-lab" fill="#1C2321" font-size="22" font-weight="700">*</text>
+        <text x="580" y="134" text-anchor="middle" class="sv-lab" fill="#4A544F" font-size="11">repeated addition</text>
+
+        <path d="M225 90 L 300 90" stroke="#9AA69E" stroke-width="1.5" marker-end="url(#ar)"/>
+        <path d="M475 90 L 400 90" stroke="#9AA69E" stroke-width="1.5" marker-end="url(#ar)"/>
+        <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#9AA69E"/></marker></defs>
+
+        <rect x="300" y="60" width="100" height="60" rx="8" fill="#2E7D46"/>
+        <text x="350" y="86" text-anchor="middle" class="sv-lab" fill="#fff" font-weight="700" font-size="11">EXPRESSION</text>
+        <text x="350" y="104" text-anchor="middle" class="sv-lab" fill="#CDE7D6" font-size="11">1250 * 29.99</text>
+
+        <path d="M350 125 L 350 175" stroke="#2E7D46" stroke-width="2" marker-end="url(#ar2)"/>
+        <defs><marker id="ar2" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 z" fill="#2E7D46"/></marker></defs>
+        <rect x="255" y="180" width="190" height="46" rx="8" fill="#fff" stroke="#2E7D46" stroke-width="1.5"/>
+        <text x="350" y="200" text-anchor="middle" class="sv-lab" fill="#1B5B31" font-size="11">evaluates to a single value</text>
+        <text x="350" y="218" text-anchor="middle" class="sv-lab" fill="#B23A2E" font-size="13" font-weight="700">37487.5</text>
+      </svg>
+      <figcaption>An expression is the smallest complete unit of "data + process" in a program.</figcaption>
+    </figure>
+
+    <div class="call key"><strong class="tag">HOLD ON TO THIS</strong>
+      <p>An <strong>expression</strong> produces a value. A <strong>statement</strong> performs an action. <code class="inline">1250 * 29.99</code> is an expression; <code class="inline">revenue = 1250 * 29.99</code> is a statement that contains one.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ========================= 2 ========================= -->
+<section id="s2">
+  <div class="band"><div class="num">2</div><h2>Anatomy of an expression</h2></div>
+  <div class="panel">
+
+    <div class="wwh">
+      <div class="w"><h5>WHAT</h5><p>A combination of operands (values or variables) and operators that Python reduces to exactly one value.</p></div>
+      <div class="y"><h5>WHY</h5><p>Every calculated column, KPI and model input is an expression. Reading them accurately is the core analyst skill.</p></div>
+      <div class="h"><h5>HOW</h5><p>Python evaluates inner to outer, following precedence rules, replacing each sub-expression with its value until one remains.</p></div>
+    </div>
+
+    <figure>
+      <svg viewBox="0 0 700 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Labelled anatomy of the expression units times price">
+        <text x="350" y="52" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="26" fill="#1C2321">
+          <tspan fill="#0F5C6B">units</tspan><tspan fill="#B45309" dx="10">*</tspan><tspan fill="#0F5C6B" dx="10">price</tspan>
+        </text>
+
+        <path d="M262 68 L 240 100" stroke="#0F5C6B" stroke-width="1.2"/>
+        <path d="M350 68 L 350 100" stroke="#B45309" stroke-width="1.2"/>
+        <path d="M438 68 L 462 100" stroke="#0F5C6B" stroke-width="1.2"/>
+
+        <rect x="150" y="102" width="180" height="52" rx="6" fill="#E4F0F2" stroke="#0F5C6B"/>
+        <text x="240" y="122" text-anchor="middle" class="sv-lab" fill="#0F5C6B" font-weight="700" font-size="11">OPERAND (left)</text>
+        <text x="240" y="140" text-anchor="middle" class="sv-lab" fill="#4A544F" font-size="10.5">a variable holding 1250</text>
+
+        <rect x="290" y="162" width="120" height="38" rx="6" fill="#FBF0E0" stroke="#B45309"/>
+        <text x="350" y="178" text-anchor="middle" class="sv-lab" fill="#B45309" font-weight="700" font-size="11">OPERATOR</text>
+        <text x="350" y="192" text-anchor="middle" class="sv-lab" fill="#4A544F" font-size="10.5">multiply</text>
+
+        <rect x="370" y="102" width="180" height="52" rx="6" fill="#E4F0F2" stroke="#0F5C6B"/>
+        <text x="460" y="122" text-anchor="middle" class="sv-lab" fill="#0F5C6B" font-weight="700" font-size="11">OPERAND (right)</text>
+        <text x="460" y="140" text-anchor="middle" class="sv-lab" fill="#4A544F" font-size="10.5">a variable holding 29.99</text>
+      </svg>
+      <figcaption>Two operands and one binary operator. Every row in the table below follows this same shape.</figcaption>
+    </figure>
+
+    <p>Operands do not have to be literal numbers. Any of these are valid operands, because each one is itself an expression that produces a number:</p>
+
+<div class="codewrap"><div class="codebar"><span class="fname">operands come in many forms</span><button class="run">Run ▸</button></div><pre><code>units = 1250
+price = 29.99
+discount_rate = 0.10
+
+# a literal
+print(1250 * 29.99)
+
+# variables
+print(units * price)
+
+# a nested expression as an operand
+print(units * (price * (1 - discount_rate)))
+
+# a function call as an operand
+print(round(units * price, 2))</code></pre><div class="out">37487.5
+37487.5
+33738.75
+37487.5</div></div>
+
+    <div class="quiz" data-quiz="q_anatomy"></div>
+
+  </div>
+</section>
+
+<!-- ========================= 3 ========================= -->
+<section id="s3">
+  <div class="band"><div class="num">3</div><h2>The seven arithmetic operators</h2></div>
+  <div class="panel">
+
+    <p>These seven symbols cover essentially all numeric work in analytics. Read the table, then notice the two rows that surprise most beginners.</p>
+
+    <table class="ops">
+      <thead><tr><th>Operator</th><th>Meaning</th><th>Example</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td class="sym">+</td><td>Addition<span class="note">Totals, running sums, adding a fee</span></td><td class="ex">10 + 5</td><td class="res">15</td></tr>
+        <tr><td class="sym">−</td><td>Subtraction<span class="note">Variance, profit, period-over-period change</span></td><td class="ex">10 - 5</td><td class="res">5</td></tr>
+        <tr><td class="sym">*</td><td>Multiplication<span class="note">Quantity × price, scaling, applying a rate</span></td><td class="ex">10 * 5</td><td class="res">50</td></tr>
+        <tr><td class="sym">/</td><td>Division<span class="note"><strong>Always returns a float</strong>, even when it divides evenly</span></td><td class="ex">10 / 5</td><td class="res">2.0</td></tr>
+        <tr><td class="sym">**</td><td>Exponentiation<span class="note">Compound growth, CAGR, roots via fractional powers</span></td><td class="ex">10 ** 2</td><td class="res">100</td></tr>
+        <tr><td class="sym">%</td><td>Remainder (modulo)<span class="note">What is left over; cycling; every-Nth logic</span></td><td class="ex">10 % 3</td><td class="res">1</td></tr>
+        <tr><td class="sym">//</td><td>Floor division<span class="note">How many whole groups fit; discards the fraction</span></td><td class="ex">10 // 3</td><td class="res">3</td></tr>
+      </tbody>
+    </table>
+
+    <div class="call warn"><strong class="tag">THE TWO SURPRISES</strong>
+      <p><code class="inline">10 / 5</code> gives <code class="inline">2.0</code>, not <code class="inline">2</code>. In Python 3 the <code class="inline">/</code> operator always produces a float, so a division result can never be assumed to be a whole number type.</p>
+      <p><code class="inline">%</code> is not a percent sign. It returns the remainder after division. To compute a percentage you multiply by 100.</p>
+    </div>
+
+    <p>Every operator also works with variables and mixed types, which is how you will nearly always meet them in real code:</p>
+
+<div class="codewrap"><div class="codebar"><span class="fname">all seven, in a business setting</span><button class="run">Run ▸</button></div><pre><code>units = 1250
+price = 29.99
+cost = 18.50
+cases_per_pallet = 96
+
+print(price + 2.00)              # add a shipping surcharge
+print(price - cost)              # margin per unit
+print(units * price)             # gross revenue
+print(units / 12)                # average units per month
+print(1.08 ** 5)                 # growth factor over 5 years
+print(units % cases_per_pallet)  # units left after full pallets
+print(units // cases_per_pallet) # number of full pallets</code></pre><div class="out">31.99
+11.489999999999998
+37487.5
+104.16666666666667
+1.4693280768000005
+98
+13</div></div>
+
+    <div class="call tip"><strong class="tag">SPOTTED IT?</strong>
+      <p><code class="inline">price - cost</code> printed <code class="inline">11.489999999999998</code> rather than <code class="inline">11.49</code>. That is not a bug in Python. Section 9 explains it.</p>
+    </div>
+
+    <div class="quiz" data-quiz="q_ops"></div>
+
+  </div>
+</section>
+
+<!-- ========================= 4 ========================= -->
+<section id="s4">
+  <div class="band"><div class="num">4</div><h2>Operator playground</h2></div>
+  <div class="panel">
+    <p>Change the two operands and watch all seven operators respond. Try <code class="inline">a = 7, b = 2</code>, then <code class="inline">a = -7, b = 2</code>, then set <code class="inline">b</code> to zero.</p>
+
+    <div class="pg">
+      <div class="inputs">
+        <label>a = <input type="number" id="opA" value="10" step="1"></label>
+        <label>b = <input type="number" id="opB" value="3" step="1"></label>
+      </div>
+      <div class="pgrid" id="pgOut"></div>
+    </div>
+
+    <div class="call biz"><strong class="tag">TRY THIS</strong>
+      <p>Set <code class="inline">a = -7</code> and <code class="inline">b = 2</code>. You get <code class="inline">-7 // 2 → -4</code>, not <code class="inline">-3</code>. Floor division rounds <em>down</em> toward negative infinity, not toward zero. This matters whenever you bucket values that can go negative, such as variance to budget.</p>
+    </div>
+
+    <div class="quiz" data-quiz="q_play"></div>
+  </div>
+</section>
+
+<!-- ========================= 5 ========================= -->
+<section id="s5">
+  <div class="band"><div class="num">5</div><h2>The division trio: / vs // vs %</h2></div>
+  <div class="panel">
+
+    <div class="wwh">
+      <div class="w"><h5>WHAT</h5><p>Three operators answer three different questions about the same division.</p></div>
+      <div class="y"><h5>WHY</h5><p>Shipping, staffing and batching problems are almost always "how many whole units, and what is left over".</p></div>
+      <div class="h"><h5>HOW</h5><p><code>/</code> gives the exact share, <code>//</code> gives the whole groups, <code>%</code> gives the remainder.</p></div>
+    </div>
+
+    <figure>
+      <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ten items divided into groups of three shown three ways">
+        <text x="20" y="26" class="sv-lab" font-size="13" font-weight="700" fill="#1B5B31">10 items, groups of 3</text>
+
+        <!-- row 1: true division -->
+        <text x="20" y="66" class="sv-lab" font-size="12" fill="#0F5C6B" font-weight="700">10 / 3</text>
+        <text x="20" y="84" class="sv-lab" font-size="10.5" fill="#4A544F">exact share</text>
+        <g>
+          <rect x="130" y="48" width="330" height="30" rx="4" fill="#E4F0F2" stroke="#0F5C6B"/>
+          <text x="295" y="68" text-anchor="middle" class="sv-lab" font-size="12" fill="#0F5C6B">each group gets 3.333… of the 10</text>
+        </g>
+        <text x="480" y="69" class="sv-lab" font-size="15" font-weight="700" fill="#B23A2E">3.3333333333333335</text>
+
+        <!-- row 2: floor division -->
+        <text x="20" y="140" class="sv-lab" font-size="12" fill="#2E7D46" font-weight="700">10 // 3</text>
+        <text x="20" y="158" class="sv-lab" font-size="10.5" fill="#4A544F">whole groups</text>
+        <g id="fd">
+          <rect x="130" y="120" width="96" height="42" rx="5" fill="#E8F2EA" stroke="#2E7D46"/>
+          <circle cx="152" cy="141" r="8" fill="#2E7D46"/><circle cx="178" cy="141" r="8" fill="#2E7D46"/><circle cx="204" cy="141" r="8" fill="#2E7D46"/>
+          <rect x="236" y="120" width="96" height="42" rx="5" fill="#E8F2EA" stroke="#2E7D46"/>
+          <circle cx="258" cy="141" r="8" fill="#2E7D46"/><circle cx="284" cy="141" r="8" fill="#2E7D46"/><circle cx="310" cy="141" r="8" fill="#2E7D46"/>
+          <rect x="342" y="120" width="96" height="42" rx="5" fill="#E8F2EA" stroke="#2E7D46"/>
+          <circle cx="364" cy="141" r="8" fill="#2E7D46"/><circle cx="390" cy="141" r="8" fill="#2E7D46"/><circle cx="416" cy="141" r="8" fill="#2E7D46"/>
+          <circle cx="462" cy="141" r="8" fill="#fff" stroke="#C8C3B8" stroke-dasharray="3 2"/>
+        </g>
+        <text x="500" y="146" class="sv-lab" font-size="15" font-weight="700" fill="#B23A2E">3</text>
+        <text x="516" y="146" class="sv-lab" font-size="11" fill="#4A544F">full groups</text>
+
+        <!-- row 3: modulo -->
+        <text x="20" y="220" class="sv-lab" font-size="12" fill="#B45309" font-weight="700">10 % 3</text>
+        <text x="20" y="238" class="sv-lab" font-size="10.5" fill="#4A544F">what is left</text>
+        <g>
+          <rect x="130" y="200" width="96" height="42" rx="5" fill="#F7F6F1" stroke="#D8D4C9" stroke-dasharray="3 3"/>
+          <circle cx="152" cy="221" r="8" fill="#DEDBD2"/><circle cx="178" cy="221" r="8" fill="#DEDBD2"/><circle cx="204" cy="221" r="8" fill="#DEDBD2"/>
+          <rect x="236" y="200" width="96" height="42" rx="5" fill="#F7F6F1" stroke="#D8D4C9" stroke-dasharray="3 3"/>
+          <circle cx="258" cy="221" r="8" fill="#DEDBD2"/><circle cx="284" cy="221" r="8" fill="#DEDBD2"/><circle cx="310" cy="221" r="8" fill="#DEDBD2"/>
+          <rect x="342" y="200" width="96" height="42" rx="5" fill="#F7F6F1" stroke="#D8D4C9" stroke-dasharray="3 3"/>
+          <circle cx="364" cy="221" r="8" fill="#DEDBD2"/><circle cx="390" cy="221" r="8" fill="#DEDBD2"/><circle cx="416" cy="221" r="8" fill="#DEDBD2"/>
+          <rect x="448" y="200" width="34" height="42" rx="5" fill="#FBF0E0" stroke="#B45309"/>
+          <circle cx="465" cy="221" r="8" fill="#B45309"/>
+        </g>
+        <text x="500" y="226" class="sv-lab" font-size="15" font-weight="700" fill="#B23A2E">1</text>
+        <text x="516" y="226" class="sv-lab" font-size="11" fill="#4A544F">left over</text>
+
+        <line x1="20" y1="262" x2="680" y2="262" stroke="#DDD9CE"/>
+        <text x="20" y="284" class="sv-lab" font-size="11.5" fill="#4A544F">The identity that ties them together:  (10 // 3) * 3 + (10 % 3)  =  9 + 1  =  10</text>
+      </svg>
+      <figcaption>Same numbers, three questions. <code>//</code> and <code>%</code> are two halves of one answer.</figcaption>
+    </figure>
+
+    <h3>Where each one earns its keep</h3>
+    <table class="grid">
+      <thead><tr><th>Business question</th><th>Expression</th><th>Reads as</th></tr></thead>
+      <tbody>
+        <tr><td>Average revenue per store</td><td class="m">total_revenue / store_count</td><td>exact share, decimals kept</td></tr>
+        <tr><td>How many full pallets ship?</td><td class="m">units // per_pallet</td><td>whole containers only</td></tr>
+        <tr><td>How many units are left behind?</td><td class="m">units % per_pallet</td><td>the partial pallet</td></tr>
+        <tr><td>Is this row an even-numbered record?</td><td class="m">i % 2 == 0</td><td>remainder of 0 means even</td></tr>
+        <tr><td>Sample every 10th transaction</td><td class="m">i % 10 == 0</td><td>fires once per cycle of 10</td></tr>
+        <tr><td>Convert 500 minutes to h:mm</td><td class="m">500 // 60, 500 % 60</td><td>8 hours, 20 minutes</td></tr>
+      </tbody>
+    </table>
+
+<div class="codewrap"><div class="codebar"><span class="fname">warehouse packing</span><button class="run">Run ▸</button></div><pre><code>units = 1000
+per_pallet = 96
+
+full_pallets = units // per_pallet
+leftover     = units % per_pallet
+
+print("Full pallets:", full_pallets)
+print("Units left over:", leftover)
+print("Check:", full_pallets * per_pallet + leftover)
+
+# a partial pallet still needs a pallet, so round up
+pallets_needed = full_pallets + (1 if leftover &gt; 0 else 0)
+print("Pallets to order:", pallets_needed)</code></pre><div class="out">Full pallets: 10
+Units left over: 40
+Check: 1000
+Pallets to order: 11</div></div>
+
+    <div class="quiz" data-quiz="q_div"></div>
+
+  </div>
+</section>
+
+<!-- ========================= 6 ========================= -->
+<section id="s6">
+  <div class="band"><div class="num">6</div><h2>Exponentiation at work</h2></div>
+  <div class="panel">
+
+    <div class="wwh">
+      <div class="w"><h5>WHAT</h5><p><code>a ** b</code> multiplies <code>a</code> by itself <code>b</code> times. A fractional exponent takes a root.</p></div>
+      <div class="y"><h5>WHY</h5><p>Compounding is multiplicative, not additive. Growth over n periods is a power, and CAGR is its inverse.</p></div>
+      <div class="h"><h5>HOW</h5><p>Future value: <code>pv * (1 + r) ** n</code>. Growth rate: <code>(end / start) ** (1 / n) - 1</code>.</p></div>
+    </div>
+
+    <figure>
+      <svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bar chart comparing simple and compound growth of ten thousand dollars over five years">
+        <line x1="60" y1="200" x2="670" y2="200" stroke="#B7B2A7"/>
+        <text x="20" y="30" class="sv-lab" font-size="12" font-weight="700" fill="#1B5B31">$10,000 growing at 8% a year</text>
+
+        <g class="sv-lab" font-size="10" fill="#4A544F">
+          <text x="105" y="216" text-anchor="middle">Year 0</text>
+          <text x="217" y="216" text-anchor="middle">Year 1</text>
+          <text x="329" y="216" text-anchor="middle">Year 2</text>
+          <text x="441" y="216" text-anchor="middle">Year 3</text>
+          <text x="553" y="216" text-anchor="middle">Year 4</text>
+          <text x="633" y="216" text-anchor="middle">Year 5</text>
+        </g>
+
+        <!-- simple (linear) -->
+        <rect x="80" y="150" width="50" height="50" fill="#DDE7E0"/>
+        <rect x="192" y="146" width="50" height="54" fill="#DDE7E0"/>
+        <rect x="304" y="142" width="50" height="58" fill="#DDE7E0"/>
+        <rect x="416" y="138" width="50" height="62" fill="#DDE7E0"/>
+        <rect x="528" y="134" width="50" height="66" fill="#DDE7E0"/>
+        <rect x="608" y="130" width="50" height="70" fill="#DDE7E0"/>
+
+        <!-- compound -->
+        <rect x="92" y="150" width="26" height="50" fill="#2E7D46"/>
+        <rect x="204" y="141" width="26" height="59" fill="#2E7D46"/>
+        <rect x="316" y="131" width="26" height="69" fill="#2E7D46"/>
+        <rect x="428" y="120" width="26" height="80" fill="#2E7D46"/>
+        <rect x="540" y="108" width="26" height="92" fill="#2E7D46"/>
+        <rect x="620" y="94" width="26" height="106" fill="#2E7D46"/>
+
+        <text x="633" y="86" text-anchor="middle" class="sv-lab" font-size="11" font-weight="700" fill="#1B5B31">14,693</text>
+        <text x="633" y="122" text-anchor="middle" class="sv-lab" font-size="10" fill="#6B7570">14,000</text>
+
+        <g class="sv-lab" font-size="10.5">
+          <rect x="70" y="44" width="12" height="12" fill="#2E7D46"/>
+          <text x="88" y="54" fill="#4A544F">compound: 10000 * 1.08 ** n</text>
+          <rect x="290" y="44" width="12" height="12" fill="#DDE7E0"/>
+          <text x="308" y="54" fill="#4A544F">simple: 10000 + 800 * n</text>
+        </g>
+      </svg>
+      <figcaption>The gap between the bars is what <code>**</code> captures and repeated addition cannot.</figcaption>
+    </figure>
+
+<div class="codewrap"><div class="codebar"><span class="fname">compounding and CAGR</span><button class="run">Run ▸</button></div><pre><code>opening = 10000
+rate    = 0.08
+years   = 5
+
+future_value = opening * (1 + rate) ** years
+print("Future value:", round(future_value, 2))
+
+# The inverse: revenue grew from 1.0M to 1.5M over 3 years.
+start, end, n = 1_000_000, 1_500_000, 3
+cagr = (end / start) ** (1 / n) - 1
+print("CAGR:", round(cagr * 100, 2), "%")
+
+# A fractional exponent is a root
+print(16 ** 0.5)   # square root
+print(27 ** (1/3)) # cube root</code></pre><div class="out">Future value: 14693.28
+CAGR: 14.47 %
+4.0
+3.0</div></div>
+
+    <div class="call warn"><strong class="tag">RIGHT TO LEFT</strong>
+      <p><code class="inline">**</code> is the one operator that groups from the right. <code class="inline">2 ** 3 ** 2</code> is <code class="inline">2 ** (3 ** 2)</code> = <code class="inline">2 ** 9</code> = <strong>512</strong>, not <code class="inline">(2 ** 3) ** 2</code> = 64. When in doubt, add parentheses.</p>
+    </div>
+
+    <div class="quiz" data-quiz="q_pow"></div>
+
+  </div>
+</section>
+
+<!-- ========================= 7 ========================= -->
+<section id="s7">
+  <div class="band"><div class="num">7</div><h2>Order of operations</h2></div>
+  <div class="panel">
+
+    <div class="wwh">
+      <div class="w"><h5>WHAT</h5><p>A fixed ranking that decides which operator runs first when several appear in one expression.</p></div>
+      <div class="y"><h5>WHY</h5><p>A misread precedence produces a number that looks plausible and is silently wrong. No error is raised.</p></div>
+      <div class="h"><h5>HOW</h5><p>Work down the pyramid. Within one level, go left to right — except <code>**</code>, which goes right to left.</p></div>
+    </div>
+
+    <figure>
+      <svg viewBox="0 0 700 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Precedence pyramid from parentheses down to addition and subtraction">
+        <rect x="250" y="20" width="200" height="44" rx="6" fill="#1B5B31"/>
+        <text x="350" y="42" text-anchor="middle" class="sv-lab" fill="#fff" font-size="16" font-weight="700">( )</text>
+        <text x="350" y="57" text-anchor="middle" class="sv-lab" fill="#B7DBC3" font-size="10">parentheses — you decide</text>
+
+        <rect x="215" y="72" width="270" height="44" rx="6" fill="#2E7D46"/>
+        <text x="350" y="94" text-anchor="middle" class="sv-lab" fill="#fff" font-size="16" font-weight="700">**</text>
+        <text x="350" y="109" text-anchor="middle" class="sv-lab" fill="#CDE7D6" font-size="10">exponentiation — right to left</text>
+
+        <rect x="180" y="124" width="340" height="44" rx="6" fill="#4E9C66"/>
+        <text x="350" y="146" text-anchor="middle" class="sv-lab" fill="#fff" font-size="15" font-weight="700">-x   +x</text>
+        <text x="350" y="161" text-anchor="middle" class="sv-lab" fill="#E4F2E9" font-size="10">unary sign</text>
+
+        <rect x="145" y="176" width="410" height="44" rx="6" fill="#79B98D"/>
+        <text x="350" y="198" text-anchor="middle" class="sv-lab" fill="#0F2E1B" font-size="15" font-weight="700">*   /   //   %</text>
+        <text x="350" y="213" text-anchor="middle" class="sv-lab" fill="#123A22" font-size="10">left to right</text>
+
+        <rect x="110" y="228" width="480" height="44" rx="6" fill="#B7DBC3"/>
+        <text x="350" y="250" text-anchor="middle" class="sv-lab" fill="#0F2E1B" font-size="15" font-weight="700">+   -</text>
+        <text x="350" y="265" text-anchor="middle" class="sv-lab" fill="#123A22" font-size="10">left to right</text>
+
+        <text x="86" y="46" text-anchor="end" class="sv-lab" font-size="10" fill="#4A544F">first</text>
+        <text x="86" y="254" text-anchor="end" class="sv-lab" font-size="10" fill="#4A544F">last</text>
+        <path d="M78 56 L 78 240" stroke="#B7B2A7" stroke-width="1.2" marker-end="url(#ar3)"/>
+        <defs><marker id="ar3" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#B7B2A7"/></marker></defs>
+      </svg>
+      <figcaption>Wider band = evaluated later. Parentheses always win, which is why they are the cheapest way to make intent obvious.</figcaption>
+    </figure>
+
+    <h3>Step through an evaluation</h3>
+    <p>Watch Python collapse one expression to one value. Each step replaces the highlighted sub-expression with its result.</p>
+
+    <div class="stepper" id="stepper1">
+      <div class="stepline" id="sl1"></div>
+      <div class="stepcap" id="sc1"></div>
+      <div class="stepnav">
+        <button id="prev1">◀ Back</button>
+        <span class="count" id="ct1"></span>
+        <button id="next1">Next ▶</button>
+      </div>
+    </div>
+
+    <h3>Why parentheses are not optional in practice</h3>
+
+<div class="codewrap"><div class="codebar"><span class="fname">the same numbers, two very different answers</span><button class="run">Run ▸</button></div><pre><code>units, price, discount = 1250, 29.99, 0.10
+
+# WRONG: only the discount is subtracted from the price... or is it?
+wrong = units * price - discount
+print(wrong)
+
+# RIGHT: discount the price first, then multiply
+right = units * (price * (1 - discount))
+print(round(right, 2))
+
+# average of three regions
+a, b, c = 120, 340, 210
+print(a + b + c / 3)     # only c is divided
+print((a + b + c) / 3)   # the actual mean</code></pre><div class="out">37487.4
+33738.75
+463.0
+223.33333333333334</div></div>
+
+    <div class="call tip"><strong class="tag">HABIT WORTH BUILDING</strong>
+      <p>If an expression mixes more than two precedence levels, parenthesise it even where the rules already give you the right answer. You write a line once and read it twenty times.</p>
+    </div>
+
+    <div class="quiz" data-quiz="q_prec"></div>
+
+  </div>
+</section>
+
+<!-- ========================= 8 ========================= -->
+<section id="s8">
+  <div class="band"><div class="num">8</div><h2>Types in, types out</h2></div>
+  <div class="panel">
+
+    <p>This is where "Programs = Data Structures + Algorithms" stops being a slogan. The same operator behaves differently depending on the <em>type</em> of its operands. The data structure drives the algorithm.</p>
+
+    <table class="grid">
+      <thead><tr><th>Left operand</th><th>Operator</th><th>Right operand</th><th>Result type</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td class="m">int</td><td class="m">+ - * ** // %</td><td class="m">int</td><td class="m">int</td><td class="m">3 * 4 → 12</td></tr>
+        <tr><td class="m">int</td><td class="m">/</td><td class="m">int</td><td class="m"><strong>float</strong></td><td class="m">12 / 4 → 3.0</td></tr>
+        <tr><td class="m">int</td><td class="m">any</td><td class="m">float</td><td class="m">float</td><td class="m">3 + 0.5 → 3.5</td></tr>
+        <tr><td class="m">float</td><td class="m">//</td><td class="m">int</td><td class="m">float</td><td class="m">7.5 // 2 → 3.0</td></tr>
+        <tr><td class="m">int</td><td class="m">** (negative)</td><td class="m">int</td><td class="m">float</td><td class="m">2 ** -1 → 0.5</td></tr>
+        <tr><td class="m">str</td><td class="m">*</td><td class="m">int</td><td class="m">str</td><td class="m">"-" * 5 → "-----"</td></tr>
+        <tr><td class="m">str</td><td class="m">-</td><td class="m">str</td><td class="m"><strong>TypeError</strong></td><td class="m">"a" - "b" ✗</td></tr>
+      </tbody>
+    </table>
+
+<div class="codewrap"><div class="codebar"><span class="fname">the operator adapts to the data</span><button class="run">Run ▸</button></div><pre><code>print(type(12 * 4))      # both ints, stays int
+print(type(12 / 4))      # division always widens to float
+print(12 / 4)
+
+print(type(12 + 0.0))    # one float makes the whole thing float
+
+# The same * symbol, a completely different algorithm
+print("=" * 30)
+print([0] * 5)
+
+# Reading a CSV column gives you strings, not numbers
+qty_from_file = "250"
+print(qty_from_file * 2)        # repeats the text!
+print(int(qty_from_file) * 2)   # converts first, then multiplies</code></pre><div class="out">&lt;class 'int'&gt;
+&lt;class 'float'&gt;
+3.0
+&lt;class 'float'&gt;
+==============================
+[0, 0, 0, 0, 0]
+250250
+500</div></div>
+
+    <div class="call biz"><strong class="tag">ANALYTICS TRAP</strong>
+      <p>Values read from CSV files, web forms and APIs arrive as strings. <code class="inline">"250" * 2</code> does not fail — it silently returns <code class="inline">"250250"</code>. Convert with <code class="inline">int()</code> or <code class="inline">float()</code> before any arithmetic, and check with <code class="inline">type()</code> when a total looks strange.</p>
+    </div>
+
+    <div class="quiz" data-quiz="q_types"></div>
+
+  </div>
+</section>
+
+<!-- ========================= 9 ========================= -->
+<section id="s9">
+  <div class="band"><div class="num">9</div><h2>Where beginners slip</h2></div>
+  <div class="panel">
+
+    <h3>Floats do not store decimals exactly</h3>
+    <p>Computers store numbers in binary. Just as <sup>1</sup>⁄<sub>3</sub> cannot be written exactly in decimal, 0.1 cannot be written exactly in binary. Tiny errors accumulate.</p>
+
+<div class="codewrap"><div class="codebar"><span class="fname">the classic surprise</span><button class="run">Run ▸</button></div><pre><code>print(0.1 + 0.2)
+print(0.1 + 0.2 == 0.3)
+
+# Fix 1: round at the point of display or comparison
+print(round(0.1 + 0.2, 2))
+print(round(0.1 + 0.2, 10) == 0.3)
+
+# Fix 2: for money, use Decimal
+from decimal import Decimal
+print(Decimal("0.1") + Decimal("0.2"))</code></pre><div class="out">0.30000000000000004
+False
+0.3
+True
+0.3</div></div>
+
+    <div class="call warn"><strong class="tag">RULE</strong>
+      <p>Never test floats with <code class="inline">==</code>. Round first, or compare the difference against a small tolerance. For currency in production code, use <code class="inline">Decimal</code>.</p>
+    </div>
+
+    <h3>Division by zero stops the program</h3>
+
+<div class="codewrap"><div class="codebar"><span class="fname">guard the denominator</span><button class="run">Run ▸</button></div><pre><code>revenue = 0
+profit  = 0
+
+# margin = profit / revenue   →  ZeroDivisionError: division by zero
+
+margin = profit / revenue if revenue != 0 else None
+print("Margin:", margin)</code></pre><div class="out">Margin: None</div></div>
+
+    <h3>Truncation is not rounding</h3>
+    <p><code class="inline">//</code> and <code class="inline">int()</code> chop the fraction off; <code class="inline">round()</code> goes to the nearest value. Using the wrong one understates every result in a column.</p>
+
+<div class="codewrap"><div class="codebar"><span class="fname">7.9 handled three ways</span><button class="run">Run ▸</button></div><pre><code>x = 7.9
+print(x // 1)     # floor: down
+print(int(x))     # truncate toward zero
+print(round(x))   # nearest
+
+y = -7.9
+print(y // 1, int(y), round(y))  # floor and truncate now disagree</code></pre><div class="out">7.0
+7
+8
+-8.0 -7 -8</div></div>
+
+    <h3>Quick reference for the errors you will actually see</h3>
+    <table class="grid">
+      <thead><tr><th>Message</th><th>Usual cause</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td class="m">ZeroDivisionError</td><td>Denominator evaluated to 0</td><td>Test the denominator before dividing</td></tr>
+        <tr><td class="m">TypeError: unsupported operand type(s)</td><td>Arithmetic on a string or None</td><td>Convert with <code class="inline">int()</code> / <code class="inline">float()</code></td></tr>
+        <tr><td class="m">ValueError: invalid literal for int()</td><td><code class="inline">int("1,250")</code> or <code class="inline">int("")</code></td><td>Strip commas and blanks first</td></tr>
+        <tr><td class="m">No error, wrong number</td><td>Missing parentheses</td><td>Print sub-expressions to isolate it</td></tr>
+      </tbody>
+    </table>
+
+    <div class="quiz" data-quiz="q_traps"></div>
+
+  </div>
+</section>
+
+<!-- ========================= 10 ========================= -->
+<section id="s10">
+  <div class="band"><div class="num">10</div><h2>Shorthand assignment</h2></div>
+  <div class="panel">
+
+    <p>Once a variable exists, you often update it using its own current value. Python has a compact form for that, and you will meet it constantly inside loops.</p>
+
+    <table class="grid">
+      <thead><tr><th>Shorthand</th><th>Equivalent to</th><th>Typical use</th></tr></thead>
+      <tbody>
+        <tr><td class="m">total += x</td><td class="m">total = total + x</td><td>running sum across rows</td></tr>
+        <tr><td class="m">budget -= cost</td><td class="m">budget = budget - cost</td><td>drawing down a balance</td></tr>
+        <tr><td class="m">value *= 1.08</td><td class="m">value = value * 1.08</td><td>applying growth each period</td></tr>
+        <tr><td class="m">pool /= 4</td><td class="m">pool = pool / 4</td><td>splitting across quarters</td></tr>
+        <tr><td class="m">count //= 2</td><td class="m">count = count // 2</td><td>halving, whole units only</td></tr>
+      </tbody>
+    </table>
+
+<div class="codewrap"><div class="codebar"><span class="fname">running totals over a sales list</span><button class="run">Run ▸</button></div><pre><code>daily_sales = [1200.50, 980.00, 1450.75, 1100.25]
+
+total = 0
+for amount in daily_sales:
+    total += amount
+
+print("Total:", round(total, 2))
+print("Average:", round(total / len(daily_sales), 2))
+
+# compounding a balance year by year
+balance = 10000
+for year in range(5):
+    balance *= 1.08
+print("After 5 years:", round(balance, 2))</code></pre><div class="out">Total: 4731.5
+Average: 1182.88
+After 5 years: 14693.28</div></div>
+
+    <div class="call key"><strong class="tag">CONNECTS BACK</strong>
+      <p>The loop is the algorithm, the list is the data structure, and <code class="inline">+=</code> is the expression that joins them. This is the whole Wirth formula in six lines.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ========================= 11 ========================= -->
+<section id="s11">
+  <div class="band"><div class="num">11</div><h2>Analytics lab: one product line, end to end</h2></div>
+  <div class="panel">
+
+    <p>Every operator from the table appears here doing real work. Read the code first and predict each output before revealing it.</p>
+
+<div class="codewrap"><div class="codebar"><span class="fname">product_line_analysis.py</span><button class="run">Run ▸</button></div><pre><code># ---- DATA (the data structure) ----
+units_sold     = 1250
+unit_price     = 29.99
+unit_cost      = 18.50
+fixed_costs    = 5000
+prior_revenue  = 32000
+units_per_case = 24
+
+# ---- PROCESS (the algorithm) ----
+revenue      = units_sold * unit_price
+cogs         = units_sold * unit_cost
+gross_profit = revenue - cogs
+margin_pct   = gross_profit / revenue * 100
+growth_pct   = (revenue - prior_revenue) / prior_revenue * 100
+
+contribution   = unit_price - unit_cost
+breakeven_raw  = fixed_costs / contribution
+breakeven_units = int(breakeven_raw // 1) + 1   # partial units don't sell
+
+full_cases  = units_sold // units_per_case
+loose_units = units_sold %  units_per_case
+
+# ---- OUTPUT (the interface) ----
+print("Revenue        :", round(revenue, 2))
+print("COGS           :", round(cogs, 2))
+print("Gross profit   :", round(gross_profit, 2))
+print("Margin %       :", round(margin_pct, 2))
+print("Growth vs prior:", round(growth_pct, 2))
+print("Break-even     :", breakeven_units, "units")
+print("Cases / loose  :", full_cases, "/", loose_units)</code></pre><div class="out">Revenue        : 37487.5
+COGS           : 23125.0
+Gross profit   : 14362.5
+Margin %       : 38.31
+Growth vs prior: 17.15
+Break-even     : 436 units
+Cases / loose  : 52 / 2</div></div>
+
+    <div class="call biz"><strong class="tag">READ THE CHOICES</strong>
+      <p><code class="inline">breakeven_raw</code> is 435.16 units. Rounding would give 435, which does not cover fixed costs. Flooring and adding one gives 436 — the first unit that actually breaks even. Choosing between <code class="inline">round()</code>, <code class="inline">//</code> and <code class="inline">int()</code> is a business decision, not a syntax decision.</p>
+    </div>
+
+    <h3>Your turn</h3>
+    <ul class="checklist">
+      <li>Add a 12% sales tax line and a revenue-including-tax figure.</li>
+      <li>Compute revenue per case rather than per unit.</li>
+      <li>The supplier offers a 5% cost reduction. Recompute margin and break-even.</li>
+      <li>Express the 3-year CAGR if revenue reaches 55,000 by year three.</li>
+      <li>Guard <code class="inline">margin_pct</code> so it returns <code class="inline">None</code> when revenue is zero.</li>
+    </ul>
+
+    <div class="quiz" data-quiz="q_lab"></div>
+
+  </div>
+</section>
+
+<!-- ========================= 12 ========================= -->
+<section id="s12">
+  <div class="band"><div class="num">12</div><h2>Recall check and cheat sheet</h2></div>
+  <div class="panel">
+
+    <p>Tap a card to check yourself. Try to answer out loud before flipping.</p>
+    <div class="cards" id="flipcards"></div>
+
+    <h3>Final check</h3>
+    <div class="quiz" data-quiz="q_final"></div>
+
+    <h3>One-page summary</h3>
+    <table class="grid">
+      <thead><tr><th>Operator</th><th>Question it answers</th><th>Watch out for</th></tr></thead>
+      <tbody>
+        <tr><td class="m">+ &nbsp; -</td><td>How much in total? How much changed?</td><td>Float drift on repeated addition</td></tr>
+        <tr><td class="m">*</td><td>Quantity × rate</td><td>On a string it repeats instead of multiplying</td></tr>
+        <tr><td class="m">/</td><td>What is the exact share?</td><td>Always float; zero denominator raises an error</td></tr>
+        <tr><td class="m">//</td><td>How many whole groups?</td><td>Floors downward, so −7 // 2 is −4</td></tr>
+        <tr><td class="m">%</td><td>What is left over? Is this the Nth item?</td><td>It is a remainder, not a percentage</td></tr>
+        <tr><td class="m">**</td><td>What compounds over n periods?</td><td>Groups right to left</td></tr>
+        <tr><td class="m">()</td><td>What must happen first?</td><td>Cheapest bug prevention you will ever write</td></tr>
+      </tbody>
+    </table>
+
+    <div class="call key"><strong class="tag">THE THROUGH-LINE</strong>
+      <p>Expressions are where data structures and algorithms first touch. Choose the operator that matches the question you are actually asking, keep the types straight, and make the order explicit. Everything from a pandas calculated column to a machine learning loss function is built from exactly these pieces.</p>
+    </div>
+
+    <footer>Python Programming for Business Analytics · Card 2 of the expressions and statements series · Next: comparison and logical expressions, where these same rules produce True and False.</footer>
+
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+/* ============ syntax highlighting ============ */
+const PY_RE = /(#[^\n]*)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|\b(def|return|if|elif|else|for|while|in|not|and|or|import|from|as|True|False|None|lambda|class)\b|\b(print|round|int|float|abs|type|len|sum|range|sorted|min|max|divmod|str|list|Decimal)\b|(\d[\d_]*\.?\d*)|(\*\*|\/\/|[+\-*\/%](?!=)|[+\-*\/%]=|==|=)/g;
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function highlight(raw){
+  return esc(raw).replace(PY_RE,(m,com,str,kw,bi,num,op)=>{
+    if(com!==undefined) return '<span class="c-com">'+com+'</span>';
+    if(str!==undefined) return '<span class="c-str">'+str+'</span>';
+    if(kw !==undefined) return '<span class="c-kw">'+kw+'</span>';
+    if(bi !==undefined) return '<span class="c-bi">'+bi+'</span>';
+    if(num!==undefined) return '<span class="c-num">'+num+'</span>';
+    if(op !==undefined) return '<span class="c-op">'+op+'</span>';
+    return m;
+  });
+}
+document.querySelectorAll('.codewrap pre code').forEach(el=>{
+  el.innerHTML = highlight(el.textContent);
+});
+
+/* ============ run buttons ============ */
+document.querySelectorAll('.codewrap').forEach(w=>{
+  const btn = w.querySelector('button.run');
+  const out = w.querySelector('.out');
+  if(!btn||!out) return;
+  out.style.display='none';
+  btn.addEventListener('click',()=>{
+    const open = out.style.display!=='none';
+    out.style.display = open ? 'none' : 'block';
+    btn.textContent = open ? 'Run ▸' : 'Hide output';
+  });
+});
+
+/* ============ operator playground ============ */
+const pgOut = document.getElementById('pgOut');
+const inA = document.getElementById('opA'), inB = document.getElementById('opB');
+
+function pyMod(a,b){ const r = a - b*Math.floor(a/b); return r; }
+function fmt(v){
+  if(!isFinite(v)) return String(v);
+  if(Number.isInteger(v)) return String(v);
+  const s = v.toPrecision(17).replace(/0+$/,'');
+  return parseFloat(v.toFixed(12)).toString();
+}
+function pyFloat(v){ return Number.isInteger(v) ? v.toFixed(1) : fmt(v); }
+
+function renderPG(){
+  const a = parseFloat(inA.value||0), b = parseFloat(inB.value||0);
+  const bothInt = Number.isInteger(a) && Number.isInteger(b);
+  const rows = [
+    {e:`${a} + ${b}`,  v:fmt(a+b), t:bothInt?'int':'float'},
+    {e:`${a} - ${b}`,  v:fmt(a-b), t:bothInt?'int':'float'},
+    {e:`${a} * ${b}`,  v:fmt(a*b), t:bothInt?'int':'float'},
+    {e:`${a} / ${b}`,  v:(b===0?null:pyFloat(a/b)), t:'float'},
+    {e:`${a} ** ${b}`, v:fmt(Math.pow(a,b)), t:(bothInt&&b>=0)?'int':'float'},
+    {e:`${a} % ${b}`,  v:(b===0?null:fmt(pyMod(a,b))), t:bothInt?'int':'float'},
+    {e:`${a} // ${b}`, v:(b===0?null:(bothInt?String(Math.floor(a/b)):pyFloat(Math.floor(a/b)))), t:bothInt?'int':'float'}
+  ];
+  pgOut.innerHTML = rows.map(r=>
+    r.v===null
+      ? `<div class="pcell err"><div class="e">${r.e}</div><div class="v">ZeroDivisionError</div><div class="t">division by zero</div></div>`
+      : `<div class="pcell"><div class="e">${r.e}</div><div class="v">${r.v}</div><div class="t">${r.t}</div></div>`
+  ).join('');
+}
+inA.addEventListener('input',renderPG);
+inB.addEventListener('input',renderPG);
+renderPG();
+
+/* ============ step-through evaluator ============ */
+const STEPS = [
+  {html:'2 + 3 * 4 ** 2 % 5 - 1', cap:'Five operators, one expression. Python will not read this left to right.'},
+  {html:'2 + 3 * <mark>4 ** 2</mark> % 5 - 1', cap:'Highest level first: <b>**</b> beats everything except parentheses. 4 ** 2 → <b>16</b>'},
+  {html:'2 + <mark>3 * 16</mark> % 5 - 1', cap:'Now the <b>* / // %</b> level, left to right. The <b>*</b> comes first. 3 * 16 → <b>48</b>'},
+  {html:'2 + <mark>48 % 5</mark> - 1', cap:'Still on the same level, moving right. 48 % 5 → <b>3</b>'},
+  {html:'<mark>2 + 3</mark> - 1', cap:'Down to <b>+ -</b>, left to right. 2 + 3 → <b>5</b>'},
+  {html:'<mark>5 - 1</mark>', cap:'Last operator. 5 - 1 → <b>4</b>'},
+  {html:'<mark>4</mark>', cap:'One value remains. That is the value of the whole expression.'}
+];
+let si = 0;
+const sl1=document.getElementById('sl1'), sc1=document.getElementById('sc1'), ct1=document.getElementById('ct1');
+const pv1=document.getElementById('prev1'), nx1=document.getElementById('next1');
+function drawStep(){
+  sl1.innerHTML = STEPS[si].html;
+  sc1.innerHTML = STEPS[si].cap;
+  ct1.textContent = (si+1)+' / '+STEPS.length;
+  pv1.disabled = si===0;
+  nx1.disabled = si===STEPS.length-1;
+}
+pv1.addEventListener('click',()=>{ if(si>0){si--;drawStep();} });
+nx1.addEventListener('click',()=>{ if(si<STEPS.length-1){si++;drawStep();} });
+drawStep();
+
+/* ============ quizzes ============ */
+const QUIZ = {
+  q_anatomy:{title:'Check yourself',items:[
+    {q:'Which of these is an <em>expression</em> rather than a statement?',
+     o:['<code>total = 5 + 3</code>','<code>5 + 3</code>','<code>print(8)</code>','<code>import pandas</code>'],a:1,
+     e:'An expression produces a value. <code>5 + 3</code> evaluates to 8. The others perform actions.'},
+    {q:'In <code>units * (price - discount)</code>, how many operands does the <code>*</code> operator have?',
+     o:['One','Two','Three','Four'],a:1,
+     e:'Two: the variable <code>units</code> on the left, and the whole parenthesised expression on the right. A sub-expression counts as a single operand.'}
+  ]},
+  q_ops:{title:'Check yourself',items:[
+    {q:'What does <code>10 / 5</code> produce?',o:['<code>2</code>','<code>2.0</code>','<code>5</code>','<code>0</code>'],a:1,
+     e:'In Python 3, <code>/</code> always returns a float — even when the division comes out even.'},
+    {q:'A store has 47 items and packs 6 to a box. Which expression gives the number of items that will not fit in a full box?',
+     o:['<code>47 / 6</code>','<code>47 // 6</code>','<code>47 % 6</code>','<code>47 ** 6</code>'],a:2,
+     e:'<code>47 % 6</code> is 5 — the remainder. <code>47 // 6</code> would give 7, the number of full boxes.'},
+    {q:'What is <code>10 % 3</code>?',o:['<code>3</code>','<code>3.33</code>','<code>1</code>','<code>0.1</code>'],a:2,
+     e:'3 goes into 10 three times with 1 left over. <code>%</code> is a remainder, not a percentage.'}
+  ]},
+  q_play:{title:'Check yourself',items:[
+    {q:'What is <code>-7 // 2</code> in Python?',o:['<code>-3</code>','<code>-3.5</code>','<code>-4</code>','<code>3</code>'],a:2,
+     e:'Floor division rounds <em>down</em>, toward negative infinity. -3.5 floors to -4, not -3.'},
+    {q:'What happens when you evaluate <code>10 / 0</code>?',
+     o:['Returns <code>0</code>','Returns <code>inf</code>','Returns <code>None</code>','Raises <code>ZeroDivisionError</code>'],a:3,
+     e:'Python raises <code>ZeroDivisionError</code> and stops. Always test a denominator that could be zero.'}
+  ]},
+  q_div:{title:'Check yourself',items:[
+    {q:'You have 500 minutes of call time. Which pair converts it to hours and minutes?',
+     o:['<code>500 / 60</code> and <code>500 * 60</code>','<code>500 // 60</code> and <code>500 % 60</code>','<code>500 % 60</code> and <code>500 // 60</code>','<code>500 ** 60</code> and <code>500 / 60</code>'],a:1,
+     e:'<code>500 // 60</code> is 8 whole hours; <code>500 % 60</code> is the 20 remaining minutes.'},
+    {q:'Which condition selects every 10th row in a loop where <code>i</code> counts from 0?',
+     o:['<code>i / 10 == 0</code>','<code>i // 10 == 0</code>','<code>i % 10 == 0</code>','<code>i ** 10 == 0</code>'],a:2,
+     e:'The remainder returns to 0 once per cycle of 10, so <code>i % 10 == 0</code> fires at 0, 10, 20…'},
+    {q:'For any whole numbers a and b (b not zero), which identity always holds?',
+     o:['<code>a // b + a % b == a</code>','<code>(a // b) * b + a % b == a</code>','<code>a / b == a // b</code>','<code>a % b > a // b</code>'],a:1,
+     e:'The whole groups multiplied back, plus the remainder, reconstructs the original: (10//3)*3 + 10%3 = 9 + 1 = 10.'}
+  ]},
+  q_pow:{title:'Check yourself',items:[
+    {q:'What is <code>2 ** 3 ** 2</code>?',o:['<code>64</code>','<code>512</code>','<code>36</code>','<code>12</code>'],a:1,
+     e:'<code>**</code> groups right to left, so this is 2 ** (3 ** 2) = 2 ** 9 = 512.'},
+    {q:'Revenue grew from 800,000 to 1,200,000 over 4 years. Which expression gives the compound annual growth rate?',
+     o:['<code>(1200000 - 800000) / 4</code>','<code>(1200000 / 800000) / 4 - 1</code>','<code>(1200000 / 800000) ** (1/4) - 1</code>','<code>(1200000 / 800000) ** 4 - 1</code>'],a:2,
+     e:'CAGR takes the nth root of the growth factor: <code>(end/start) ** (1/n) - 1</code>. A fractional exponent is a root.'}
+  ]},
+  q_prec:{title:'Check yourself',items:[
+    {q:'What does <code>2 + 3 * 4</code> evaluate to?',o:['<code>20</code>','<code>14</code>','<code>9</code>','<code>24</code>'],a:1,
+     e:'Multiplication outranks addition: 3 * 4 = 12 first, then 2 + 12 = 14.'},
+    {q:'Three regions report 120, 340 and 210. Which expression gives their average?',
+     o:['<code>120 + 340 + 210 / 3</code>','<code>(120 + 340 + 210) / 3</code>','<code>120 + 340 + 210 // 3</code>','<code>120 + (340 + 210) / 3</code>'],a:1,
+     e:'Without parentheses only 210 gets divided, giving 463. The parentheses force the sum to happen first.'},
+    {q:'Which expression correctly applies a 10% discount to 1250 units at 29.99?',
+     o:['<code>1250 * 29.99 - 0.10</code>','<code>1250 * 29.99 * 1 - 0.10</code>','<code>1250 * (29.99 * (1 - 0.10))</code>','<code>1250 * 29.99 / 0.10</code>'],a:2,
+     e:'The discount must be applied to the price before multiplying by units. The first option subtracts ten cents from the total.'}
+  ]},
+  q_types:{title:'Check yourself',items:[
+    {q:'A quantity read from a CSV is the string <code>"250"</code>. What does <code>"250" * 2</code> produce?',
+     o:['<code>500</code>','<code>"250250"</code>','<code>TypeError</code>','<code>500.0</code>'],a:1,
+     e:'On a string, <code>*</code> repeats rather than multiplies. No error is raised — which is exactly what makes it dangerous.'},
+    {q:'What is the type of <code>12 / 4</code>?',o:['<code>int</code>','<code>float</code>','<code>str</code>','<code>bool</code>'],a:1,
+     e:'True division always returns a float, so the result is <code>3.0</code> of type <code>float</code>.'}
+  ]},
+  q_traps:{title:'Check yourself',items:[
+    {q:'Why does <code>0.1 + 0.2 == 0.3</code> return <code>False</code>?',
+     o:['Python compares floats by identity','0.1 and 0.2 cannot be stored exactly in binary','The <code>==</code> operator does not work on floats','Addition is not commutative in Python'],a:1,
+     e:'Binary floating point cannot represent these decimals exactly, so the sum is 0.30000000000000004. Round before comparing.'},
+    {q:'<code>x = 7.9</code>. Which expression gives <code>8</code>?',
+     o:['<code>x // 1</code>','<code>int(x)</code>','<code>round(x)</code>','<code>x % 1</code>'],a:2,
+     e:'<code>round()</code> goes to the nearest whole number. <code>//</code> and <code>int()</code> both discard the fraction and give 7.'}
+  ]},
+  q_lab:{title:'Check yourself',items:[
+    {q:'In the lab, why is break-even computed as <code>int(raw // 1) + 1</code> instead of <code>round(raw)</code>?',
+     o:['It is faster','Rounding 435.16 gives 435, which does not fully cover fixed costs','<code>round()</code> does not work on floats','Both give the same answer'],a:1,
+     e:'You cannot sell a partial unit, and 435 units leaves costs uncovered. The first unit that clears break-even is 436.'},
+    {q:'Which expression gives margin as a percentage?',
+     o:['<code>gross_profit % revenue</code>','<code>gross_profit / revenue</code>','<code>gross_profit / revenue * 100</code>','<code>gross_profit * revenue / 100</code>'],a:2,
+     e:'Divide to get the ratio, then multiply by 100. The <code>%</code> operator has nothing to do with percentages.'}
+  ]},
+  q_final:{title:'Final check — six questions',items:[
+    {q:'<code>17 // 5</code> is…',o:['<code>3.4</code>','<code>3</code>','<code>2</code>','<code>4</code>'],a:1,
+     e:'Three whole fives fit into 17; the fraction is discarded.'},
+    {q:'<code>17 % 5</code> is…',o:['<code>3</code>','<code>3.4</code>','<code>2</code>','<code>0</code>'],a:2,
+     e:'3 × 5 = 15, leaving 2 behind.'},
+    {q:'<code>4 + 6 / 2</code> is…',o:['<code>5.0</code>','<code>7.0</code>','<code>5</code>','<code>7</code>'],a:1,
+     e:'Division first: 6 / 2 = 3.0, then 4 + 3.0 = 7.0. The float spreads to the result.'},
+    {q:'<code>(4 + 6) / 2</code> is…',o:['<code>5.0</code>','<code>7.0</code>','<code>5</code>','<code>10</code>'],a:0,
+     e:'Parentheses force the addition first: 10 / 2 = 5.0, a float.'},
+    {q:'Which operator would you use to apply 6% growth over 3 years?',
+     o:['<code>*</code> three times in a row','<code>**</code>','<code>%</code>','<code>//</code>'],a:1,
+     e:'<code>pv * (1 + 0.06) ** 3</code>. Exponentiation is what compounding means.'},
+    {q:'Which of these produces a value of type <code>int</code>?',
+     o:['<code>9 / 3</code>','<code>9 // 3</code>','<code>9 / 3.0</code>','<code>9 ** -1</code>'],a:1,
+     e:'Floor division of two ints stays an int. <code>/</code> always widens to float, and a negative exponent gives a float.'}
+  ]}
+};
+
+document.querySelectorAll('.quiz').forEach(box=>{
+  const key = box.dataset.quiz;
+  const data = QUIZ[key];
+  if(!data) return;
+  let html = '<div class="qh">'+data.title+'</div>';
+  data.items.forEach((it,qi)=>{
+    html += '<div class="qitem" data-a="'+it.a+'" style="margin-bottom:1.2rem">';
+    html += '<p class="qq">'+(data.items.length>1 ? (qi+1)+'. ' : '')+it.q+'</p>';
+    it.o.forEach((op,oi)=>{ html += '<button class="opt" data-i="'+oi+'">'+op+'</button>'; });
+    html += '<div class="fb"></div></div>';
+  });
+  box.innerHTML = html;
+
+  box.querySelectorAll('.qitem').forEach(item=>{
+    const ans = parseInt(item.dataset.a,10);
+    const fb = item.querySelector('.fb');
+    const idx = [...box.querySelectorAll('.qitem')].indexOf(item);
+    item.querySelectorAll('.opt').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const pick = parseInt(btn.dataset.i,10);
+        item.querySelectorAll('.opt').forEach((b,i)=>{
+          b.disabled = true;
+          if(i===ans) b.classList.add('right');
+        });
+        if(pick!==ans) btn.classList.add('wrong');
+        fb.classList.add('show');
+        fb.classList.toggle('no', pick!==ans);
+        fb.innerHTML = '<b>'+(pick===ans?'Correct.':'Not quite.')+'</b> '+data.items[idx].e;
+      });
+    });
+  });
+});
+
+/* ============ flip cards ============ */
+const CARDS = [
+  ['10 / 4','2.5 — always a float'],
+  ['10 // 4','2 — whole groups only'],
+  ['10 % 4','2 — the remainder'],
+  ['2 ** 3 ** 2','512 — ** groups right to left'],
+  ['2 + 3 * 4','14 — * runs before +'],
+  ['-7 // 2','-4 — floors downward'],
+  ['0.1 + 0.2 == 0.3','False — binary float drift'],
+  ['"3" * 2','"33" — repeats the string'],
+  ['type(8 / 2)','float, value 8/2 = 4.0'],
+  ['total += x','total = total + x']
+];
+document.getElementById('flipcards').innerHTML = CARDS.map(c=>
+  `<div class="flip"><div class="in">
+     <div class="f"><span>${c[0].replace(/</g,'&lt;')}</span><span class="hint">tap</span></div>
+     <div class="b"><span>${c[1]}</span></div>
+   </div></div>`).join('');
+document.querySelectorAll('.flip').forEach(f=>{
+  f.setAttribute('tabindex','0');
+  const t=()=>f.classList.toggle('on');
+  f.addEventListener('click',t);
+  f.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();t();} });
+});
+
+/* ============ progress + active nav ============ */
+const bar = document.getElementById('progress');
+const links = [...document.querySelectorAll('nav.toc a')];
+const secs = links.map(a=>document.querySelector(a.getAttribute('href')));
+function onScroll(){
+  const h = document.documentElement;
+  const pct = h.scrollTop / (h.scrollHeight - h.clientHeight || 1);
+  bar.style.width = Math.min(100, pct*100)+'%';
+  let active = 0;
+  secs.forEach((s,i)=>{ if(s && s.getBoundingClientRect().top < window.innerHeight*0.35) active = i; });
+  links.forEach((a,i)=>a.classList.toggle('on', i===active));
+}
+window.addEventListener('scroll',onScroll,{passive:true});
+onScroll();
+</script>
+</body>
+</html>

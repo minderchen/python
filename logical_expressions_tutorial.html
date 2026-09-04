@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logical Expressions in Python — Business Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F2EC;
+  --card:#FFFFFF;
+  --ink:#1C2321;
+  --ink-soft:#4A544F;
+  --rule:#DDD9CE;
+
+  --purple:#6A2DA8;
+  --purple-deep:#4E1F7D;
+  --purple-pale:#F1EAF9;
+  --purple-band:linear-gradient(90deg,#6A2DA8 0%,#552291 100%);
+
+  --true:#2E7D46;
+  --true-pale:#E8F2EA;
+  --false:#B23A2E;
+  --false-pale:#FBEBE9;
+
+  --amber:#B45309;
+  --amber-pale:#FBF0E0;
+  --slate:#0F5C6B;
+  --slate-pale:#E4F0F2;
+
+  --code-bg:#1B1626;
+  --code-ink:#E9E6EF;
+
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:2rem}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.62;-webkit-font-smoothing:antialiased}
+
+#progress{position:fixed;top:0;left:0;height:4px;width:0;background:var(--purple);z-index:200;transition:width .12s linear}
+
+.shell{display:grid;grid-template-columns:250px minmax(0,1fr);max-width:1240px;margin:0 auto}
+nav.toc{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;padding:2.2rem 1rem 3rem 1.4rem;border-right:1px solid var(--rule)}
+nav.toc h2{font-family:var(--mono);font-size:.72rem;font-weight:700;letter-spacing:.06em;color:var(--purple-deep);margin:0 0 .9rem}
+nav.toc a{display:flex;gap:.55rem;align-items:baseline;font-size:.86rem;color:var(--ink-soft);text-decoration:none;padding:.34rem .5rem;border-radius:5px;line-height:1.35}
+nav.toc a span{font-family:var(--mono);font-size:.72rem;color:#A6A198;min-width:1.1rem}
+nav.toc a:hover{background:var(--purple-pale);color:var(--purple-deep)}
+nav.toc a.on{background:var(--purple-pale);color:var(--purple-deep);font-weight:600}
+nav.toc a.on span{color:var(--purple)}
+main{padding:2.4rem 2.6rem 6rem;min-width:0}
+
+.hero{margin-bottom:3rem}
+.hero .kicker{font-family:var(--mono);font-size:.78rem;color:var(--purple);font-weight:700;margin-bottom:.5rem}
+.hero h1{font-size:clamp(2rem,4.6vw,3.1rem);line-height:1.08;margin:.1rem 0 .8rem;font-weight:700;letter-spacing:-.02em}
+.hero p.lede{font-size:1.12rem;color:var(--ink-soft);max-width:62ch;margin:0}
+.formula{margin:1.8rem 0 0;padding:1.1rem 1.3rem;background:var(--card);border:1px solid var(--rule);border-left:5px solid var(--purple);border-radius:4px;font-family:var(--mono);font-size:1.02rem;font-weight:500}
+.formula em{color:var(--purple-deep);font-style:normal;font-weight:700}
+
+section{margin:0 0 3.4rem;scroll-margin-top:1.5rem}
+.band{display:flex;align-items:center;gap:.85rem;background:var(--purple-band);color:#fff;border-radius:8px 8px 0 0;padding:.7rem 1.1rem}
+.band .num{width:30px;height:30px;flex:none;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center;font-family:var(--mono);font-weight:700;font-size:.95rem}
+.band h2{margin:0;font-size:1.15rem;font-weight:700}
+.panel{background:var(--card);border:1px solid var(--rule);border-top:none;border-radius:0 0 8px 8px;padding:1.5rem 1.6rem 1.7rem}
+h3{font-size:1.05rem;margin:1.9rem 0 .55rem;font-weight:700;color:var(--purple-deep)}
+h3:first-child{margin-top:0}
+p{max-width:70ch}
+
+.wwh{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:.9rem;margin:1.2rem 0 1.5rem}
+.wwh div{padding:.95rem 1rem;border-radius:6px;border:1px solid var(--rule);background:#FCFCFA}
+.wwh h5{margin:0 0 .4rem;font-family:var(--mono);font-size:.75rem;font-weight:700;letter-spacing:.04em}
+.wwh p{margin:0;font-size:.93rem;line-height:1.5;max-width:none}
+.wwh .w{border-top:3px solid var(--slate)} .wwh .w h5{color:var(--slate)}
+.wwh .y{border-top:3px solid var(--amber)} .wwh .y h5{color:var(--amber)}
+.wwh .h{border-top:3px solid var(--purple)} .wwh .h h5{color:var(--purple)}
+
+.codewrap{margin:1.1rem 0;border-radius:7px;overflow:hidden;border:1px solid #120E1A}
+.codewrap pre{margin:0;background:var(--code-bg);color:var(--code-ink);padding:1rem 1.1rem;overflow-x:auto;font-family:var(--mono);font-size:.87rem;line-height:1.65}
+.codebar{display:flex;align-items:center;justify-content:space-between;gap:1rem;background:#140F1C;padding:.4rem .7rem .4rem 1.1rem}
+.codebar .fname{font-family:var(--mono);font-size:.72rem;color:#9B8FB0}
+button.run{font-family:var(--mono);font-size:.74rem;font-weight:700;color:#1B1626;background:#C2A6EA;border:none;border-radius:4px;padding:.35rem .8rem;cursor:pointer}
+button.run:hover{background:#D6C2F3}
+.out{background:#0E0B14;color:#D3CDE0;font-family:var(--mono);font-size:.84rem;padding:.85rem 1.1rem;border-top:1px dashed #3A2F4A;white-space:pre-wrap}
+code.inline{font-family:var(--mono);font-size:.86em;background:var(--purple-pale);color:var(--purple-deep);padding:.1em .35em;border-radius:3px}
+.c-com{color:#8A7FA0;font-style:italic}
+.c-str{color:#E8B583}
+.c-kw{color:#9FC9F5;font-weight:500}
+.c-bi{color:#CBA6F7}
+.c-num{color:#F2A0A8}
+.c-op{color:#FFD8A0}
+
+table.ops{width:100%;border-collapse:collapse;margin:1.1rem 0;font-size:.94rem}
+table.ops th{background:var(--purple-pale);color:var(--purple-deep);text-align:left;padding:.6rem .8rem;font-size:.82rem;font-weight:700;border:1px solid #D9C9EC}
+table.ops td{padding:.55rem .8rem;border:1px solid var(--rule);vertical-align:middle}
+table.ops td.sym{font-family:var(--mono);font-weight:700;font-size:1.05rem;color:var(--purple-deep);text-align:center;width:78px;background:#FBFAFD}
+table.ops td.ex{font-family:var(--mono);font-size:.88rem;background:#FBFAFD}
+table.ops td.res{font-family:var(--mono);font-weight:700;width:78px}
+table.ops tbody tr:hover{background:#FAF7FD}
+table.ops .note{font-size:.82rem;color:var(--ink-soft);display:block;margin-top:.15rem}
+
+table.grid{width:100%;border-collapse:collapse;font-size:.92rem;margin:1rem 0}
+table.grid th{background:#F1EFE8;text-align:left;padding:.5rem .7rem;border:1px solid var(--rule);font-size:.82rem}
+table.grid td{padding:.5rem .7rem;border:1px solid var(--rule)}
+table.grid td.m{font-family:var(--mono);font-size:.86rem}
+
+.T{color:var(--true);font-weight:700}
+.F{color:var(--false);font-weight:700}
+
+.call{border-radius:6px;padding:.9rem 1.05rem;margin:1.1rem 0;font-size:.94rem;border-left:4px solid}
+.call p{margin:.35rem 0 0;max-width:none}
+.call p:first-child{margin-top:0}
+.call strong.tag{font-family:var(--mono);font-size:.76rem;font-weight:700;letter-spacing:.03em;display:block;margin-bottom:.3rem}
+.call.warn{background:var(--false-pale);border-color:var(--false)} .call.warn .tag{color:var(--false)}
+.call.tip{background:var(--amber-pale);border-color:var(--amber)} .call.tip .tag{color:var(--amber)}
+.call.biz{background:var(--slate-pale);border-color:var(--slate)} .call.biz .tag{color:var(--slate)}
+.call.key{background:var(--purple-pale);border-color:var(--purple)} .call.key .tag{color:var(--purple-deep)}
+
+figure{margin:1.4rem 0;text-align:center}
+figure svg{max-width:100%;height:auto}
+figcaption{font-size:.83rem;color:var(--ink-soft);margin-top:.5rem;font-style:italic}
+.sv-lab{font-family:"JetBrains Mono",monospace;font-size:12px}
+
+/* playground */
+.pg{background:#FBFAFD;border:1px solid var(--rule);border-radius:8px;padding:1.2rem 1.3rem;margin:1.2rem 0}
+.pg .inputs{display:flex;gap:1.3rem;flex-wrap:wrap;align-items:center;margin-bottom:1.1rem}
+.pg label{font-family:var(--mono);font-size:.82rem;font-weight:700;color:var(--purple-deep);display:flex;align-items:center;gap:.45rem}
+.pg input[type=number]{font-family:var(--mono);font-size:.95rem;width:100px;padding:.35rem .5rem;border:1.5px solid var(--rule);border-radius:5px;background:#fff}
+.pg select{font-family:var(--mono);font-size:.9rem;padding:.35rem .4rem;border:1.5px solid var(--rule);border-radius:5px;background:#fff}
+.pg input:focus,.pg select:focus{outline:2px solid var(--purple);outline-offset:1px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.55rem}
+.pcell{display:flex;justify-content:space-between;align-items:center;gap:.7rem;background:#fff;border:1px solid var(--rule);border-radius:6px;padding:.55rem .75rem}
+.pcell .e{font-family:var(--mono);font-size:.83rem;color:var(--ink)}
+.pcell .v{font-family:var(--mono);font-size:.9rem;font-weight:700;padding:.1rem .5rem;border-radius:4px;flex:none}
+.pcell .v.t{color:var(--true);background:var(--true-pale)}
+.pcell .v.f{color:var(--false);background:var(--false-pale)}
+
+/* truth toggles */
+.tt{background:#FBFAFD;border:1px solid var(--rule);border-radius:8px;padding:1.2rem 1.3rem;margin:1.2rem 0}
+.toggles{display:flex;gap:1rem;justify-content:center;margin-bottom:1.1rem;flex-wrap:wrap}
+.tog{font-family:var(--mono);font-size:.9rem;font-weight:700;padding:.5rem 1.1rem;border-radius:6px;border:2px solid var(--false);background:var(--false-pale);color:var(--false);cursor:pointer}
+.tog.on{border-color:var(--true);background:var(--true-pale);color:var(--true)}
+.ttres{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.55rem}
+.ttres .r{background:#fff;border:1px solid var(--rule);border-radius:6px;padding:.6rem;text-align:center}
+.ttres .r .x{font-family:var(--mono);font-size:.82rem;color:var(--ink-soft)}
+.ttres .r .y{font-family:var(--mono);font-size:1.05rem;font-weight:700;margin-top:.2rem}
+table.truth{border-collapse:collapse;margin:1rem auto;font-family:var(--mono);font-size:.88rem}
+table.truth th{background:var(--purple-pale);color:var(--purple-deep);padding:.4rem .9rem;border:1px solid #D9C9EC;font-size:.78rem}
+table.truth td{padding:.35rem .9rem;border:1px solid var(--rule);text-align:center}
+table.truth tr.hot td{background:#FDF6D9;font-weight:700}
+
+/* stepper */
+.stepper{background:#FBFAFD;border:1px solid var(--rule);border-radius:8px;padding:1.2rem 1.3rem;margin:1.2rem 0}
+.stepline{font-family:var(--mono);font-size:1.02rem;text-align:center;padding:1.2rem .6rem;background:#fff;border:1px solid var(--rule);border-radius:6px;overflow-x:auto;white-space:nowrap}
+.stepline mark{background:#FDE79B;color:#7A4B00;padding:.12em .3em;border-radius:3px;font-weight:700}
+.stepcap{min-height:3.2rem;margin-top:.85rem;font-size:.93rem;color:var(--ink-soft);text-align:center}
+.stepcap b{color:var(--purple-deep)}
+.stepnav{display:flex;gap:.6rem;justify-content:center;align-items:center;margin-top:.6rem}
+.stepnav button{font-family:var(--mono);font-size:.8rem;font-weight:700;padding:.45rem 1rem;border-radius:5px;border:1.5px solid var(--purple);background:#fff;color:var(--purple-deep);cursor:pointer}
+.stepnav button:hover:not(:disabled){background:var(--purple-pale)}
+.stepnav button:disabled{opacity:.35;cursor:not-allowed}
+.stepnav .count{font-family:var(--mono);font-size:.78rem;color:var(--ink-soft);min-width:52px;text-align:center}
+
+/* short circuit demo */
+.sc{background:#FBFAFD;border:1px solid var(--rule);border-radius:8px;padding:1.2rem 1.3rem;margin:1.2rem 0}
+.scbtns{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:.9rem}
+.scbtns button{font-family:var(--mono);font-size:.8rem;font-weight:700;padding:.45rem .9rem;border-radius:5px;border:1.5px solid var(--purple);background:#fff;color:var(--purple-deep);cursor:pointer}
+.scbtns button.on{background:var(--purple);color:#fff}
+.trace{font-family:var(--mono);font-size:.86rem;background:#fff;border:1px solid var(--rule);border-radius:6px;padding:.9rem 1rem;line-height:1.9}
+.trace .skip{color:#A6A198;text-decoration:line-through}
+.trace .ok{color:var(--true);font-weight:700}
+.trace .no{color:var(--false);font-weight:700}
+
+/* quiz */
+.quiz{background:var(--card);border:1px solid var(--rule);border-top:3px solid var(--purple);border-radius:6px;padding:1.1rem 1.25rem;margin:1.4rem 0}
+.quiz .qh{font-family:var(--mono);font-size:.74rem;font-weight:700;color:var(--purple);margin-bottom:.6rem}
+.quiz .qq{font-weight:600;margin:0 0 .7rem;max-width:none}
+.quiz .qq code{font-family:var(--mono);background:#F1EFE8;padding:.08em .3em;border-radius:3px;font-size:.9em}
+.quiz .opt{display:block;width:100%;text-align:left;background:#FCFCFA;border:1.5px solid var(--rule);border-radius:5px;padding:.5rem .8rem;margin-bottom:.4rem;cursor:pointer;font-family:var(--mono);font-size:.9rem;color:var(--ink)}
+.quiz .opt:hover:not(:disabled){border-color:var(--purple);background:var(--purple-pale)}
+.quiz .opt:disabled{cursor:default}
+.quiz .opt.right{border-color:var(--true);background:var(--true-pale);font-weight:700}
+.quiz .opt.wrong{border-color:var(--false);background:var(--false-pale)}
+.quiz .fb{font-size:.9rem;margin-top:.6rem;padding:.65rem .8rem;border-radius:5px;background:#F5F3EC;display:none}
+.quiz .fb.show{display:block}
+.quiz .fb b{color:var(--true)}
+.quiz .fb.no b{color:var(--false)}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin:1.2rem 0}
+.flip{perspective:900px;height:132px;cursor:pointer}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;backface-visibility:hidden;border-radius:7px;display:grid;place-items:center;text-align:center;padding:.8rem;border:1px solid var(--rule)}
+.flip .f{background:#fff}
+.flip .f span{font-family:var(--mono);font-size:.9rem;font-weight:700}
+.flip .b{background:var(--purple-deep);color:#fff;transform:rotateY(180deg)}
+.flip .b span{font-size:.85rem;line-height:1.45}
+.flip .hint{position:absolute;bottom:.4rem;right:.6rem;font-family:var(--mono);font-size:.62rem;color:#B3AFA6}
+
+.checklist{list-style:none;padding:0;margin:1rem 0}
+.checklist li{padding:.35rem 0 .35rem 1.7rem;position:relative;font-size:.95rem;border-bottom:1px dotted var(--rule)}
+.checklist li::before{content:"□";position:absolute;left:.25rem;font-family:var(--mono);color:var(--purple);font-size:1.05rem}
+
+footer{border-top:1px solid var(--rule);padding-top:1.2rem;font-size:.85rem;color:var(--ink-soft)}
+
+@media (max-width:880px){
+  .shell{grid-template-columns:1fr}
+  nav.toc{position:static;height:auto;border-right:none;border-bottom:1px solid var(--rule);padding:1.2rem}
+  nav.toc .links{display:flex;flex-wrap:wrap;gap:.3rem}
+  nav.toc a{font-size:.8rem;padding:.25rem .5rem;border:1px solid var(--rule);border-radius:20px}
+  main{padding:1.5rem 1.1rem 4rem}
+  .panel{padding:1.1rem}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<div class="shell">
+<nav class="toc">
+  <h2>Contents</h2>
+  <div class="links">
+    <a href="#s1"><span>1</span>The big idea</a>
+    <a href="#s2"><span>2</span>bool: a two-value type</a>
+    <a href="#s3"><span>3</span>Comparison operators</a>
+    <a href="#s4"><span>4</span>Condition playground</a>
+    <a href="#s5"><span>5</span>and, or, not</a>
+    <a href="#s6"><span>6</span>Truth table builder</a>
+    <a href="#s7"><span>7</span>Precedence</a>
+    <a href="#s8"><span>8</span>Truthiness</a>
+    <a href="#s9"><span>9</span>Short-circuit evaluation</a>
+    <a href="#s10"><span>10</span>Where beginners slip</a>
+    <a href="#s11"><span>11</span>Booleans as data</a>
+    <a href="#s12"><span>12</span>Recall &amp; cheat sheet</a>
+  </div>
+</nav>
+
+<main>
+
+<header class="hero">
+  <div class="kicker">Python for Business Analytics · Card 3</div>
+  <h1>Logical Expressions</h1>
+  <p class="lede">Arithmetic expressions answer <em>how much</em>. Logical expressions answer <em>yes or no</em> — and every filter, every alert threshold, every branch in a program is built from them.</p>
+  <div class="formula">
+    Programs = <em>Data Structures</em> + <em>Algorithms</em><br>
+    <span style="color:#4A544F">Here the data structure is <em style="color:#6A2DA8">bool</em> — a type with exactly two values — and the algorithms are <em style="color:#6A2DA8">comparison</em> and <em style="color:#6A2DA8">logic</em>.</span>
+  </div>
+</header>
+
+<!-- 1 -->
+<section id="s1">
+  <div class="band"><div class="num">1</div><h2>The big idea: questions that return a value</h2></div>
+  <div class="panel">
+
+    <p>A logical expression looks like a question but behaves like a calculation. Python evaluates it and hands back one of two values, which you can store, print, count or feed into a decision.</p>
+
+<div class="codewrap"><div class="codebar"><span class="fname">a question with an answer you can keep</span><button class="run">Run ▸</button></div><pre><code>sales = 12500
+
+print(sales &gt;= 10000)
+print(sales &lt; 5000)
+
+is_target_hit = sales &gt;= 10000   # store the answer
+print(is_target_hit, type(is_target_hit))</code></pre><div class="out">True
+False
+True &lt;class 'bool'&gt;</div></div>
+
+    <figure>
+      <svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagram showing data compared against a threshold producing a Boolean that drives a decision">
+        <rect x="18" y="60" width="150" height="96" rx="8" fill="#E4F0F2" stroke="#0F5C6B" stroke-width="1.5"/>
+        <text x="93" y="86" text-anchor="middle" class="sv-lab" fill="#0F5C6B" font-weight="700" font-size="11">DATA</text>
+        <text x="93" y="112" text-anchor="middle" class="sv-lab" fill="#1C2321" font-size="14">sales = 12500</text>
+        <text x="93" y="134" text-anchor="middle" class="sv-lab" fill="#4A544F" font-size="10.5">a number</text>
+
+        <rect x="205" y="60" width="160" height="96" rx="8" fill="#F1EAF9" stroke="#6A2DA8" stroke-width="1.5"/>
+        <text x="285" y="86" text-anchor="middle" class="sv-lab" fill="#6A2DA8" font-weight="700" font-size="11">ALGORITHM</text>
+        <text x="285" y="114" text-anchor="middle" class="sv-lab" fill="#1C2321" font-size="15">&gt; = 10000</text>
+        <text x="285" y="136" text-anchor="middle" class="sv-lab" fill="#4A544F" font-size="10.5">compare to a rule</text>
+
+        <rect x="402" y="72" width="120" height="72" rx="8" fill="#E8F2EA" stroke="#2E7D46" stroke-width="1.5"/>
+        <text x="462" y="98" text-anchor="middle" class="sv-lab" fill="#2E7D46" font-weight="700" font-size="11">bool</text>
+        <text x="462" y="124" text-anchor="middle" class="sv-lab" fill="#2E7D46" font-size="17" font-weight="700">True</text>
+
+        <rect x="560" y="60" width="122" height="96" rx="8" fill="#fff" stroke="#B7B2A7" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="621" y="86" text-anchor="middle" class="sv-lab" fill="#4A544F" font-weight="700" font-size="11">DECISION</text>
+        <text x="621" y="110" text-anchor="middle" class="sv-lab" fill="#1C2321" font-size="11">if / filter</text>
+        <text x="621" y="130" text-anchor="middle" class="sv-lab" fill="#1C2321" font-size="11">count / flag</text>
+
+        <path d="M172 108 L 200 108" stroke="#9AA69E" stroke-width="1.5" marker-end="url(#a1)"/>
+        <path d="M369 108 L 397 108" stroke="#9AA69E" stroke-width="1.5" marker-end="url(#a1)"/>
+        <path d="M526 108 L 555 108" stroke="#9AA69E" stroke-width="1.5" marker-end="url(#a1)"/>
+        <defs><marker id="a1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#9AA69E"/></marker></defs>
+
+        <text x="350" y="196" text-anchor="middle" class="sv-lab" font-size="11" fill="#4A544F">A raw number becomes a business fact only once a rule is applied to it.</text>
+      </svg>
+      <figcaption>12500 is data. "Did we hit target?" is a Boolean. The Boolean is what a program can act on.</figcaption>
+    </figure>
+
+    <div class="call key"><strong class="tag">HOLD ON TO THIS</strong>
+      <p><code class="inline">True</code> and <code class="inline">False</code> are values, exactly like <code class="inline">42</code> or <code class="inline">"West"</code>. Capital letter, no quotes. <code class="inline">"True"</code> in quotes is a string and behaves completely differently.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- 2 -->
+<section id="s2">
+  <div class="band"><div class="num">2</div><h2>bool: the two-value data type</h2></div>
+  <div class="panel">
+
+    <div class="wwh">
+      <div class="w"><h5>WHAT</h5><p>A built-in type whose entire domain is two values: <code>True</code> and <code>False</code>.</p></div>
+      <div class="y"><h5>WHY</h5><p>Two values is the smallest useful data structure. It is what lets a program choose, filter and count.</p></div>
+      <div class="h"><h5>HOW</h5><p>Produced by comparison operators, combined by <code>and</code>/<code>or</code>/<code>not</code>, consumed by <code>if</code>, <code>while</code> and filters.</p></div>
+    </div>
+
+    <p>Booleans are a numeric type underneath: <code class="inline">True</code> equals 1 and <code class="inline">False</code> equals 0. That single fact makes counting almost free, as section 11 shows.</p>
+
+<div class="codewrap"><div class="codebar"><span class="fname">booleans are numbers in disguise</span><button class="run">Run ▸</button></div><pre><code>print(True + True)          # 1 + 1
+print(int(False))
+print(sum([True, False, True, True]))   # counts the Trues
+
+# the same value, three ways of getting it
+print(bool(1), 12500 &gt;= 10000, not False)</code></pre><div class="out">2
+0
+3
+True True True</div></div>
+
+    <div class="quiz" data-quiz="q_bool"></div>
+
+  </div>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+  <div class="band"><div class="num">3</div><h2>The six comparison operators</h2></div>
+  <div class="panel">
+
+    <p>Each of these takes two operands and returns a <code class="inline">bool</code>. In the examples below, <code class="inline">sales = 12500</code>.</p>
+    <p><b>The following are Python notations for logical operators</b></p>
+    <table class="ops">
+      <thead><tr><th>Operator</th><th>Meaning</th><th>Example</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td class="sym"><code>==</code></td><td>Equal to<span class="note">Two equals signs. One is assignment.</span></td><td class="ex">sales <code>==</code> 10000</td><td class="res F">False</td></tr>
+        <tr><td class="sym"><code>!=</code></td><td>Not equal to<span class="note">Flagging exceptions, mismatched records</span></td><td class="ex">sales <code>!=</code> 10000</td><td class="res T">True</td></tr>
+        <tr><td class="sym">&gt;</td><td>Greater than<span class="note">Strictly above — the boundary fails</span></td><td class="ex">sales &gt; 10000</td><td class="res T">True</td></tr>
+        <tr><td class="sym">&lt;</td><td>Less than<span class="note">Strictly below</span></td><td class="ex">sales &lt; 10000</td><td class="res F">False</td></tr>
+        <tr><td class="sym"><code>>=</code></td><td>Greater than or equal to<span class="note">"At least" — the boundary passes</span></td><td class="ex">sales <code>>=</code>  10000</td><td class="res T">True</td></tr>
+        <tr><td class="sym"><code><=</code></td><td>Less than or equal to<span class="note">"At most", "no more than"</span></td><td class="ex">sales <code><=</code> 10000</td><td class="res F">False</td></tr>
+      </tbody>
+    </table>
+
+    <div class="call biz"><strong class="tag">THE BOUNDARY IS A BUSINESS DECISION</strong>
+      <p>"Reps hitting 10,000 earn a bonus" — does a rep at exactly 10,000 qualify? <code class="inline">&gt;</code> says no, <code class="inline">&gt;=</code> says yes. This one character decides who gets paid. Confirm the boundary before you write the condition.</p>
+    </div>
+
+    <h3>Comparisons work on more than numbers</h3>
+
+<div class="codewrap"><div class="codebar"><span class="fname">strings, dates and mixed types</span><button class="run">Run ▸</button></div><pre><code>print("West" == "West")
+print("west" == "West")        # case matters
+print("Apple" &lt; "Banana")      # alphabetical order
+
+print(10 == 10.0)              # int and float compare by value
+print("10" == 10)              # string vs number: never equal</code></pre><div class="out">True
+False
+True
+True
+False</div></div>
+
+    <h3>Two operators the poster leaves out</h3>
+    <p><code class="inline">in</code> and <code class="inline">not in</code> also return Booleans, and in analytics they replace long chains of <code class="inline">or</code>.</p>
+
+<div class="codewrap"><div class="codebar"><span class="fname">membership tests</span><button class="run">Run ▸</button></div><pre><code>region = "West"
+core_regions = ["West", "East", "Central"]
+
+# the long way
+print(region == "West" or region == "East" or region == "Central")
+
+# the readable way
+print(region in core_regions)
+print(region not in ["North", "South"])
+
+print("est" in "Western")      # substring search
+</code></pre><div class="out">True
+True
+True
+True</div></div>
+
+    <div class="quiz" data-quiz="q_cmp"></div>
+
+  </div>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+  <div class="band"><div class="num">4</div><h2>Condition playground</h2></div>
+  <div class="panel">
+    <p>Change the record below and watch every condition re-evaluate. Try to make the last row <span class="T">True</span> — then find the smallest change that flips it back.</p>
+
+    <div class="pg">
+      <div class="inputs">
+        <label>sales = <input type="number" id="cSales" value="12500" step="500"></label>
+        <label>profit = <input type="number" id="cProfit" value="2400" step="100"></label>
+        <label>region =
+          <select id="cRegion"><option>West</option><option>East</option><option>North</option><option>Central</option></select>
+        </label>
+        <label>returned = <select id="cRet"><option>False</option><option>True</option></select></label>
+      </div>
+      <div class="pgrid" id="cOut"></div>
+    </div>
+
+    <div class="call tip"><strong class="tag">NOTICE</strong>
+      <p>Set sales to exactly 10000. <code class="inline">sales &gt;= 10000</code> stays <span class="T">True</span> but <code class="inline">sales &gt; 10000</code> flips to <span class="F">False</span>. Boundary values are where filtering bugs live, so they are the first values you should test.</p>
+    </div>
+
+    <div class="quiz" data-quiz="q_play"></div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+  <div class="band"><div class="num">5</div><h2>Combining conditions: and, or, not</h2></div>
+  <div class="panel">
+
+    <div class="wwh">
+      <div class="w"><h5>WHAT</h5><p>Three operators that take Booleans as operands and return a Boolean.</p></div>
+      <div class="y"><h5>WHY</h5><p>Real business rules are compound: qualified <em>and</em> not returned, West <em>or</em> Central.</p></div>
+      <div class="h"><h5>HOW</h5><p><code>and</code> needs every part true. <code>or</code> needs at least one. <code>not</code> flips.</p></div>
+    </div>
+
+    <figure>
+      <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Venn diagrams for and, or, and not">
+        <g>
+          <text x="115" y="24" text-anchor="middle" class="sv-lab" font-size="13" font-weight="700" fill="#6A2DA8">A and B</text>
+          <defs><clipPath id="cA"><circle cx="95" cy="105" r="52"/></clipPath></defs>
+          <circle cx="95" cy="105" r="52" fill="#F3F1EC" stroke="#B7B2A7"/>
+          <circle cx="140" cy="105" r="52" fill="#F3F1EC" stroke="#B7B2A7"/>
+          <circle cx="140" cy="105" r="52" fill="#2E7D46" clip-path="url(#cA)" opacity=".85"/>
+          <text x="63" y="110" text-anchor="middle" class="sv-lab" font-size="12" fill="#4A544F">A</text>
+          <text x="172" y="110" text-anchor="middle" class="sv-lab" font-size="12" fill="#4A544F">B</text>
+          <text x="117" y="178" text-anchor="middle" class="sv-lab" font-size="10.5" fill="#4A544F">both must hold</text>
+        </g>
+        <g transform="translate(230,0)">
+          <text x="115" y="24" text-anchor="middle" class="sv-lab" font-size="13" font-weight="700" fill="#6A2DA8">A or B</text>
+          <circle cx="95" cy="105" r="52" fill="#2E7D46" opacity=".85" stroke="#2E7D46"/>
+          <circle cx="140" cy="105" r="52" fill="#2E7D46" opacity=".85" stroke="#2E7D46"/>
+          <text x="63" y="110" text-anchor="middle" class="sv-lab" font-size="12" fill="#fff">A</text>
+          <text x="172" y="110" text-anchor="middle" class="sv-lab" font-size="12" fill="#fff">B</text>
+          <text x="117" y="178" text-anchor="middle" class="sv-lab" font-size="10.5" fill="#4A544F">either one is enough</text>
+        </g>
+        <g transform="translate(460,0)">
+          <text x="115" y="24" text-anchor="middle" class="sv-lab" font-size="13" font-weight="700" fill="#6A2DA8">not A</text>
+          <rect x="42" y="52" width="150" height="106" rx="6" fill="#2E7D46" opacity=".85"/>
+          <circle cx="117" cy="105" r="46" fill="#F3F1EC" stroke="#fff" stroke-width="1.5"/>
+          <text x="117" y="110" text-anchor="middle" class="sv-lab" font-size="12" fill="#4A544F">A</text>
+          <text x="117" y="178" text-anchor="middle" class="sv-lab" font-size="10.5" fill="#4A544F">everything outside A</text>
+        </g>
+      </svg>
+      <figcaption>Green marks the records that survive the filter. <code>and</code> narrows, <code>or</code> widens, <code>not</code> inverts.</figcaption>
+    </figure>
+
+    <table class="truth">
+      <thead><tr><th>A</th><th>B</th><th>A and B</th><th>A or B</th><th>not A</th></tr></thead>
+      <tbody>
+        <tr><td class="T">True</td><td class="T">True</td><td class="T">True</td><td class="T">True</td><td class="F">False</td></tr>
+        <tr><td class="T">True</td><td class="F">False</td><td class="F">False</td><td class="T">True</td><td class="F">False</td></tr>
+        <tr><td class="F">False</td><td class="T">True</td><td class="F">False</td><td class="T">True</td><td class="T">True</td></tr>
+        <tr><td class="F">False</td><td class="F">False</td><td class="F">False</td><td class="F">False</td><td class="T">True</td></tr>
+      </tbody>
+    </table>
+
+<div class="codewrap"><div class="codebar"><span class="fname">a bonus rule, built up in stages</span><button class="run">Run ▸</button></div><pre><code>sales    = 12500
+profit   = 2400
+region   = "West"
+returned = False
+
+hit_target   = sales &gt;= 10000
+good_margin  = profit &gt; 2000
+clean_record = not returned
+
+print(hit_target, good_margin, clean_record)
+print(hit_target and good_margin and clean_record)   # bonus?
+print(hit_target or good_margin)                     # at least one
+print(region in ("West", "Central") and hit_target)  # regional target</code></pre><div class="out">True True True
+True
+True
+True</div></div>
+
+    <div class="call tip"><strong class="tag">READABILITY</strong>
+      <p>Naming each condition (<code class="inline">hit_target</code>, <code class="inline">good_margin</code>) turns an unreadable one-liner into something a manager could review. The Booleans become named data, which is exactly the "data structures" half of the formula.</p>
+    </div>
+
+    <h3>De Morgan's laws: rewriting negations</h3>
+    <p>Negating a compound condition flips both the parts <em>and</em> the connector. Getting this wrong quietly changes which records you keep.</p>
+
+    <table class="grid">
+      <thead><tr><th>Instead of</th><th>Write</th><th>In plain words</th></tr></thead>
+      <tbody>
+        <tr><td class="m">not (a and b)</td><td class="m">(not a) or (not b)</td><td>"Not both" means "at least one is missing"</td></tr>
+        <tr><td class="m">not (a or b)</td><td class="m">(not a) and (not b)</td><td>"Neither" means "not this and not that"</td></tr>
+        <tr><td class="m">not (sales &gt;= 10000)</td><td class="m">sales &lt; 10000</td><td>Flip the operator instead of wrapping it</td></tr>
+      </tbody>
+    </table>
+
+    <div class="quiz" data-quiz="q_logic"></div>
+
+  </div>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+  <div class="band"><div class="num">6</div><h2>Truth table builder</h2></div>
+  <div class="panel">
+    <p>Flip A and B and watch every combination respond. The matching row of the truth table highlights as you go.</p>
+
+    <div class="tt">
+      <div class="toggles">
+        <button class="tog on" id="togA">A = True</button>
+        <button class="tog on" id="togB">B = True</button>
+      </div>
+      <div class="ttres" id="ttRes"></div>
+      <table class="truth" id="ttTable">
+        <thead><tr><th>A</th><th>B</th><th>and</th><th>or</th><th>not A</th><th>!=&nbsp;(xor)</th></tr></thead>
+        <tbody>
+          <tr data-a="1" data-b="1"><td class="T">True</td><td class="T">True</td><td class="T">True</td><td class="T">True</td><td class="F">False</td><td class="F">False</td></tr>
+          <tr data-a="1" data-b="0"><td class="T">True</td><td class="F">False</td><td class="F">False</td><td class="T">True</td><td class="F">False</td><td class="T">True</td></tr>
+          <tr data-a="0" data-b="1"><td class="F">False</td><td class="T">True</td><td class="F">False</td><td class="T">True</td><td class="T">True</td><td class="T">True</td></tr>
+          <tr data-a="0" data-b="0"><td class="F">False</td><td class="F">False</td><td class="F">False</td><td class="F">False</td><td class="T">True</td><td class="F">False</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="call biz"><strong class="tag">XOR IN PRACTICE</strong>
+      <p>Python has no <code class="inline">xor</code> keyword for Booleans — <code class="inline">a != b</code> does the job. It answers "exactly one of these, not both", useful for reconciliation checks where a record should appear in one system or the other but never in both.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+  <div class="band"><div class="num">7</div><h2>Precedence: what runs first</h2></div>
+  <div class="panel">
+
+    <p>One expression can mix arithmetic, comparison and logic. Python resolves them in a fixed order, and the order is not left to right.</p>
+
+    <figure>
+      <svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Precedence ladder from arithmetic down to or">
+        <rect x="230" y="16" width="240" height="40" rx="6" fill="#3A1560"/>
+        <text x="350" y="34" text-anchor="middle" class="sv-lab" fill="#fff" font-size="13" font-weight="700">( )</text>
+        <text x="350" y="49" text-anchor="middle" class="sv-lab" fill="#CDB4E8" font-size="9.5">parentheses</text>
+
+        <rect x="200" y="62" width="300" height="40" rx="6" fill="#4E1F7D"/>
+        <text x="350" y="80" text-anchor="middle" class="sv-lab" fill="#fff" font-size="13" font-weight="700">**  *  /  //  %  +  -</text>
+        <text x="350" y="95" text-anchor="middle" class="sv-lab" fill="#CDB4E8" font-size="9.5">all arithmetic finishes first</text>
+
+        <rect x="170" y="108" width="360" height="40" rx="6" fill="#6A2DA8"/>
+        <text x="350" y="126" text-anchor="middle" class="sv-lab" fill="#fff" font-size="13" font-weight="700">==  !=  &gt;  &lt;  &gt;=  &lt;=  in  not in  is</text>
+        <text x="350" y="141" text-anchor="middle" class="sv-lab" fill="#E4D5F3" font-size="9.5">comparisons</text>
+
+        <rect x="140" y="154" width="420" height="30" rx="6" fill="#9159C9"/>
+        <text x="350" y="174" text-anchor="middle" class="sv-lab" fill="#fff" font-size="13" font-weight="700">not</text>
+
+        <rect x="110" y="190" width="480" height="26" rx="6" fill="#B98BE0"/>
+        <text x="350" y="208" text-anchor="middle" class="sv-lab" fill="#2B0F47" font-size="13" font-weight="700">and</text>
+
+        <rect x="80" y="222" width="540" height="26" rx="6" fill="#DCC6F0"/>
+        <text x="350" y="240" text-anchor="middle" class="sv-lab" fill="#2B0F47" font-size="13" font-weight="700">or</text>
+      </svg>
+      <figcaption>Arithmetic, then comparison, then <code>not</code>, then <code>and</code>, then <code>or</code>. <code>and</code> binds tighter than <code>or</code>.</figcaption>
+    </figure>
+
+    <h3>Step through an evaluation</h3>
+    <p>With <code class="inline">sales = 8200</code>, <code class="inline">profit = 1900</code>, <code class="inline">region = "West"</code>:</p>
+
+    <div class="stepper">
+      <div class="stepline" id="sl1"></div>
+      <div class="stepcap" id="sc1"></div>
+      <div class="stepnav">
+        <button id="prev1">◀ Back</button><span class="count" id="ct1"></span><button id="next1">Next ▶</button>
+      </div>
+    </div>
+
+<div class="codewrap"><div class="codebar"><span class="fname">the parentheses change who qualifies</span><button class="run">Run ▸</button></div><pre><code>sales, profit, region = 8200, 1900, "West"
+
+# and binds tighter, so this reads: (sales &gt;= 10000 and profit &gt; 2000) or region == "West"
+a = sales &gt;= 10000 and profit &gt; 2000 or region == "West"
+
+# a very different rule
+b = sales &gt;= 10000 and (profit &gt; 2000 or region == "West")
+
+print(a)
+print(b)</code></pre><div class="out">True
+False</div></div>
+
+    <div class="call warn"><strong class="tag">SILENT ERROR</strong>
+      <p>Both lines run without complaint. One says "any West rep qualifies"; the other says "only high-selling reps qualify, and West is an alternative to margin". Mixing <code class="inline">and</code> with <code class="inline">or</code> without parentheses is one of the most common causes of a wrong report.</p>
+    </div>
+
+    <h3>Chained comparisons</h3>
+    <p>Python allows a range test written the way it is written in mathematics. Most languages do not.</p>
+
+<div class="codewrap"><div class="codebar"><span class="fname">range checks</span><button class="run">Run ▸</button></div><pre><code>sales = 8200
+
+print(5000 &lt;= sales &lt;= 15000)              # chained, reads naturally
+print(sales &gt;= 5000 and sales &lt;= 15000)    # identical meaning
+
+# useful for banding
+score = 72
+print(70 &lt;= score &lt; 80)                    # a "C" band, upper bound excluded</code></pre><div class="out">True
+True
+True</div></div>
+
+    <div class="quiz" data-quiz="q_prec"></div>
+
+  </div>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+  <div class="band"><div class="num">8</div><h2>Truthiness: when non-Booleans act like Booleans</h2></div>
+  <div class="panel">
+
+    <div class="wwh">
+      <div class="w"><h5>WHAT</h5><p>Python can treat any value as a condition. Some values count as false, everything else counts as true.</p></div>
+      <div class="y"><h5>WHY</h5><p>It makes "is there any data here?" checks short — and it makes some bugs invisible.</p></div>
+      <div class="h"><h5>HOW</h5><p>Empty things and zero are falsy. Test with <code>bool(x)</code> if you are unsure.</p></div>
+    </div>
+
+    <table class="grid">
+      <thead><tr><th>Falsy values</th><th>Truthy values</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="m">0 &nbsp; 0.0 &nbsp; "" &nbsp; [] &nbsp; {} &nbsp; () &nbsp; set() &nbsp; None &nbsp; False</td>
+          <td class="m">any other number, any non-empty string, list, dict or set</td>
+        </tr>
+      </tbody>
+    </table>
+
+<div class="codewrap"><div class="codebar"><span class="fname">checking for data before working on it</span><button class="run">Run ▸</button></div><pre><code>records = []
+region  = ""
+discount = 0
+
+print(bool(records), bool(region), bool(discount))
+print(bool([0]), bool("0"), bool(0.1))   # careful: these are all truthy
+
+if not records:
+    print("No records loaded — check the file path.")
+
+# the idiomatic emptiness check
+sales = [1200, 980, 1450]
+if sales:
+    print("Rows:", len(sales))</code></pre><div class="out">False False False
+True True True
+No records loaded — check the file path.
+Rows: 3</div></div>
+
+    <div class="call warn"><strong class="tag">THE ZERO TRAP</strong>
+      <p><code class="inline">if discount:</code> is <span class="F">False</span> when the discount is genuinely 0, which is a real value, not missing data. When zero is legitimate, test explicitly: <code class="inline">if discount is not None:</code>.</p>
+    </div>
+
+    <div class="quiz" data-quiz="q_truthy"></div>
+
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+  <div class="band"><div class="num">9</div><h2>Short-circuit evaluation</h2></div>
+  <div class="panel">
+
+    <p>Python stops as soon as the answer is certain. With <code class="inline">and</code>, a false left operand settles it. With <code class="inline">or</code>, a true left operand settles it. The right operand is never evaluated.</p>
+
+    <div class="sc">
+      <div class="scbtns">
+        <button id="scA" class="on">revenue = 0</button>
+        <button id="scB">revenue = 40000</button>
+      </div>
+      <div class="trace" id="scTrace"></div>
+    </div>
+
+<div class="codewrap"><div class="codebar"><span class="fname">the guard pattern</span><button class="run">Run ▸</button></div><pre><code>revenue = 0
+profit  = 0
+
+# Without the guard this raises ZeroDivisionError
+# print(profit / revenue &gt; 0.2)
+
+# With it, the division never runs
+print(revenue != 0 and profit / revenue &gt; 0.2)
+
+# The same idea for missing data
+record = {"rep": "Ada"}
+print("amount" in record and record["amount"] &gt; 1000)</code></pre><div class="out">False
+False</div></div>
+
+    <div class="call biz"><strong class="tag">ORDER MATTERS NOW</strong>
+      <p>Put the cheap or protective test on the left. <code class="inline">revenue != 0 and profit / revenue &gt; 0.2</code> is safe; swap the operands and it crashes. With <code class="inline">and</code>/<code class="inline">or</code>, order is not just style.</p>
+    </div>
+
+    <h3>and and or return operands, not just Booleans</h3>
+
+<div class="codewrap"><div class="codebar"><span class="fname">a useful side effect</span><button class="run">Run ▸</button></div><pre><code>region = ""
+print(region or "Unassigned")     # falls back when region is empty
+
+name = "Ada"
+print(name or "Unknown")
+
+print(0 and 99)      # stops at 0, returns 0
+print(5 and 99)      # passes the first, returns the second</code></pre><div class="out">Unassigned
+Ada
+0
+99</div></div>
+
+    <div class="quiz" data-quiz="q_short"></div>
+
+  </div>
+</section>
+
+<!-- 10 -->
+<section id="s10">
+  <div class="band"><div class="num">10</div><h2>Where beginners slip</h2></div>
+  <div class="panel">
+
+    <h3>= is not ==</h3>
+    <p><code class="inline">=</code> assigns a value. <code class="inline">==</code> asks a question. Using <code class="inline">=</code> inside an <code class="inline">if</code> is a syntax error in Python, which is a kindness — in some languages it silently overwrites your data.</p>
+
+    <h3>x == 1 or 2 does not mean what it looks like</h3>
+
+<div class="codewrap"><div class="codebar"><span class="fname">the most convincing wrong condition in Python</span><button class="run">Run ▸</button></div><pre><code>quarter = 4
+
+print(quarter == 1 or 2)          # always truthy — 2 is a truthy value!
+print(quarter == 1 or quarter == 2)
+print(quarter in (1, 2))          # the readable fix</code></pre><div class="out">True
+False
+False</div></div>
+
+    <div class="call warn"><strong class="tag">WHY IT HAPPENS</strong>
+      <p><code class="inline">quarter == 1 or 2</code> is read as <code class="inline">(quarter == 1) or (2)</code>. Since <code class="inline">2</code> is truthy, the whole thing is always true. Every record passes the filter and nobody notices.</p>
+    </div>
+
+    <h3>is is not ==</h3>
+
+<div class="codewrap"><div class="codebar"><span class="fname">identity versus equality</span><button class="run">Run ▸</button></div><pre><code>a = [1, 2, 3]
+b = [1, 2, 3]
+
+print(a == b)      # same contents
+print(a is b)      # two separate objects in memory
+
+value = None
+print(value is None)     # correct way to test for None
+print(value == None)     # works, but not idiomatic</code></pre><div class="out">True
+False
+True
+True</div></div>
+
+    <div class="call tip"><strong class="tag">RULE OF THUMB</strong>
+      <p>Use <code class="inline">is</code> only with <code class="inline">None</code>, <code class="inline">True</code> and <code class="inline">False</code>. For every other comparison, use <code class="inline">==</code>.</p>
+    </div>
+
+    <h3>Floats and ==</h3>
+
+<div class="codewrap"><div class="codebar"><span class="fname">the arithmetic trap resurfaces</span><button class="run">Run ▸</button></div><pre><code>print(0.1 + 0.2 == 0.3)
+print(round(0.1 + 0.2, 10) == 0.3)
+print(abs((0.1 + 0.2) - 0.3) &lt; 1e-9)   # tolerance comparison</code></pre><div class="out">False
+True
+True</div></div>
+
+    <h3>Don't compare a Boolean to True</h3>
+    <p><code class="inline">if is_active == True:</code> works, but <code class="inline">if is_active:</code> says the same thing and cannot go wrong. Similarly, prefer <code class="inline">if not is_active:</code> over <code class="inline">if is_active == False:</code>.</p>
+
+    <div class="quiz" data-quiz="q_traps"></div>
+
+  </div>
+</section>
+
+<!-- 11 -->
+<section id="s11">
+  <div class="band"><div class="num">11</div><h2>Analytics lab: Booleans as data</h2></div>
+  <div class="panel">
+
+    <p>This is where the formula pays off. The list of dictionaries is the data structure; the conditions are the algorithm; the Booleans they produce become new data you can count, filter and summarise.</p>
+
+<div class="codewrap"><div class="codebar"><span class="fname">bonus_qualification.py</span><button class="run">Run ▸</button></div><pre><code># ---- DATA ----
+sales = [
+    {"rep": "Ada",  "region": "West",    "amount": 12500, "profit": 2400, "returned": False},
+    {"rep": "Bo",   "region": "East",    "amount":  8200, "profit": 1900, "returned": False},
+    {"rep": "Cruz", "region": "West",    "amount": 15100, "profit": 1800, "returned": True},
+    {"rep": "Dae",  "region": "North",   "amount":  4900, "profit":  600, "returned": False},
+    {"rep": "Eli",  "region": "Central", "amount": 10000, "profit": 2100, "returned": False},
+]
+
+# ---- PROCESS ----
+def qualifies(s):
+    return s["amount"] &gt;= 10000 and s["profit"] &gt; 2000 and not s["returned"]
+
+winners    = [s["rep"] for s in sales if qualifies(s)]
+flags      = [qualifies(s) for s in sales]      # a list of Booleans
+high_value = sum(s["amount"] &gt;= 10000 for s in sales)
+
+# ---- OUTPUT ----
+print("Bonus winners :", winners)
+print("Flags         :", flags)
+print("High value    :", high_value, "of", len(sales))
+print("Any returns?  :", any(s["returned"] for s in sales))
+print("All profitable:", all(s["profit"] &gt; 0 for s in sales))
+print("West or Central:", [s["rep"] for s in sales if s["region"] in ("West", "Central")])</code></pre><div class="out">Bonus winners : ['Ada', 'Eli']
+Flags         : [True, False, False, False, True]
+High value    : 3 of 5
+Any returns?  : True
+All profitable: True
+West or Central: ['Ada', 'Cruz', 'Eli']</div></div>
+
+    <div class="call key"><strong class="tag">THE BRIDGE TO PANDAS</strong>
+      <p>That list of flags — <code class="inline">[True, False, False, False, True]</code> — is a <em>Boolean mask</em>. In pandas you write <code class="inline">df[df["amount"] &gt;= 10000]</code> and the library builds exactly this list for you, then keeps the rows where it is <span class="T">True</span>. Everything on this card transfers directly.</p>
+    </div>
+
+    <h3>Counting patterns worth memorising</h3>
+    <table class="grid">
+      <thead><tr><th>Question</th><th>Expression</th><th>Returns</th></tr></thead>
+      <tbody>
+        <tr><td>How many rows match?</td><td class="m">sum(cond for row in data)</td><td>an int</td></tr>
+        <tr><td>Does at least one match?</td><td class="m">any(cond for row in data)</td><td>a bool</td></tr>
+        <tr><td>Do all of them match?</td><td class="m">all(cond for row in data)</td><td>a bool</td></tr>
+        <tr><td>Which rows match?</td><td class="m">[row for row in data if cond]</td><td>a filtered list</td></tr>
+        <tr><td>What proportion match?</td><td class="m">sum(...) / len(data)</td><td>a float</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Your turn</h3>
+    <ul class="checklist">
+      <li>Change the rule so exactly 10,000 no longer qualifies. Who drops out?</li>
+      <li>Add a condition that excludes any rep outside West and Central.</li>
+      <li>Compute the share of records that were returned, as a percentage.</li>
+      <li>Write the qualification rule using <code class="inline">not</code> and De Morgan's laws instead of three <code class="inline">and</code>s.</li>
+      <li>Guard the margin test <code class="inline">profit / amount &gt; 0.15</code> against a zero amount.</li>
+    </ul>
+
+    <div class="quiz" data-quiz="q_lab"></div>
+
+  </div>
+</section>
+
+<!-- 12 -->
+<section id="s12">
+  <div class="band"><div class="num">12</div><h2>Recall check and cheat sheet</h2></div>
+  <div class="panel">
+
+    <p>Tap a card to check yourself. Answer out loud before flipping.</p>
+    <div class="cards" id="flipcards"></div>
+
+    <h3>Final check</h3>
+    <div class="quiz" data-quiz="q_final"></div>
+
+    <h3>One-page summary</h3>
+    <table class="grid">
+      <thead><tr><th>Operator</th><th>Question it answers</th><th>Watch out for</th></tr></thead>
+      <tbody>
+        <tr><td class="m"><code>== !=</code></td><td>Is it the same? Is it different?</td><td>One <code class="inline">=</code> assigns; floats need rounding</td></tr>
+        <tr><td class="m">&gt; &nbsp; &lt;</td><td>Strictly above or below?</td><td>The boundary value fails the test</td></tr>
+        <tr><td class="m"><code>>=  <=</code></td><td>At least / at most?</td><td>The boundary value passes</td></tr>
+        <tr><td class="m">in &nbsp; not in</td><td>Is it one of these?</td><td>Clearer than a chain of <code class="inline">or</code></td></tr>
+        <tr><td class="m">and</td><td>Do all conditions hold?</td><td>Binds tighter than <code class="inline">or</code>; short-circuits</td></tr>
+        <tr><td class="m">or</td><td>Does at least one hold?</td><td><code class="inline">x == 1 or 2</code> is always true</td></tr>
+        <tr><td class="m">not</td><td>Is this false?</td><td>Flip the operator instead where you can</td></tr>
+        <tr><td class="m">is</td><td>Is it the same object?</td><td>Only use with <code class="inline">None</code>, <code class="inline">True</code>, <code class="inline">False</code></td></tr>
+      </tbody>
+    </table>
+
+    <div class="call key"><strong class="tag">THE THROUGH-LINE</strong>
+      <p>Card 2 turned data into numbers. This card turns numbers into decisions. A Boolean is the smallest data structure there is, and the comparison and logic operators are the algorithm that produces it. Next comes the construct that consumes them: <code class="inline">if</code>, <code class="inline">elif</code> and <code class="inline">else</code>.</p>
+    </div>
+
+    <footer>Python Programming for Business Analytics · Card 3 of the expressions and statements series · Next: control structures, where these Booleans choose which code actually runs.</footer>
+
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+/* ---------- syntax highlighting ---------- */
+const PY_RE = /(#[^\n]*)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|\b(def|return|if|elif|else|for|while|in|not|and|or|is|import|from|as|True|False|None|lambda|class|break|continue|pass)\b|\b(print|round|int|float|abs|type|len|sum|range|sorted|min|max|str|list|dict|set|tuple|bool|any|all|isinstance)\b|(\d[\d_]*\.?\d*)|(&lt;=|&gt;=|&lt;|&gt;|==|!=|\*\*|\/\/|[+\-*\/%]=?|=)/g;
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function highlight(raw){
+  return esc(raw).replace(PY_RE,(m,com,str,kw,bi,num,op)=>{
+    if(com!==undefined) return '<span class="c-com">'+com+'</span>';
+    if(str!==undefined) return '<span class="c-str">'+str+'</span>';
+    if(kw !==undefined) return '<span class="c-kw">'+kw+'</span>';
+    if(bi !==undefined) return '<span class="c-bi">'+bi+'</span>';
+    if(num!==undefined) return '<span class="c-num">'+num+'</span>';
+    if(op !==undefined) return '<span class="c-op">'+op+'</span>';
+    return m;
+  });
+}
+document.querySelectorAll('.codewrap pre code').forEach(el=>{ el.innerHTML = highlight(el.textContent); });
+
+/* ---------- run buttons ---------- */
+document.querySelectorAll('.codewrap').forEach(w=>{
+  const btn=w.querySelector('button.run'), out=w.querySelector('.out');
+  if(!btn||!out) return;
+  out.style.display='none';
+  btn.addEventListener('click',()=>{
+    const open = out.style.display!=='none';
+    out.style.display = open?'none':'block';
+    btn.textContent = open?'Run ▸':'Hide output';
+  });
+});
+
+/* ---------- condition playground ---------- */
+const cS=document.getElementById('cSales'), cP=document.getElementById('cProfit'),
+      cR=document.getElementById('cRegion'), cT=document.getElementById('cRet'),
+      cOut=document.getElementById('cOut');
+function renderCond(){
+  const s=parseFloat(cS.value||0), p=parseFloat(cP.value||0),
+        r=cR.value, ret=cT.value==='True';
+  const rows=[
+    ['sales >= 10000', s>=10000],
+    ['sales > 10000', s>10000],
+    ['sales == 10000', s===10000],
+    ['profit > 2000', p>2000],
+    ['not returned', !ret],
+    ['region == "West"', r==='West'],
+    ['region in ("West","Central")', r==='West'||r==='Central'],
+    ['5000 <= sales <= 15000', s>=5000&&s<=15000],
+    ['sales >= 10000 or profit > 2000', s>=10000||p>2000],
+    ['sales >= 10000 and profit > 2000 and not returned', s>=10000&&p>2000&&!ret]
+  ];
+  cOut.innerHTML = rows.map(([e,v])=>
+    `<div class="pcell"><span class="e">${e.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span><span class="v ${v?'t':'f'}">${v?'True':'False'}</span></div>`
+  ).join('');
+}
+[cS,cP,cR,cT].forEach(el=>el.addEventListener('input',renderCond));
+renderCond();
+
+/* ---------- truth table builder ---------- */
+let tA=true, tB=true;
+const togA=document.getElementById('togA'), togB=document.getElementById('togB'),
+      ttRes=document.getElementById('ttRes'), ttTable=document.getElementById('ttTable');
+function renderTT(){
+  togA.textContent='A = '+(tA?'True':'False'); togA.classList.toggle('on',tA);
+  togB.textContent='B = '+(tB?'True':'False'); togB.classList.toggle('on',tB);
+  const rows=[['A and B',tA&&tB],['A or B',tA||tB],['not A',!tA],['not B',!tB],['A != B',tA!==tB],['not (A and B)',!(tA&&tB)]];
+  ttRes.innerHTML=rows.map(([e,v])=>
+    `<div class="r"><div class="x">${e}</div><div class="y ${v?'T':'F'}">${v?'True':'False'}</div></div>`).join('');
+  ttTable.querySelectorAll('tbody tr').forEach(tr=>{
+    tr.classList.toggle('hot', tr.dataset.a===(tA?'1':'0') && tr.dataset.b===(tB?'1':'0'));
+  });
+}
+togA.addEventListener('click',()=>{tA=!tA;renderTT();});
+togB.addEventListener('click',()=>{tB=!tB;renderTT();});
+renderTT();
+
+/* ---------- precedence stepper ---------- */
+const STEPS=[
+  {h:'sales &gt;= 10000 and profit &gt; 2000 or region == "West"',
+   c:'sales = 8200, profit = 1900, region = "West". Five operators — arithmetic-level comparisons go first.'},
+  {h:'<mark>sales &gt;= 10000</mark> and profit &gt; 2000 or region == "West"',
+   c:'Comparisons outrank <b>and</b> and <b>or</b>. 8200 &gt;= 10000 → <b>False</b>'},
+  {h:'False and <mark>profit &gt; 2000</mark> or region == "West"',
+   c:'Next comparison. 1900 &gt; 2000 → <b>False</b>'},
+  {h:'False and False or <mark>region == "West"</mark>',
+   c:'Last comparison. "West" == "West" → <b>True</b>'},
+  {h:'<mark>False and False</mark> or True',
+   c:'Now the logic. <b>and</b> binds tighter than <b>or</b>, so it groups first → <b>False</b>'},
+  {h:'<mark>False or True</mark>',
+   c:'Finally <b>or</b>. One true operand is enough → <b>True</b>'},
+  {h:'<mark>True</mark>',
+   c:'This rep qualifies — but only because <b>or</b> was left unparenthesised. Was that the intended rule?'}
+];
+let si=0;
+const sl1=document.getElementById('sl1'),sc1=document.getElementById('sc1'),ct1=document.getElementById('ct1'),
+      pv1=document.getElementById('prev1'),nx1=document.getElementById('next1');
+function drawStep(){
+  sl1.innerHTML=STEPS[si].h; sc1.innerHTML=STEPS[si].c;
+  ct1.textContent=(si+1)+' / '+STEPS.length;
+  pv1.disabled=si===0; nx1.disabled=si===STEPS.length-1;
+}
+pv1.addEventListener('click',()=>{if(si>0){si--;drawStep();}});
+nx1.addEventListener('click',()=>{if(si<STEPS.length-1){si++;drawStep();}});
+drawStep();
+
+/* ---------- short circuit demo ---------- */
+const scA=document.getElementById('scA'), scB=document.getElementById('scB'), scTrace=document.getElementById('scTrace');
+function drawSC(rev){
+  scA.classList.toggle('on',rev===0); scB.classList.toggle('on',rev!==0);
+  const first = rev!==0;
+  let html = `revenue = ${rev}, profit = 8000<br><br>`;
+  html += `revenue != 0 and profit / revenue &gt; 0.2<br><br>`;
+  html += `1. <span>revenue != 0</span> → <span class="${first?'ok':'no'}">${first?'True':'False'}</span><br>`;
+  if(first){
+    const v = 8000/rev;
+    html += `2. <span>profit / revenue &gt; 0.2</span> → ${v.toFixed(2)} &gt; 0.2 → <span class="${v>0.2?'ok':'no'}">${v>0.2?'True':'False'}</span><br><br>`;
+    html += `Result: <span class="${v>0.2?'ok':'no'}">${v>0.2?'True':'False'}</span>`;
+  } else {
+    html += `2. <span class="skip">profit / revenue &gt; 0.2</span> &nbsp;never evaluated — the division that would crash is skipped<br><br>`;
+    html += `Result: <span class="no">False</span>`;
+  }
+  scTrace.innerHTML = html;
+}
+scA.addEventListener('click',()=>drawSC(0));
+scB.addEventListener('click',()=>drawSC(40000));
+drawSC(0);
+
+/* ---------- quizzes ---------- */
+const QUIZ={
+ q_bool:{title:'Check yourself',items:[
+  {q:'What is the value and type of <code>12500 >= 10000</code>?',
+   o:['<code>1</code>, an int','<code>True</code>, a bool','<code>"True"</code>, a str','<code>12500</code>, an int'],a:1,
+   e:'Comparison operators return a <code>bool</code>. It equals 1 numerically, but its type is <code>bool</code>.'},
+  {q:'What does <code>sum([True, True, False, True])</code> return?',
+   o:['<code>True</code>','<code>4</code>','<code>3</code>','<code>TypeError</code>'],a:2,
+   e:'True counts as 1 and False as 0, so summing a list of Booleans counts the Trues.'}
+ ]},
+ q_cmp:{title:'Check yourself',items:[
+  {q:'A rep sold exactly 10,000. Under the rule <code>sales > 10000</code>, do they qualify?',
+   o:['Yes','No','Only if profit is high','It raises an error'],a:1,
+   e:'<code>></code> is strictly greater than, so the boundary value fails. Use <code>>=</code> if exactly 10,000 should count.'},
+  {q:'What does <code>"10" == 10</code> return?',
+   o:['<code>True</code>','<code>False</code>','<code>TypeError</code>','<code>None</code>'],a:1,
+   e:'A string is never equal to a number. This is why CSV values must be converted before comparison.'},
+  {q:'Which is the clearest way to test whether <code>region</code> is West, East or Central?',
+   o:['<code>region == "West" or "East" or "Central"</code>','<code>region == ["West","East","Central"]</code>','<code>region in ["West","East","Central"]</code>','<code>region != "North"</code>'],a:2,
+   e:'<code>in</code> tests membership. The first option is a classic bug — it is always truthy.'}
+ ]},
+ q_play:{title:'Check yourself',items:[
+  {q:'With sales = 9000 and profit = 3000, what does <code>sales >= 10000 and profit > 2000</code> return?',
+   o:['<code>True</code>','<code>False</code>','<code>3000</code>','An error'],a:1,
+   e:'<code>and</code> requires every part to be true. The first condition fails, so the whole expression is False.'},
+  {q:'Same values. What does <code>sales >= 10000 or profit > 2000</code> return?',
+   o:['<code>True</code>','<code>False</code>','<code>9000</code>','An error'],a:0,
+   e:'<code>or</code> needs only one true operand, and the profit condition holds.'}
+ ]},
+ q_logic:{title:'Check yourself',items:[
+  {q:'"Qualifies unless the order was returned." Which expression captures the second half?',
+   o:['<code>returned</code>','<code>not returned</code>','<code>returned == "no"</code>','<code>not returned == True</code>'],a:1,
+   e:'<code>not returned</code> is True exactly when returned is False. Comparing a Boolean to True adds nothing.'},
+  {q:'Rewrite <code>not (a and b)</code> using De Morgan\'s law.',
+   o:['<code>(not a) and (not b)</code>','<code>(not a) or (not b)</code>','<code>not a or b</code>','<code>a or b</code>'],a:1,
+   e:'"Not both" means "at least one is missing", so the <code>and</code> becomes an <code>or</code> and each part is negated.'},
+  {q:'Which expression is True only when exactly one of A and B is True?',
+   o:['<code>A and B</code>','<code>A or B</code>','<code>A != B</code>','<code>not (A or B)</code>'],a:2,
+   e:'Python has no Boolean xor keyword; <code>!=</code> on two Booleans does exactly that job.'}
+ ]},
+ q_prec:{title:'Check yourself',items:[
+  {q:'How does Python group <code>a and b or c</code>?',
+   o:['<code>a and (b or c)</code>','<code>(a and b) or c</code>','left to right, so <code>(a and b) or c</code> by accident','It is a syntax error'],a:1,
+   e:'<code>and</code> has higher precedence than <code>or</code>, so it groups first — regardless of reading order.'},
+  {q:'What does <code>2 + 3 > 4</code> evaluate to?',
+   o:['<code>2 + (3 > 4)</code> → <code>2</code>','<code>(2 + 3) > 4</code> → <code>True</code>','A TypeError','<code>5</code>'],a:1,
+   e:'All arithmetic completes before any comparison runs, so 5 > 4 → True.'},
+  {q:'Which expression tests that sales fall between 5,000 and 15,000 inclusive?',
+   o:['<code>5000 < sales < 15000</code>','<code>5000 <= sales <= 15000</code>','<code>sales >= 5000 or sales <= 15000</code>','<code>sales in (5000, 15000)</code>'],a:1,
+   e:'Inclusive needs <code><=</code> on both sides. The <code>or</code> version is true for every number, and <code>in</code> tests only the two exact values.'}
+ ]},
+ q_truthy:{title:'Check yourself',items:[
+  {q:'Which of these is <em>truthy</em>?',
+   o:['<code>0</code>','<code>""</code>','<code>[]</code>','<code>"0"</code>'],a:3,
+   e:'A non-empty string is truthy, even if its contents look like zero. Only the empty string is falsy.'},
+  {q:'<code>discount = 0</code>. What does <code>if discount:</code> do?',
+   o:['Runs the block, since 0 is a value','Skips the block, since 0 is falsy','Raises a TypeError','Depends on the type of discount'],a:1,
+   e:'Zero is falsy, so a genuine 0% discount is treated as missing. Use <code>if discount is not None:</code> when zero is legitimate.'}
+ ]},
+ q_short:{title:'Check yourself',items:[
+  {q:'Why does <code>revenue <code>!= 0</code> and profit / revenue > 0.2</code> not crash when revenue is 0?',
+   o:['Python catches the error automatically','The left operand is False, so the division is never evaluated','Division by zero returns infinity','<code>and</code> evaluates right to left'],a:1,
+   e:'That is short-circuiting: once <code>and</code> sees a false operand the result is settled, so the right side is skipped.'},
+  {q:'What does <code>"" or "Unassigned"</code> return?',
+   o:['<code>True</code>','<code>""</code>','<code>"Unassigned"</code>','<code>False</code>'],a:2,
+   e:'<code>or</code> returns the first truthy operand. The empty string is falsy, so the fallback comes through.'}
+ ]},
+ q_traps:{title:'Check yourself',items:[
+  {q:'<code>quarter = 4</code>. What does <code>quarter == 1 or 2</code> return?',
+   o:['<code>False</code>','<code>True</code>','<code>2</code>','A SyntaxError'],a:1,
+   e:'It groups as <code>(quarter == 1) or 2</code>. Since 2 is truthy, the expression is always True. Use <code>quarter in (1, 2)</code>.'},
+  {q:'Which is the correct way to test for a missing value?',
+   o:['<code>value == None</code>','<code>value is None</code>','<code>value = None</code>','<code>not value</code>'],a:1,
+   e:'<code>is None</code> is the idiomatic identity test. <code>not value</code> is wrong here because 0 and "" would also pass.'},
+  {q:'Two lists have identical contents. What does <code>a is b</code> return?',
+   o:['<code>True</code>','<code>False</code>','Depends on the contents','A TypeError'],a:1,
+   e:'<code>is</code> asks whether they are the same object in memory. Equal contents make <code>==</code> True, not <code>is</code>.'}
+ ]},
+ q_lab:{title:'Check yourself',items:[
+  {q:'In the lab, why does Cruz not qualify despite selling 15,100?',
+   o:['The region is wrong','Profit is 1800, which fails <code>profit > 2000</code>, and the order was returned','The amount is too high','Booleans cannot be combined with <code>and</code>'],a:1,
+   e:'Two conditions fail. With <code>and</code>, one failure is enough to disqualify the record.'},
+  {q:'What does <code>sum(s["amount"] >= 10000 for s in sales)</code> produce?',
+   o:['The total of all amounts','A list of Booleans','A count of records meeting the condition','<code>True</code>'],a:2,
+   e:'Each comparison yields True (1) or False (0), so summing them counts the matches — the standard counting idiom.'}
+ ]},
+ q_final:{title:'Final check — six questions',items:[
+  {q:'<code>7 != 7.0</code> evaluates to…',o:['<code>True</code>','<code>False</code>','A TypeError','<code>0</code>'],a:1,
+   e:'int and float compare by numeric value, so 7 and 7.0 are equal and <code>!=</code> is False.'},
+  {q:'<code>not (True and False)</code> evaluates to…',o:['<code>True</code>','<code>False</code>','<code>None</code>','An error'],a:0,
+   e:'<code>True and False</code> is False; <code>not</code> flips it to True.'},
+  {q:'<code>False or 5 > 3</code> evaluates to…',o:['<code>False</code>','<code>True</code>','<code>5</code>','A SyntaxError'],a:1,
+   e:'Comparisons run before <code>or</code>, so this is <code>False or True</code> → True.'},
+  {q:'Which condition keeps only West-region records over 10,000 that were not returned?',
+   o:['<code>region == "West" or amount > 10000 or not returned</code>','<code>region == "West" and amount > 10000 and not returned</code>','<code>region == "West" and amount > 10000 or not returned</code>','<code>not (region == "West" and amount > 10000)</code>'],a:1,
+   e:'All three requirements must hold at once, so they are joined with <code>and</code>.'},
+  {q:'<code>bool([])</code> returns…',o:['<code>True</code>','<code>False</code>','<code>[]</code>','<code>0</code>'],a:1,
+   e:'An empty list is falsy. Any non-empty list is truthy.'},
+  {q:'Which pair of operators has the lower precedence?',
+   o:['<code>and</code> is lower than <code>or</code>','<code>or</code> is lower than <code>and</code>','They are equal','<code>not</code> is lowest'],a:1,
+   e:'The order is <code>not</code>, then <code>and</code>, then <code>or</code>. <code>or</code> is evaluated last, which is why unparenthesised mixes surprise people.'}
+ ]}
+};
+
+document.querySelectorAll('.quiz').forEach(box=>{
+  const data=QUIZ[box.dataset.quiz]; if(!data) return;
+  let html='<div class="qh">'+data.title+'</div>';
+  data.items.forEach((it,qi)=>{
+    html+='<div class="qitem" data-a="'+it.a+'" style="margin-bottom:1.2rem">';
+    html+='<p class="qq">'+(data.items.length>1?(qi+1)+'. ':'')+it.q+'</p>';
+    it.o.forEach((op,oi)=>{html+='<button class="opt" data-i="'+oi+'">'+op+'</button>';});
+    html+='<div class="fb"></div></div>';
+  });
+  box.innerHTML=html;
+  const items=[...box.querySelectorAll('.qitem')];
+  items.forEach((item,idx)=>{
+    const ans=parseInt(item.dataset.a,10), fb=item.querySelector('.fb');
+    item.querySelectorAll('.opt').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const pick=parseInt(btn.dataset.i,10);
+        item.querySelectorAll('.opt').forEach((b,i)=>{b.disabled=true; if(i===ans) b.classList.add('right');});
+        if(pick!==ans) btn.classList.add('wrong');
+        fb.classList.add('show'); fb.classList.toggle('no',pick!==ans);
+        fb.innerHTML='<b>'+(pick===ans?'Correct.':'Not quite.')+'</b> '+data.items[idx].e;
+      });
+    });
+  });
+});
+
+/* ---------- flip cards ---------- */
+const CARDS=[
+  ['sales &gt;= 10000','True when sales is 10000 or more — boundary passes'],
+  ['sales &gt; 10000','False at exactly 10000 — boundary fails'],
+  ['a and b','True only when both are True'],
+  ['a or b','True when at least one is True'],
+  ['not a','Flips True to False and back'],
+  ['a and b or c','Groups as (a and b) or c'],
+  ['x == 1 or 2','Always True — use x in (1, 2)'],
+  ['bool([])','False — empty things are falsy'],
+  ['value is None','The correct test for a missing value'],
+  ['sum(flags)','Counts the True values in a list']
+];
+document.getElementById('flipcards').innerHTML=CARDS.map(c=>
+  `<div class="flip"><div class="in">
+     <div class="f"><span>${c[0]}</span><span class="hint">tap</span></div>
+     <div class="b"><span>${c[1]}</span></div>
+   </div></div>`).join('');
+document.querySelectorAll('.flip').forEach(f=>{
+  f.setAttribute('tabindex','0');
+  const t=()=>f.classList.toggle('on');
+  f.addEventListener('click',t);
+  f.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();t();}});
+});
+
+/* ---------- progress + nav ---------- */
+const bar=document.getElementById('progress');
+const links=[...document.querySelectorAll('nav.toc a')];
+const secs=links.map(a=>document.querySelector(a.getAttribute('href')));
+function onScroll(){
+  const h=document.documentElement;
+  bar.style.width=Math.min(100,(h.scrollTop/(h.scrollHeight-h.clientHeight||1))*100)+'%';
+  let active=0;
+  secs.forEach((s,i)=>{if(s&&s.getBoundingClientRect().top<window.innerHeight*0.35) active=i;});
+  links.forEach((a,i)=>a.classList.toggle('on',i===active));
+}
+window.addEventListener('scroll',onScroll,{passive:true});
+onScroll();
+</script>
+</body>
+</html>
