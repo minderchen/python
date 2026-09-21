@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Method Chaining in Python | Python for Business Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eaf0f7; --grid:rgba(20,70,130,.07); --panel:#ffffff; --panel2:#f4f7fb; --line:#cad6e4;
+  --ink:#10233a; --muted:#566b84; --amber:#a86a00; --amber-bg:rgba(245,184,61,.22);
+  --cyan:#077e8c; --cyan-bg:rgba(79,209,224,.16); --coral:#c93b2f; --coral-bg:rgba(255,122,107,.16);
+  --code-bg:#0f2036; --code-ink:#dfe8f2; --code-muted:#6f86a1; --code-str:#f5b83d; --code-fn:#4fd1e0; --code-num:#ff9c8f; --code-kw:#c9a6ff;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c1a2c; --grid:rgba(79,209,224,.06); --panel:#12243b; --panel2:#0f2034; --line:#23405f;
+    --ink:#e4ecf5; --muted:#8fa5bf; --amber:#f5b83d; --amber-bg:rgba(245,184,61,.14);
+    --cyan:#4fd1e0; --cyan-bg:rgba(79,209,224,.12); --coral:#ff7a6b; --coral-bg:rgba(255,122,107,.13);
+    --code-bg:#081322;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0c1a2c; --grid:rgba(79,209,224,.06); --panel:#12243b; --panel2:#0f2034; --line:#23405f;
+  --ink:#e4ecf5; --muted:#8fa5bf; --amber:#f5b83d; --amber-bg:rgba(245,184,61,.14);
+  --cyan:#4fd1e0; --cyan-bg:rgba(79,209,224,.12); --coral:#ff7a6b; --coral-bg:rgba(255,122,107,.13);
+  --code-bg:#081322;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-behavior:smooth; scroll-padding-top:calc(env(safe-area-inset-top,0px) + 16px)}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto} *{animation:none!important; transition:none!important}}
+body{
+  margin:0; background-color:var(--bg); color:var(--ink); font-family:var(--sans); font-size:17px; line-height:1.6;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;
+}
+code,pre,.mono{font-family:var(--mono)}
+p code, li code, td code, .inline-code{background:var(--panel2); border:1px solid var(--line); border-radius:4px; padding:.05em .35em; font-size:.88em}
+a{color:var(--cyan)}
+button{font:inherit; cursor:pointer}
+:focus-visible{outline:2px solid var(--amber); outline-offset:2px}
+
+/* layout */
+.shell{display:grid; grid-template-columns:230px minmax(0,1fr); gap:40px; max-width:1180px; margin:0 auto; padding:32px 24px 80px}
+nav.side{position:sticky; top:calc(env(safe-area-inset-top,0px) + 24px); align-self:start}
+.side .series{font-size:.8rem; color:var(--muted); margin:0 0 4px}
+.side .ttl{font-weight:600; margin:0 0 18px; line-height:1.3}
+.side ol{list-style:none; margin:0; padding:0; border-left:2px solid var(--line)}
+.side li a{display:flex; gap:10px; align-items:baseline; padding:6px 0 6px 14px; margin-left:-2px; border-left:2px solid transparent; color:var(--muted); text-decoration:none; font-size:.93rem}
+.side li a .k{font-family:var(--mono); font-size:.75rem; width:34px; flex:none}
+.side li a.on{color:var(--ink); border-left-color:var(--amber)}
+.side li a.on .k{color:var(--amber)}
+.side li a.seen:not(.on) .k{color:var(--cyan)}
+.progress{margin-top:18px; height:4px; background:var(--line); border-radius:2px; overflow:hidden}
+.progress span{display:block; height:100%; width:0; background:var(--amber); transition:width .2s}
+.progress-lbl{font-size:.8rem; color:var(--muted); margin-top:6px}
+.theme-btn{margin-top:18px; background:none; border:1px solid var(--line); color:var(--muted); border-radius:6px; padding:5px 10px; font-size:.82rem}
+main{min-width:0; max-width:820px}
+
+/* hero */
+.hero{padding:8px 0 40px}
+.hero .series{color:var(--muted); font-size:.9rem; margin:0}
+.hero h1{font-size:clamp(1.9rem,4.4vw,2.6rem); line-height:1.08; letter-spacing:-.02em; margin:.2em 0 .35em; font-weight:700}
+.hero .lede{font-size:1.12rem; color:var(--muted); max-width:62ch; margin:0 0 28px}
+.hero-chain{background:var(--code-bg); border-radius:10px; padding:26px 22px 20px; overflow-x:auto}
+.hc-row{display:grid; grid-template-columns:max-content max-content; column-gap:28px; row-gap:2px; font-family:var(--mono); font-size:.98rem}
+.hc-seg,.hc-frame{display:contents}
+.hc-frame .c{color:var(--code-ink); white-space:pre; padding:3px 10px; border-left:3px solid transparent}
+.hc-frame .c .m{color:var(--code-fn)}
+.hc-seg .c{color:var(--code-ink); white-space:pre; padding:3px 10px; border-left:3px solid transparent; transition:border-color .35s, background .35s}
+.hc-seg .c .m{color:var(--code-fn)}
+.hc-seg .c .s{color:var(--code-str)}
+.hc-seg .c .n{color:var(--code-num)}
+.hc-seg .c .kw{color:var(--code-kw)}
+.hc-seg .t{align-self:center; font-size:.78rem; color:var(--code-muted); white-space:nowrap; opacity:0; transform:translateX(-6px); transition:opacity .35s, transform .35s, color .35s}
+.hc-seg.lit .t{opacity:1; transform:none}
+.hc-seg.lit.cur .c{border-left-color:#f5b83d; background:rgba(245,184,61,.12)}
+.hc-seg.lit.cur .t{color:#f5b83d}
+.hc-foot{margin:14px 0 0; color:var(--code-muted); font-size:.85rem; font-family:var(--sans)}
+.hc-foot button{background:none; border:1px solid #2a4a6c; color:#9fb4cc; border-radius:5px; padding:2px 10px; font-size:.8rem; margin-left:6px}
+
+/* sections */
+section.block{padding:44px 0 12px; border-top:1px solid var(--line)}
+.sec-head{display:flex; align-items:center; gap:12px; margin-bottom:6px}
+.badge{font-family:var(--mono); font-size:.78rem; font-weight:600; padding:3px 10px; border-radius:20px; border:1.5px solid}
+.badge.what{color:var(--cyan); border-color:var(--cyan); background:var(--cyan-bg)}
+.badge.why{color:var(--coral); border-color:var(--coral); background:var(--coral-bg)}
+.badge.how{color:var(--amber); border-color:var(--amber); background:var(--amber-bg)}
+.badge.chk{color:var(--muted); border-color:var(--line)}
+h2{font-size:1.75rem; line-height:1.2; letter-spacing:-.01em; margin:.3em 0 .5em}
+h3{font-size:1.15rem; margin:1.8em 0 .5em}
+p{max-width:68ch}
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:20px}
+.key{border-left:4px solid var(--amber); background:var(--amber-bg); padding:14px 18px; border-radius:0 8px 8px 0; margin:22px 0; max-width:68ch}
+.key p{margin:0}
+.key.cyan{border-color:var(--cyan); background:var(--cyan-bg)}
+
+/* code blocks */
+pre.code{background:var(--code-bg); color:var(--code-ink); border-radius:8px; padding:16px 18px; overflow-x:auto; font-size:.9rem; line-height:1.65; margin:0}
+pre.code .m{color:var(--code-fn)} pre.code .s{color:var(--code-str)} pre.code .n{color:var(--code-num)} pre.code .kw{color:var(--code-kw)} pre.code .cm{color:var(--code-muted); font-style:italic}
+pre.out{background:var(--panel2); border:1px dashed var(--line); color:var(--ink); border-radius:8px; padding:14px 16px; overflow-x:auto; font-size:.85rem; margin:0}
+pre.out.err{color:var(--coral); border-color:var(--coral)}
+.reveal-btn{margin-top:10px; background:none; border:1px solid var(--line); color:var(--ink); padding:6px 14px; border-radius:6px; font-size:.88rem}
+.reveal-btn[aria-expanded="true"]{border-color:var(--cyan); color:var(--cyan)}
+.reveal{display:none; margin-top:10px}
+.reveal.open{display:block}
+
+/* string relay (What) */
+.srelay{display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:16px 0}
+.sbox{font-family:var(--mono); font-size:.9rem; padding:8px 12px; border-radius:6px; border:1.5px solid var(--line); background:var(--panel2); white-space:pre; transition:border-color .25s, background .25s, opacity .25s}
+.sbox.dim{opacity:.35}
+.sbox.cur{border-color:var(--amber); background:var(--amber-bg)}
+.sarrow{font-family:var(--mono); font-size:.78rem; color:var(--muted); display:flex; flex-direction:column; align-items:center; line-height:1.2; transition:opacity .25s}
+.sarrow.dim{opacity:.3}
+.sarrow b{color:var(--cyan); font-weight:500}
+.ctrl{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.btn{border:1px solid var(--line); background:var(--panel); color:var(--ink); padding:7px 14px; border-radius:6px; font-size:.9rem}
+.btn.primary{background:var(--amber); border-color:var(--amber); color:#1a1200; font-weight:600}
+.btn:disabled{opacity:.4; cursor:default}
+.hint{color:var(--muted); font-size:.9rem}
+
+/* anatomy svg */
+.anat{width:100%; height:auto; display:block}
+.anat-wrap{overflow-x:auto; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:10px}
+
+/* why compare */
+.compare{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0}
+.compare h4{margin:0 0 8px; font-size:.95rem}
+.compare .tag{font-size:.8rem; color:var(--muted); font-weight:400}
+.reasons{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:18px 0}
+.reason{border-top:3px solid var(--cyan); padding-top:10px}
+.reason h4{margin:0 0 4px; font-size:1rem}
+.reason p{margin:0; font-size:.93rem; color:var(--muted)}
+.reason.trade{border-color:var(--coral)}
+
+/* stepper */
+.tabs{display:flex; gap:6px; margin:14px 0; flex-wrap:wrap}
+.tab{border:1px solid var(--line); background:var(--panel); color:var(--muted); border-radius:6px; padding:6px 14px; font-size:.9rem}
+.tab[aria-selected="true"]{color:var(--ink); border-color:var(--amber); box-shadow:inset 0 -2px 0 var(--amber)}
+.stepper{background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden}
+.st-top{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); border-bottom:1px solid var(--line)}
+.st-code{background:var(--code-bg); padding:16px 0; font-family:var(--mono); font-size:.88rem; overflow-x:auto}
+.cl{white-space:pre; padding:1px 18px; color:var(--code-muted); border-left:3px solid transparent; transition:background .2s, color .2s}
+.cl.done{color:#7fbfc9}
+.cl.done .m{color:#4fd1e0}
+.cl.cur{background:rgba(245,184,61,.14); border-left-color:#f5b83d; color:var(--code-ink)}
+.cl.cur .m{color:var(--code-fn)} .cl.cur .s{color:var(--code-str)} .cl.cur .n{color:var(--code-num)} .cl.cur .kw{color:var(--code-kw)}
+.cl.frame{color:var(--code-ink)}
+.st-explain{padding:16px 18px}
+.st-explain .stepno{font-size:.82rem; color:var(--muted)}
+.st-explain .evalnow{margin:8px 0 10px; font-family:var(--mono); font-size:.85rem; line-height:2; word-break:break-word}
+.pill{display:inline-block; background:var(--cyan-bg); border:1.5px solid var(--cyan); color:var(--cyan); border-radius:5px; padding:0 7px; line-height:1.6; font-size:.8rem; white-space:nowrap}
+.evalnow .meth{color:var(--amber); font-weight:600}
+.st-explain p{margin:0; font-size:.93rem}
+.relay{display:flex; align-items:stretch; overflow-x:auto; padding:16px 18px; gap:0; border-bottom:1px solid var(--line); background:var(--panel2)}
+.chip{flex:none; border:1.5px solid var(--line); border-radius:8px; padding:7px 10px; background:var(--panel); min-width:104px; transition:border-color .2s, opacity .2s}
+.chip .cm{font-family:var(--mono); font-size:.74rem; color:var(--muted); white-space:nowrap}
+.chip .ct{font-weight:600; font-size:.84rem; white-space:nowrap}
+.chip .cs{font-size:.76rem; color:var(--muted); white-space:nowrap}
+.chip.future{opacity:.35}
+.chip.done{border-color:var(--cyan)}
+.chip.cur{border-color:var(--amber); background:var(--amber-bg)}
+.hand{flex:none; display:flex; align-items:center; padding:0 4px}
+.hand svg{display:block}
+.hand.future{opacity:.3}
+.st-io{display:grid; grid-template-columns:1fr 1fr; gap:0}
+.io{padding:14px 18px; min-width:0}
+.io + .io{border-left:1px solid var(--line)}
+.io h4{margin:0 0 2px; font-size:.95rem}
+.io .sub{font-size:.8rem; color:var(--muted); margin:0 0 10px}
+.io.ret h4{color:var(--amber)}
+.st-ctrl{display:flex; justify-content:space-between; align-items:center; padding:12px 18px; border-top:1px solid var(--line); gap:10px; flex-wrap:wrap}
+.dots{display:flex; gap:6px}
+.dots span{width:9px; height:9px; border-radius:50%; background:var(--line)}
+.dots span.on{background:var(--amber)}
+.dots span.done{background:var(--cyan)}
+
+/* dataframe tables */
+.dfwrap{overflow-x:auto}
+table.df{border-collapse:collapse; font-family:var(--mono); font-size:.78rem; width:100%}
+table.df th, table.df td{padding:4px 8px; text-align:right; border-bottom:1px solid var(--line); white-space:nowrap}
+table.df th{color:var(--muted); font-weight:500}
+table.df td.ix{color:var(--muted); font-weight:600; text-align:left}
+table.df tr.gone td{color:var(--coral); text-decoration:line-through; background:var(--coral-bg)}
+table.df tr.new td{animation:flash .9s ease-out}
+@keyframes flash{from{background:var(--amber-bg)} to{background:transparent}}
+table.df td.nan{color:var(--coral); font-style:italic}
+.grp{border:1px solid var(--line); border-radius:6px; margin-bottom:8px; overflow:hidden}
+.grp .gh{font-family:var(--mono); font-size:.76rem; padding:3px 8px; background:var(--panel2); color:var(--cyan); border-bottom:1px solid var(--line)}
+.meta{font-family:var(--mono); font-size:.74rem; color:var(--muted); margin-top:6px}
+
+/* line styles */
+.style-grid{display:grid; grid-template-columns:1fr; gap:10px}
+.morph{position:relative}
+.morph pre.code{min-height:3.5em}
+.rules{margin:10px 0 0; padding-left:1.2em; max-width:68ch}
+.rules li{margin:6px 0}
+.verdict{display:inline-block; font-size:.8rem; padding:1px 8px; border-radius:4px; margin-left:6px; font-weight:600}
+.verdict.good{background:var(--cyan-bg); color:var(--cyan)}
+.verdict.ok{background:var(--amber-bg); color:var(--amber)}
+.verdict.bad{background:var(--coral-bg); color:var(--coral)}
+
+/* accordion */
+details.acc{border:1px solid var(--line); border-radius:8px; background:var(--panel); margin:10px 0}
+details.acc summary{cursor:pointer; padding:12px 16px; font-weight:600; list-style:none; display:flex; justify-content:space-between; gap:12px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary::after{content:"+"; font-family:var(--mono); color:var(--muted)}
+details.acc[open] summary::after{content:"-"}
+details.acc .body{padding:0 16px 16px}
+details.acc .body p{font-size:.95rem}
+
+/* builder */
+.builder{display:grid; grid-template-columns:260px minmax(0,1fr); gap:18px}
+.palette{display:flex; flex-direction:column; gap:6px}
+.palette button{text-align:left; font-family:var(--mono); font-size:.8rem; background:var(--panel); border:1px dashed var(--line); color:var(--ink); padding:8px 10px; border-radius:6px}
+.palette button:hover{border-color:var(--amber)}
+.palette button:disabled{opacity:.4; cursor:default}
+.chainlist{list-style:none; margin:0 0 10px; padding:0}
+.chainlist li{display:flex; align-items:center; gap:8px; padding:6px 8px; border:1px solid var(--line); border-radius:6px; margin-bottom:5px; background:var(--panel)}
+.chainlist li .n{font-family:var(--mono); font-size:.72rem; color:var(--muted); width:18px}
+.chainlist li code{flex:1; font-size:.8rem; overflow-wrap:anywhere}
+.chainlist li .rt{font-size:.72rem; color:var(--cyan); white-space:nowrap}
+.chainlist li button{background:none; border:1px solid var(--line); color:var(--muted); border-radius:4px; padding:0 6px; font-size:.8rem; line-height:1.5}
+.empty{color:var(--muted); font-size:.9rem; border:1px dashed var(--line); padding:12px; border-radius:6px; margin-bottom:10px}
+.seg{display:inline-flex; border:1px solid var(--line); border-radius:6px; overflow:hidden; margin:6px 0 8px}
+.seg button{border:0; background:var(--panel); color:var(--muted); padding:4px 12px; font-size:.82rem}
+.seg button[aria-pressed="true"]{background:var(--amber-bg); color:var(--ink)}
+
+/* quiz + cards */
+.q{margin:0 0 18px}
+.q .qt{font-weight:600; margin:0 0 8px}
+.opts{display:grid; gap:6px}
+.opt{text-align:left; background:var(--panel); border:1.5px solid var(--line); color:var(--ink); border-radius:6px; padding:8px 12px; font-size:.93rem}
+.opt code{font-size:.85em}
+.opt.right{border-color:var(--cyan); background:var(--cyan-bg)}
+.opt.wrong{border-color:var(--coral); background:var(--coral-bg)}
+.fb{font-size:.9rem; margin-top:8px; display:none}
+.fb.show{display:block}
+.score{font-weight:600}
+.cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px; margin-top:12px}
+.card{perspective:800px; height:170px; background:none; border:0; padding:0; text-align:left; color:var(--ink)}
+.card .in{position:relative; width:100%; height:100%; transition:transform .45s; transform-style:preserve-3d}
+.card.flip .in{transform:rotateY(180deg)}
+.card .f,.card .b{position:absolute; inset:0; backface-visibility:hidden; border-radius:10px; padding:14px; display:flex; flex-direction:column; justify-content:center; border:1px solid var(--line)}
+.card .f{background:var(--panel); font-weight:600; font-size:1.02rem}
+.card .f small{font-weight:400; color:var(--muted); font-size:.78rem; margin-top:8px}
+.card .b{background:var(--panel2); transform:rotateY(180deg); font-size:.88rem; border-color:var(--amber)}
+footer{margin-top:50px; color:var(--muted); font-size:.85rem; border-top:1px solid var(--line); padding-top:18px}
+
+@media (max-width:900px){
+  .hc-row{grid-template-columns:max-content; font-size:.88rem}
+  .hc-row .hc-frame span:empty{display:none}
+  .hc-seg .t{padding:0 0 6px 46px; font-size:.74rem}
+  .hero-chain{padding:18px 12px}
+  .shell{grid-template-columns:1fr; gap:0; padding:0 16px 60px}
+  nav.side{position:sticky; top:0; z-index:5; background:var(--bg); padding:calc(env(safe-area-inset-top,0px) + 8px) 0 8px; margin:0 -16px 16px; padding-left:16px; padding-right:16px; border-bottom:1px solid var(--line); overflow-x:auto}
+  .side .series,.side .ttl,.progress-lbl,.theme-btn{display:none}
+  .side ol{display:flex; border-left:0; gap:4px; width:max-content}
+  .side li a{border-left:0; border-bottom:2px solid transparent; padding:4px 8px; margin:0; white-space:nowrap}
+  .side li a.on{border-bottom-color:var(--amber)}
+  .progress{margin-top:6px}
+  .st-top,.st-io,.compare,.builder{grid-template-columns:1fr}
+  .io + .io{border-left:0; border-top:1px solid var(--line)}
+  .reasons{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+<nav class="side" aria-label="Tutorial sections">
+  <p class="series">Python for Business Analytics</p>
+  <p class="ttl">Method chaining</p>
+  <ol id="navlist">
+    <li><a href="#what"><span class="k">What</span>Passing the result along</a></li>
+    <li><a href="#why"><span class="k">Why</span>Fewer throwaway variables</a></li>
+    <li><a href="#step"><span class="k">How</span>Step through a chain</a></li>
+    <li><a href="#lines"><span class="k">How</span>One line or many</a></li>
+    <li><a href="#pitfalls"><span class="k">How</span>When a chain breaks</a></li>
+    <li><a href="#build"><span class="k">Try</span>Build your own chain</a></li>
+    <li><a href="#check"><span class="k">Check</span>Quiz and recall</a></li>
+  </ol>
+  <div class="progress" aria-hidden="true"><span id="prog"></span></div>
+  <div class="progress-lbl" id="proglbl">0% read</div>
+  <button class="theme-btn" id="themeBtn" type="button">Switch light/dark</button>
+</nav>
+
+<main>
+<header class="hero">
+  <p class="series">Python for Business Analytics: pandas processes</p>
+  <h1>Method chaining: each method works on the result of the one before it</h1>
+  <p class="lede">Read a chain left to right. Every <code class="inline-code">.method()</code> returns a new object, and the next dot calls a method on that returned object, not on the original data.</p>
+  <div class="hero-chain" aria-label="Example chain with the type returned at each step">
+    <div class="hc-row" id="heroRow"></div>
+    <p class="hc-foot">Beside each line: the object it hands to the next line. <button type="button" id="heroReplay">Replay</button></p>
+  </div>
+</header>
+
+<!-- WHAT -->
+<section class="block" id="what">
+  <div class="sec-head"><span class="badge what">What</span></div>
+  <h2>A chain is a relay: the return value is the baton</h2>
+  <p><strong>Method chaining</strong> means calling several methods one after another in a single expression, joined by dots. It works because each method <em>returns</em> an object, and Python immediately calls the next method on that returned object.</p>
+  <p>In the series framework, <em>Application = Data + Process + UI</em>, a chain is the <strong>Process</strong> part written as a pipeline: data goes in on the left, and each method transforms it one step further.</p>
+
+  <h3>Warm-up with a string you already know</h3>
+  <p>A messy region label from a CSV export needs cleaning. Press <em>Run next method</em> and watch what each method receives and what it gives back.</p>
+  <pre class="code" id="strCode"></pre>
+  <div class="srelay" id="srelay" aria-live="polite"></div>
+  <div class="ctrl">
+    <button class="btn primary" id="sNext" type="button">Run next method</button>
+    <button class="btn" id="sReset" type="button">Start over</button>
+    <span class="hint" id="sHint"></span>
+  </div>
+
+  <div class="key"><p>Each dot is applied to <strong>the value returned by everything to its left</strong>. <code>.title()</code> never sees the original text with spaces; it only sees what <code>.strip()</code> handed it.</p></div>
+
+  <h3>How Python groups a DataFrame chain</h3>
+  <p>The same rule works for a pandas DataFrame. Python evaluates the innermost, leftmost piece first, then wraps the next method around its result.</p>
+  <div class="anat-wrap">
+  <svg class="anat" viewBox="0 0 640 210" role="img" aria-label="sales.dropna() is evaluated first and returns a DataFrame; .head(3) is then called on that DataFrame and returns a smaller DataFrame">
+    <style>
+      .t1{font-family:"IBM Plex Mono",monospace; font-size:22px; fill:var(--ink)}
+      .t1 .m{fill:var(--cyan)} .t1 .n{fill:var(--coral)}
+      .lb{font-family:"IBM Plex Sans",sans-serif; font-size:13px; fill:var(--muted)}
+      .lbs{font-family:"IBM Plex Sans",sans-serif; font-size:13px; font-weight:600}
+    </style>
+    <text x="40" y="52" class="t1">sales<tspan class="m">.dropna()</tspan><tspan class="m">.head</tspan>(<tspan class="n">3</tspan>)</text>
+    <!-- step 1 bracket -->
+    <path d="M40 66 v10 h197 v-10" fill="none" stroke="var(--cyan)" stroke-width="2"/>
+    <line x1="138" y1="76" x2="138" y2="100" stroke="var(--cyan)" stroke-width="2"/>
+    <rect x="58" y="100" width="160" height="30" rx="5" fill="var(--cyan-bg)" stroke="var(--cyan)" stroke-width="1.5"/>
+    <text x="138" y="120" text-anchor="middle" class="lbs" fill="var(--cyan)">DataFrame (7 rows)</text>
+    <text x="138" y="148" text-anchor="middle" class="lb">1. evaluated first</text>
+    <!-- step 2 bracket -->
+    <path d="M40 66 v34" fill="none" stroke="transparent"/>
+    <path d="M36 160 v12 h298 v-12" fill="none" stroke="var(--amber)" stroke-width="2"/>
+    <path d="M218 115 C 290 115, 300 90, 300 66" fill="none" stroke="var(--amber)" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#arA)"/>
+    <line x1="185" y1="172" x2="185" y2="188" stroke="var(--amber)" stroke-width="2"/>
+    <text x="345" y="44" class="lb">2. .head(3) is called on</text>
+    <text x="345" y="61" class="lb">the returned DataFrame</text>
+    <text x="185" y="205" text-anchor="middle" class="lbs" fill="var(--amber)">returns DataFrame (3 rows)</text>
+    <defs><marker id="arA" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--amber)"/></marker></defs>
+  </svg>
+  </div>
+  <p class="hint">Written out with brackets, Python reads it as <code>(sales.dropna()).head(3)</code>.</p>
+</section>
+
+<!-- WHY -->
+<section class="block" id="why">
+  <div class="sec-head"><span class="badge why">Why</span></div>
+  <h2>Why chain instead of saving every step?</h2>
+  <p>Both versions below produce the same top 3 orders over $800. The first stores every in-between result in its own variable. The second passes each result straight to the next method.</p>
+  <div class="compare">
+    <div>
+      <h4>Step by step <span class="tag">4 extra variables</span></h4>
+      <pre class="code" id="whyA"></pre>
+    </div>
+    <div>
+      <h4>Chained <span class="tag">1 variable</span></h4>
+      <pre class="code" id="whyB"></pre>
+    </div>
+  </div>
+  <button class="reveal-btn" type="button" data-reveal="whyOut" aria-expanded="false">Show output of both</button>
+  <div class="reveal" id="whyOut">
+    <pre class="out">   order_id region  product  revenue
+0       101   West   Laptop   3600.0
+7       108   East   Laptop   2400.0
+1       102   East  Monitor   1250.0</pre>
+    <p class="hint">Identical. The row labels 0, 7, 1 are the original index values from <code>sales</code>; sorting and filtering keep them.</p>
+  </div>
+
+  <div class="reasons">
+    <div class="reason"><h4>Reads like a recipe</h4><p>Top to bottom: clean, filter, sort, take the top 3. The code order matches the order of the business steps.</p></div>
+    <div class="reason"><h4>No clutter</h4><p>Names like <code>step2</code> are easy to mix up. Using <code>step1</code> where you meant <code>step2</code> is a silent bug.</p></div>
+    <div class="reason"><h4>Original data stays safe</h4><p>Each method returns a new object, so <code>sales</code> itself is never changed by the chain.</p></div>
+  </div>
+  <div class="reasons" style="grid-template-columns:1fr">
+    <div class="reason trade"><h4>The trade-off</h4><p>You can't see the middle results as easily. If a long chain gives a surprising answer, cut it short (or comment out the later lines) and look at what comes back. Break a chain into named pieces when you need to reuse a middle result or when it grows past about six or seven steps.</p></div>
+  </div>
+</section>
+
+<!-- HOW: STEPPER -->
+<section class="block" id="step">
+  <div class="sec-head"><span class="badge how">How</span></div>
+  <h2>Step through a chain and follow the returned object</h2>
+  <p>Click <em>Next step</em>. The left table is what the current step <strong>receives</strong>; the right table is what it <strong>returns</strong>. That returned object is exactly what the next line receives.</p>
+  <div class="tabs" role="tablist" aria-label="Choose a chain">
+    <button class="tab" role="tab" aria-selected="true" data-chain="A" type="button">Filter and rank orders</button>
+    <button class="tab" role="tab" aria-selected="false" data-chain="B" type="button">Total revenue by region</button>
+  </div>
+  <div class="stepper" id="stepper">
+    <div class="st-top">
+      <div class="st-code" id="stCode"></div>
+      <div class="st-explain">
+        <div class="stepno" id="stNo"></div>
+        <div class="evalnow" id="stEval" aria-live="polite"></div>
+        <p id="stNote"></p>
+      </div>
+    </div>
+    <div class="relay" id="stRelay"></div>
+    <div class="st-io">
+      <div class="io"><h4>Receives</h4><p class="sub" id="inSub"></p><div id="inView"></div></div>
+      <div class="io ret"><h4>Returns</h4><p class="sub" id="outSub"></p><div id="outView"></div></div>
+    </div>
+    <div class="st-ctrl">
+      <div class="ctrl">
+        <button class="btn" id="stBack" type="button">Back</button>
+        <button class="btn primary" id="stNext" type="button">Next step</button>
+        <button class="btn" id="stReset" type="button">Reset</button>
+      </div>
+      <div class="dots" id="stDots" aria-hidden="true"></div>
+    </div>
+  </div>
+  <div class="key cyan"><p>Watch the type in the second chain. <code>.groupby()</code> does not return a DataFrame, and <code>.sum()</code> turns grouped data into a Series. A method can come next only if it exists on the type that was returned.</p></div>
+</section>
+
+<!-- HOW: LINES -->
+<section class="block" id="lines">
+  <div class="sec-head"><span class="badge how">How</span></div>
+  <h2>Write it on one line or across many</h2>
+  <p>Python does not care how you lay the chain out, as long as it knows the expression is not finished at the end of a line. Toggle the layout to see the same code both ways.</p>
+  <div class="seg" role="group" aria-label="Layout">
+    <button type="button" aria-pressed="true" data-lay="one">Single line</button>
+    <button type="button" aria-pressed="false" data-lay="paren">Multi-line with ( )</button>
+    <button type="button" aria-pressed="false" data-lay="slash">Multi-line with \</button>
+  </div>
+  <div class="morph"><pre class="code" id="layCode"></pre></div>
+  <p id="layNote" class="hint" style="margin-top:10px"></p>
+
+  <h3>Rules for multi-line chains</h3>
+  <ul class="rules">
+    <li><strong>Wrap the whole chain in parentheses.</strong> Inside <code>( )</code>, Python keeps reading until the closing bracket, so line breaks are allowed. <span class="verdict good">Recommended</span></li>
+    <li><strong>Start each line with the dot.</strong> Putting <code>.method()</code> at the start makes each step easy to scan, reorder, or comment out.</li>
+    <li><strong>Comments are fine inside the parentheses</strong>, one per line, to say what each step does.</li>
+    <li><strong>A backslash <code>\</code> also works</strong>, but it must be the very last character on the line. A single space after it is a <code>SyntaxError</code>, and you can't add a comment after it. <span class="verdict ok">Works, but fragile</span></li>
+    <li><strong>No wrapper at all fails.</strong> Python treats the line break as the end of the statement. <span class="verdict bad">Error</span></li>
+  </ul>
+  <button class="reveal-btn" type="button" data-reveal="noParen" aria-expanded="false">Show what happens without parentheses</button>
+  <div class="reveal" id="noParen">
+    <pre class="code" id="noParenCode"></pre>
+    <pre class="out err" style="margin-top:8px">  File "report.py", line 2
+    .dropna()
+    ^
+SyntaxError: invalid syntax</pre>
+    <p class="hint">Python finished the statement at <code>result = sales</code>, then found a line that starts with a dot. If the dot line is indented, the message is <code>IndentationError: unexpected indent</code> instead.</p>
+  </div>
+</section>
+
+<!-- HOW: PITFALLS -->
+<section class="block" id="pitfalls">
+  <div class="sec-head"><span class="badge how">How</span></div>
+  <h2>When a chain breaks, check what was returned</h2>
+  <p>Almost every chain error comes from the same place: the next method does not exist on the object the previous step returned. Open each case to see the error and the fix.</p>
+
+  <details class="acc">
+    <summary>The previous step returned a single number</summary>
+    <div class="body">
+      <pre class="code" data-hl='sales["revenue"].sum().sort_values()'></pre>
+      <pre class="out err" style="margin-top:8px">AttributeError: 'numpy.float64' object has no attribute 'sort_values'</pre>
+      <p><code>.sum()</code> on a column returns one number (a <code>numpy.float64</code>). A number has nothing to sort, so it has no <code>.sort_values()</code> method. Sort before you total, or group first so <code>.sum()</code> returns a Series.</p>
+    </div>
+  </details>
+  <details class="acc">
+    <summary>Using <code>inplace=True</code> in the middle of a chain</summary>
+    <div class="body">
+      <pre class="code" data-hl='sales.dropna(inplace=True).head()'></pre>
+      <pre class="out err" style="margin-top:8px">AttributeError: 'NoneType' object has no attribute 'head'</pre>
+      <p>With <code>inplace=True</code>, pandas changes <code>sales</code> directly and returns <code>None</code>. The chain then tries <code>None.head()</code>. Leave <code>inplace</code> out when chaining; you want the returned object.</p>
+    </div>
+  </details>
+  <details class="acc">
+    <summary>A space after the backslash</summary>
+    <div class="body">
+      <pre class="code">result = sales \&#9251;
+    .dropna()</pre>
+      <pre class="out err" style="margin-top:8px">SyntaxError: unexpected character after line continuation character</pre>
+      <p>The <code>&#9251;</code> marks an invisible trailing space. It's easy to miss and hard to see in an editor, which is why parentheses are the safer choice.</p>
+    </div>
+  </details>
+  <div class="key"><p>Debugging habit: when a chain fails, run it up to the step <em>before</em> the error and check the result with <code>type()</code>. That tells you which methods are allowed next.</p></div>
+</section>
+
+<!-- BUILD -->
+<section class="block" id="build">
+  <div class="sec-head"><span class="badge how">Try</span></div>
+  <h2>Build your own chain</h2>
+  <p>Add methods in any order. The result updates after every change, and you can compare how order matters: <code>.head(3)</code> before sorting gives a different answer than after sorting.</p>
+  <div class="builder">
+    <div>
+      <p class="hint" style="margin:0 0 6px">Add a method</p>
+      <div class="palette" id="palette"></div>
+    </div>
+    <div>
+      <p class="hint" style="margin:0 0 6px">Your chain, starting from <code>sales</code></p>
+      <div id="chainEmpty" class="empty">Add a method to start the chain. Right now <code>result</code> is just <code>sales</code>.</div>
+      <ol class="chainlist" id="chainList"></ol>
+      <div class="seg" role="group" aria-label="Code layout">
+        <button type="button" aria-pressed="false" data-blay="one">Single line</button>
+        <button type="button" aria-pressed="true" data-blay="paren">Multi-line</button>
+      </div>
+      <pre class="code" id="bCode"></pre>
+      <p class="hint" style="margin:12px 0 4px" id="bSub"></p>
+      <div class="dfwrap panel" style="padding:10px" id="bOut"></div>
+    </div>
+  </div>
+</section>
+
+<!-- CHECK -->
+<section class="block" id="check">
+  <div class="sec-head"><span class="badge chk">Check</span></div>
+  <h2>Check your understanding</h2>
+  <div id="quiz"></div>
+  <p class="score" id="score"></p>
+  <h3>Recall cards</h3>
+  <p class="hint">Say the answer out loud, then tap to flip.</p>
+  <div class="cards" id="cards"></div>
+</section>
+
+<footer>Python for Business Analytics tutorial series. All outputs on this page were checked against pandas 3.0 and Python 3.12.</footer>
+</main>
+</div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- helpers ---------- */
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function hl(code){
+  var re=/(#[^\n]*)|("[^"\n]*"|'[^'\n]*')|(\.[A-Za-z_]+)(?=\()|\b(False|True|None)\b|\b(\d+(?:\.\d+)?)\b/g, out="", last=0, m;
+  while((m=re.exec(code))){
+    out+=esc(code.slice(last,m.index));
+    if(m[1]) out+='<span class="cm">'+esc(m[1])+'</span>';
+    else if(m[2]) out+='<span class="s">'+esc(m[2])+'</span>';
+    else if(m[3]) out+='<span class="m">'+esc(m[3])+'</span>';
+    else if(m[4]) out+='<span class="kw">'+esc(m[4])+'</span>';
+    else out+='<span class="n">'+esc(m[5])+'</span>';
+    last=re.lastIndex;
+  }
+  return out+esc(code.slice(last));
+}
+function $(id){return document.getElementById(id);}
+document.querySelectorAll("pre[data-hl]").forEach(function(p){p.innerHTML=hl(p.getAttribute("data-hl"));});
+
+/* ---------- data (verified against pandas) ---------- */
+var BASE=[[0,101,"West","Laptop",3600],[1,102,"East","Monitor",1250],[2,103,"West","Monitor",500],[3,104,"South","Laptop",1200],[4,105,"East","Keyboard",null],[5,106,"West","Keyboard",750],[6,107,"South","Monitor",1000],[7,108,"East","Laptop",2400]]
+  .map(function(r){return {idx:r[0],order_id:r[1],region:r[2],product:r[3],revenue:r[4]};});
+var OPS={
+  dropna:{code:'.dropna()',fn:function(d){return d.filter(function(r){return r.revenue!==null;});}},
+  q800:{code:'.query("revenue > 800")',fn:function(d){return d.filter(function(r){return r.revenue!==null&&r.revenue>800;});}},
+  qeast:{code:'.query("region == \'East\'")',fn:function(d){return d.filter(function(r){return r.region==="East";});}},
+  sort:{code:'.sort_values("revenue", ascending=False)',fn:function(d){var a=d.filter(function(r){return r.revenue!==null;}).sort(function(x,y){return y.revenue-x.revenue;});return a.concat(d.filter(function(r){return r.revenue===null;}));}},
+  head3:{code:'.head(3)',fn:function(d){return d.slice(0,3);}},
+  reset:{code:'.reset_index(drop=True)',fn:function(d){return d.map(function(r,i){return Object.assign({},r,{idx:i});});}}
+};
+function run(keys){var d=BASE.map(function(r){return Object.assign({},r);});keys.forEach(function(k){d=OPS[k].fn(d);});return d;}
+function fnum(v){return v===null?"NaN":v.toFixed(1);}
+var COLS=["order_id","region","product","revenue"];
+
+function dfTable(rows,opts){
+  opts=opts||{};
+  var cols=opts.cols||COLS, gone=opts.gone||{}, fresh=opts.fresh;
+  var h='<div class="dfwrap"><table class="df"><thead><tr><th></th>'+cols.map(function(c){return "<th>"+c+"</th>";}).join("")+"</tr></thead><tbody>";
+  rows.forEach(function(r){
+    h+='<tr class="'+(gone[r.idx]?"gone":(fresh?"new":""))+'"><td class="ix">'+r.idx+"</td>";
+    cols.forEach(function(c){var v=r[c]; if(c==="revenue"){h+='<td class="'+(v===null?"nan":"")+'">'+fnum(v)+"</td>";} else h+="<td>"+esc(v)+"</td>";});
+    h+="</tr>";
+  });
+  return h+"</tbody></table></div>";
+}
+function seriesTable(pairs,name,fresh){
+  var h='<div class="dfwrap"><table class="df"><thead><tr><th style="text-align:left">region</th><th></th></tr></thead><tbody>';
+  pairs.forEach(function(p){h+='<tr class="'+(fresh?"new":"")+'"><td class="ix">'+p[0]+"</td><td>"+fnum(p[1])+"</td></tr>";});
+  return h+'</tbody></table></div><div class="meta">Name: '+name+", dtype: float64</div>";
+}
+function groupsView(groups,cols,fresh){
+  var byIdx={}; BASE.forEach(function(r){byIdx[r.idx]=r;});
+  return groups.map(function(g){
+    return '<div class="grp"><div class="gh">group "'+g[0]+'"</div>'+dfTable(g[1].map(function(i){return byIdx[i];}),{cols:cols,fresh:fresh})+"</div>";
+  }).join("");
+}
+
+/* ---------- hero ---------- */
+var heroSegs=[["sales","starts as a DataFrame, 8 rows"],[".dropna()","returns DataFrame, 7 rows"],['.query("revenue > 800")',"returns DataFrame, 5 rows"],['.sort_values("revenue", ascending=False)',"returns DataFrame, 5 rows, sorted"],[".head(3)","returns DataFrame, 3 rows"]];
+var heroRow=$("heroRow");
+heroRow.innerHTML='<div class="hc-frame"><span class="c">'+hl("top3 = (")+'</span><span></span></div>'+heroSegs.map(function(s){return '<div class="hc-seg"><span class="c">    '+hl(s[0])+'</span><span class="t">'+s[1]+"</span></div>";}).join("")+'<div class="hc-frame"><span class="c">)</span><span></span></div>';
+var heroTimers=[];
+function playHero(){
+  heroTimers.forEach(clearTimeout); heroTimers=[];
+  var segs=heroRow.querySelectorAll(".hc-seg");
+  segs.forEach(function(s){s.classList.remove("lit","cur");});
+  var reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  segs.forEach(function(s,i){
+    heroTimers.push(setTimeout(function(){
+      segs.forEach(function(x){x.classList.remove("cur");});
+      s.classList.add("lit","cur");
+      if(i===segs.length-1) heroTimers.push(setTimeout(function(){s.classList.remove("cur");},1200));
+    }, reduce?0:400+i*650));
+  });
+}
+$("heroReplay").addEventListener("click",playHero);
+playHero();
+
+/* ---------- string relay ---------- */
+var sCode='region = "  west region ".strip().title().replace(" Region", "")';
+$("strCode").innerHTML=hl(sCode);
+var sVals=["'  west region '","'west region'","'West Region'","'West'"];
+var sMeth=[".strip()",".title()",'.replace(" Region", "")'];
+var sHints=["Start: the raw string, with extra spaces.",".strip() received '  west region ' and returned 'west region'.",".title() received 'west region' (not the original) and returned 'West Region'.",'.replace() received \'West Region\' and returned \'West\'. That final value is stored in region.'];
+var sStep=0;
+function renderS(){
+  var h="";
+  sVals.forEach(function(v,i){
+    if(i>0) h+='<div class="sarrow'+(i>sStep?" dim":"")+'"><b>'+esc(sMeth[i-1])+'</b><span>returns</span></div>';
+    h+='<div class="sbox'+(i>sStep?" dim":"")+(i===sStep?" cur":"")+'">'+esc(i>sStep?"?":v)+"</div>";
+  });
+  $("srelay").innerHTML=h; $("sHint").textContent=sHints[sStep];
+  $("sNext").disabled=sStep>=sVals.length-1;
+}
+$("sNext").addEventListener("click",function(){if(sStep<sVals.length-1){sStep++;renderS();}});
+$("sReset").addEventListener("click",function(){sStep=0;renderS();});
+renderS();
+
+/* ---------- why ---------- */
+$("whyA").innerHTML=hl('step1 = sales.dropna()\nstep2 = step1.query("revenue > 800")\nstep3 = step2.sort_values("revenue", ascending=False)\ntop3 = step3.head(3)');
+$("whyB").innerHTML=hl('top3 = (\n    sales\n    .dropna()\n    .query("revenue > 800")\n    .sort_values("revenue", ascending=False)\n    .head(3)\n)');
+
+/* ---------- reveal buttons ---------- */
+document.querySelectorAll("[data-reveal]").forEach(function(b){
+  b.addEventListener("click",function(){
+    var t=$(b.getAttribute("data-reveal")), open=!t.classList.contains("open");
+    t.classList.toggle("open",open); b.setAttribute("aria-expanded",open);
+    b.textContent=open?b.textContent.replace(/^Show/,"Hide"):b.textContent.replace(/^Hide/,"Show");
+  });
+});
+
+/* ---------- stepper ---------- */
+function dfStage(keys){var d=run(keys);return {kind:"df",rows:d,type:"DataFrame",size:d.length+" rows, 4 columns"};}
+var CH={
+ A:{
+  target:"top3",
+  lines:["sales",".dropna()",'.query("revenue > 800")','.sort_values("revenue", ascending=False)',".head(3)"],
+  stages:[dfStage([]),dfStage(["dropna"]),dfStage(["dropna","q800"]),dfStage(["dropna","q800","sort"]),dfStage(["dropna","q800","sort","head3"])],
+  short:["sales",".dropna()",".query(...)",".sort_values(...)",".head(3)"],
+  notes:[
+   "The chain starts with the object on the far left: the sales DataFrame, 8 orders. Row 4 is missing its revenue.",
+   ".dropna() removes rows with a missing value. Row 4 is dropped. It returns a new DataFrame with 7 rows.",
+   '.query() runs on the 7-row result, not on the original sales. Rows 2 and 5 are $800 or less, so they are left out.',
+   ".sort_values() receives the 5 filtered rows and returns them in descending revenue order. Nothing is removed; the order changes.",
+   ".head(3) takes the first 3 rows of the sorted result. Because the rows were sorted first, these are the 3 largest orders."
+  ]
+ },
+ B:{
+  target:"region_totals",
+  lines:["sales",".dropna()",'.groupby("region")','["revenue"]',".sum()",".sort_values(ascending=False)"],
+  stages:[
+   dfStage([]),dfStage(["dropna"]),
+   {kind:"groups",type:"DataFrameGroupBy",size:"3 groups",groups:[["East",[1,7]],["South",[3,6]],["West",[0,2,5]]],cols:COLS},
+   {kind:"groups",type:"SeriesGroupBy",size:"3 groups, revenue only",groups:[["East",[1,7]],["South",[3,6]],["West",[0,2,5]]],cols:["revenue"]},
+   {kind:"series",type:"Series",size:"3 values",pairs:[["East",3650],["South",2200],["West",4850]]},
+   {kind:"series",type:"Series",size:"3 values, sorted",pairs:[["West",4850],["East",3650],["South",2200]]}
+  ],
+  short:["sales",".dropna()",".groupby(...)",'["revenue"]',".sum()",".sort_values(...)"],
+  notes:[
+   "Same starting DataFrame: 8 orders, one missing revenue.",
+   ".dropna() returns a 7-row DataFrame, just like before.",
+   '.groupby("region") does not return a DataFrame. It returns a DataFrameGroupBy object: the rows sorted into one bucket per region, waiting for a calculation.',
+   'Square brackets can sit in a chain too. ["revenue"] keeps only the revenue column of each group and returns a SeriesGroupBy.',
+   ".sum() adds up each group and returns a Series: one total per region, with region as the index.",
+   ".sort_values() here is the Series version (no column name needed). It returns the totals from highest to lowest."
+  ]
+ }
+};
+var cur="A", st=0;
+function stageLabel(s){return s.type+" ("+s.size+")";}
+function viewOf(s,opts){
+  if(s.kind==="df") return dfTable(s.rows,opts);
+  if(s.kind==="groups") return groupsView(s.groups,s.cols,opts&&opts.fresh);
+  return seriesTable(s.pairs,"revenue",opts&&opts.fresh);
+}
+var handSvg='<svg width="30" height="20" viewBox="0 0 30 20" aria-hidden="true"><path d="M2 10 H24" stroke="currentColor" stroke-width="2"/><path d="M20 5 L27 10 L20 15" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
+function renderStep(){
+  var c=CH[cur], n=c.lines.length;
+  // code
+  var h='<div class="cl frame">'+hl(c.target+" = (")+"</div>";
+  c.lines.forEach(function(l,i){h+='<div class="cl '+(i<st?"done":(i===st?"cur":""))+'">    '+hl(l)+"</div>";});
+  h+='<div class="cl frame">)</div>'; $("stCode").innerHTML=h;
+  // relay
+  var r="";
+  c.stages.forEach(function(s,i){
+    if(i>0) r+='<div class="hand '+(i>st?"future":"")+'" style="color:'+(i<=st?"var(--cyan)":"var(--muted)")+'">'+handSvg+"</div>";
+    r+='<div class="chip '+(i<st?"done":(i===st?"cur":"future"))+'"><div class="cm">'+esc(c.short[i])+'</div><div class="ct">'+(i<=st?s.type:"?")+'</div><div class="cs">'+(i<=st?s.size:"not run yet")+"</div></div>";
+  });
+  $("stRelay").innerHTML=r;
+  var chip=$("stRelay").querySelectorAll(".chip")[st]; if(chip&&chip.scrollIntoView){var box=$("stRelay"); box.scrollLeft=Math.max(0,chip.offsetLeft-box.clientWidth/2+chip.clientWidth/2);}
+  // explain
+  $("stNo").textContent= st===0?"Start of the chain":"Step "+st+" of "+(n-1);
+  var s=c.stages[st];
+  if(st===0){ $("stEval").innerHTML='<span class="meth">sales</span> &nbsp;is the starting object: <span class="pill">'+stageLabel(s)+"</span>"; }
+  else { $("stEval").innerHTML='Python now evaluates: <span class="pill">'+esc(stageLabel(c.stages[st-1]))+'</span><span class="meth">'+hl(c.lines[st]).replace(/class="m"/g,"")+"</span>"; }
+  $("stNote").textContent=c.notes[st];
+  // io
+  if(st===0){
+    $("inSub").textContent="Nothing yet. The first object is not the result of a method.";
+    $("inView").innerHTML='<p class="hint" style="margin:0">The chain begins here.</p>';
+  } else {
+    var prev=c.stages[st-1], gone={};
+    if(prev.kind==="df"&&s.kind==="df"){var keep={};s.rows.forEach(function(x){keep[x.idx]=1;});prev.rows.forEach(function(x){if(!keep[x.idx])gone[x.idx]=1;});}
+    var gc=Object.keys(gone).length;
+    $("inSub").textContent="The object returned by the previous line: "+stageLabel(prev)+(gc?". Struck-out rows won't make it through.":".");
+    $("inView").innerHTML=viewOf(prev,{gone:gone});
+  }
+  $("outSub").textContent=stageLabel(s)+(st<n-1?". This is handed to "+c.short[st+1]+".":". End of chain: stored in "+c.target+".");
+  $("outView").innerHTML=viewOf(s,{fresh:true});
+  // controls
+  $("stBack").disabled=st===0; $("stNext").disabled=st===n-1;
+  $("stNext").textContent= st===n-1?"Chain complete":"Next step";
+  $("stDots").innerHTML=c.stages.map(function(_,i){return '<span class="'+(i<st?"done":(i===st?"on":""))+'"></span>';}).join("");
+}
+$("stNext").addEventListener("click",function(){if(st<CH[cur].lines.length-1){st++;renderStep();}});
+$("stBack").addEventListener("click",function(){if(st>0){st--;renderStep();}});
+$("stReset").addEventListener("click",function(){st=0;renderStep();});
+document.querySelectorAll(".tab").forEach(function(t){
+  t.addEventListener("click",function(){
+    document.querySelectorAll(".tab").forEach(function(x){x.setAttribute("aria-selected",x===t);});
+    cur=t.getAttribute("data-chain"); st=0; renderStep();
+  });
+});
+renderStep();
+
+/* ---------- layouts ---------- */
+var LAY={
+  one:{code:'top3 = sales.dropna().query("revenue > 800").sort_values("revenue", ascending=False).head(3)',
+       note:"Fine for short chains. Once the line runs past about 80 characters, it gets hard to read and to spot which method does what."},
+  paren:{code:'top3 = (\n    sales\n    .dropna()                                  # remove rows with missing revenue\n    .query("revenue > 800")                    # keep orders over $800\n    .sort_values("revenue", ascending=False)   # largest first\n    .head(3)                                   # top 3 orders\n)',
+       note:"The opening ( tells Python the expression continues until the matching ). Each step gets its own line and its own comment. To debug, put # in front of any line to skip it."},
+  slash:{code:'top3 = sales \\\n    .dropna() \\\n    .query("revenue > 800") \\\n    .sort_values("revenue", ascending=False) \\\n    .head(3)',
+       note:"Each \\ must be the last character on its line. Comments can't follow it, and a stray trailing space breaks the code."}
+};
+function setLay(k){
+  $("layCode").innerHTML=hl(LAY[k].code); $("layNote").textContent=LAY[k].note;
+  document.querySelectorAll("[data-lay]").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-lay")===k);});
+}
+document.querySelectorAll("[data-lay]").forEach(function(b){b.addEventListener("click",function(){setLay(b.getAttribute("data-lay"));});});
+setLay("one");
+$("noParenCode").innerHTML=hl("result = sales\n.dropna()\n.head(3)");
+
+/* ---------- builder ---------- */
+var chain=[], blay="paren";
+var PAL=["dropna","q800","qeast","sort","head3","reset"];
+$("palette").innerHTML=PAL.map(function(k){return '<button type="button" data-op="'+k+'">+ '+esc(OPS[k].code)+"</button>";}).join("");
+$("palette").addEventListener("click",function(e){var b=e.target.closest("button"); if(!b||chain.length>=7) return; chain.push(b.getAttribute("data-op")); renderB();});
+$("chainList").addEventListener("click",function(e){
+  var b=e.target.closest("button"); if(!b) return; var i=+b.getAttribute("data-i"), a=b.getAttribute("data-a");
+  if(a==="x") chain.splice(i,1);
+  else if(a==="up"&&i>0){var t=chain[i-1];chain[i-1]=chain[i];chain[i]=t;}
+  renderB();
+});
+document.querySelectorAll("[data-blay]").forEach(function(b){b.addEventListener("click",function(){blay=b.getAttribute("data-blay");document.querySelectorAll("[data-blay]").forEach(function(x){x.setAttribute("aria-pressed",x===b);});renderB();});});
+function renderB(){
+  $("chainEmpty").style.display=chain.length?"none":"block";
+  $("chainList").innerHTML=chain.map(function(k,i){
+    var d=run(chain.slice(0,i+1));
+    return '<li><span class="n">'+(i+1)+'</span><code>'+hl(OPS[k].code)+'</code><span class="rt">returns '+d.length+' rows</span>'+
+      (i>0?'<button type="button" data-a="up" data-i="'+i+'" aria-label="Move up">Up</button>':"")+
+      '<button type="button" data-a="x" data-i="'+i+'" aria-label="Remove">Remove</button></li>';
+  }).join("");
+  var code;
+  if(!chain.length) code="result = sales";
+  else if(blay==="one") code="result = sales"+chain.map(function(k){return OPS[k].code;}).join("");
+  else code="result = (\n    sales\n"+chain.map(function(k){return "    "+OPS[k].code;}).join("\n")+"\n)";
+  $("bCode").innerHTML=hl(code);
+  var d=run(chain);
+  $("bSub").textContent="result is a DataFrame with "+d.length+(d.length===1?" row":" rows")+(d.length?":":". Every row was filtered out, but it is still a DataFrame (with its 4 columns), so more methods could follow.");
+  $("bOut").innerHTML=dfTable(d,{fresh:true});
+  document.querySelectorAll("#palette button").forEach(function(b){b.disabled=chain.length>=7;});
+}
+renderB();
+
+/* ---------- quiz ---------- */
+var QZ=[
+ {q:'In <code>sales.dropna().head(3)</code>, what does <code>.head(3)</code> act on?',o:["The original <code>sales</code> DataFrame","The DataFrame returned by <code>sales.dropna()</code>","The first 3 columns of <code>sales</code>","The <code>dropna</code> method itself"],a:1,e:"Each method is called on the value returned by everything to its left, here the cleaned DataFrame from .dropna()."},
+ {q:'What does <code>"  sales q3 ".strip().upper()</code> return?',o:["<code>'  SALES Q3 '</code>","<code>'sales q3'</code>","<code>'SALES Q3'</code>","An error, because strings can't be chained"],a:2,e:".strip() returns 'sales q3', and .upper() is called on that returned string, giving 'SALES Q3'."},
+ {q:'What type does <code>sales.groupby("region")["revenue"].sum()</code> return?',o:["DataFrame","DataFrameGroupBy","Series","A single number"],a:2,e:"groupby returns a DataFrameGroupBy, [\"revenue\"] narrows it to a SeriesGroupBy, and .sum() returns a Series with one total per region."},
+ {q:'Why does <code>sales.dropna(inplace=True).head()</code> fail?',o:["dropna can't be chained","With inplace=True, dropna returns None, and None has no head method","head needs a number","The data has no missing values"],a:1,e:"inplace=True changes sales directly and returns None, so the chain tries None.head()."},
+ {q:"Which is the recommended way to split a long chain across lines?",o:["End every line with a backslash","Wrap the whole chain in parentheses and start each line with a dot","Put each method in its own variable","Just press Enter between methods"],a:1,e:"Inside parentheses Python keeps reading until the closing bracket, and you can comment each line."},
+ {q:'<code>sales["revenue"].sum()</code> returns a single number. Which could <strong>not</strong> come next in the chain?',o:["<code>.sort_values()</code>","<code>round()</code> wrapped around the whole thing","Nothing; you can store it in a variable","<code>print()</code> wrapped around the whole thing"],a:0,e:"A single numpy.float64 has no .sort_values() method. The next method must exist on the returned type."}
+];
+var answered=0, correct=0;
+$("quiz").innerHTML=QZ.map(function(x,i){
+  return '<div class="q" data-q="'+i+'"><p class="qt">'+(i+1)+". "+x.q+'</p><div class="opts">'+x.o.map(function(o,j){return '<button type="button" class="opt" data-j="'+j+'">'+o+"</button>";}).join("")+'</div><div class="fb"></div></div>';
+}).join("");
+$("quiz").addEventListener("click",function(e){
+  var b=e.target.closest(".opt"); if(!b) return; var qd=b.closest(".q"); if(qd.dataset.done) return;
+  var i=+qd.dataset.q, j=+b.dataset.j, x=QZ[i]; qd.dataset.done="1"; answered++;
+  var ok=j===x.a; if(ok) correct++;
+  qd.querySelectorAll(".opt").forEach(function(o,k){if(k===x.a)o.classList.add("right"); else if(k===j)o.classList.add("wrong"); o.setAttribute("aria-disabled","true");});
+  var fb=qd.querySelector(".fb"); fb.innerHTML="<strong>"+(ok?"Correct.":"Not quite.")+"</strong> "+esc(x.e); fb.classList.add("show");
+  $("score").textContent="Score: "+correct+" of "+answered+" answered"+(answered===QZ.length?" (all done)":"");
+});
+
+/* ---------- cards ---------- */
+var CARDS=[
+ ["What is method chaining?","Calling several methods in one expression, joined by dots, where each method runs on the object returned by the previous one."],
+ ["Which way is a chain evaluated?","Left to right. The leftmost call runs first; its return value becomes the object for the next dot."],
+ ["What decides which method can come next?","The type of the returned object. The next method must exist on that type (DataFrame, Series, GroupBy, str...)."],
+ ["How do you split a chain across lines?","Wrap it in ( ) and start each line with .method(). Add a comment per line if it helps."]
+];
+$("cards").innerHTML=CARDS.map(function(c){return '<button type="button" class="card" aria-label="Flip card: '+esc(c[0])+'"><div class="in"><div class="f">'+esc(c[0])+'<small>Tap to flip</small></div><div class="b">'+esc(c[1])+"</div></div></button>";}).join("");
+$("cards").addEventListener("click",function(e){var c=e.target.closest(".card"); if(c) c.classList.toggle("flip");});
+
+/* ---------- nav + progress ---------- */
+var links=[].slice.call(document.querySelectorAll("#navlist a")), secs=links.map(function(a){return document.querySelector(a.getAttribute("href"));});
+function onScroll(){
+  var y=window.scrollY, H=document.documentElement.scrollHeight-window.innerHeight, pct=H>0?Math.min(100,Math.round(y/H*100)):0;
+  $("prog").style.width=pct+"%"; $("proglbl").textContent=pct+"% read";
+  var mark=y+window.innerHeight*0.3, idx=-1;
+  secs.forEach(function(s,i){if(s&&s.offsetTop<=mark) idx=i;});
+  links.forEach(function(a,i){a.classList.toggle("on",i===idx); if(i<=idx) a.classList.add("seen");});
+}
+window.addEventListener("scroll",onScroll,{passive:true}); onScroll();
+
+/* ---------- theme ---------- */
+$("themeBtn").addEventListener("click",function(){
+  var r=document.documentElement, t=r.getAttribute("data-theme");
+  var isDark=t?t==="dark":window.matchMedia("(prefers-color-scheme: dark)").matches;
+  r.setAttribute("data-theme",isDark?"light":"dark");
+});
+})();
+</script>
+</body>
+</html>
