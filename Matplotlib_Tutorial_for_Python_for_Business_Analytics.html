@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSBA-510 Sec 001: Mastering Matplotlib for Business Analytics</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --secondary: #0f172a;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --text-main: #334155;
+            --text-dark: #0f172a;
+            --text-light: #64748b;
+            --code-bg: #1e293b;
+            --code-text: #f8fafc;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Layout Structure */
+        #sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--secondary);
+            color: #fff;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            overflow-y: auto;
+            z-index: 100;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 2.5rem;
+            max-width: 1100px;
+            overflow-x: hidden;
+        }
+
+        /* Scroll Progress Bar */
+        .progress-container {
+            width: 100%;
+            height: 4px;
+            background: #cbd5e1;
+            position: fixed;
+            top: 0;
+            left: var(--sidebar-width);
+            right: 0;
+            z-index: 1000;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--primary-light);
+            width: 0%;
+        }
+
+        /* Sidebar Elements */
+        .sidebar-brand {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 1rem;
+        }
+        .sidebar-brand h1 {
+            font-size: 1.25rem;
+            color: #fff;
+            font-weight: 700;
+        }
+        .sidebar-brand p {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-top: 0.25rem;
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: block;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item a:hover, .nav-item.active a {
+            color: #fff;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item.active a {
+            border-left: 4px solid var(--primary-light);
+            padding-left: 0.5rem;
+        }
+
+        /* Content Typography */
+        h1, h2, h3, h4 {
+            color: var(--text-dark);
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        h1 { font-size: 2.25rem; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; margin-top: 0; }
+        h2 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-top: 2.5rem; }
+        h3 { font-size: 1.25rem; }
+
+        p { margin-bottom: 1.25rem; }
+        
+        strong { color: var(--text-dark); }
+
+        /* Course Intro Note Panel */
+        .intro-note {
+            background-color: #eff6ff;
+            border-left: 4px solid var(--primary-light);
+            padding: 1.25rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .intro-note p { margin: 0; font-size: 0.95rem; color: #1e40af; }
+
+        /* General Card Styles */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        /* Code Block Styling */
+        .code-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+            background: var(--code-bg);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .code-header {
+            background-color: #0f172a;
+            color: var(--text-light);
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: none;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .copy-btn:hover { background: rgba(255, 255, 255, 0.2); }
+        pre {
+            padding: 1.25rem;
+            overflow-x: auto;
+            color: var(--code-text);
+            font-family: Consolas, Monaco, "Andale Mono", monospace;
+            font-size: 0.9rem;
+        }
+
+        /* Keyword Highlighting for code */
+        .kw { color: #f43f5e; } /* keywords */
+        .op { color: #f59e0b; } /* operators */
+        .str { color: #34d399; } /* strings */
+        .cmt { color: #64748b; font-style: italic; } /* comments */
+        .fn { color: #60a5fa; } /* functions */
+        .num { color: #fbbf24; } /* numbers */
+
+        /* Anatomy Plot Explorer Styling */
+        .anatomy-explorer {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+        @media (max-width: 768px) {
+            .anatomy-explorer { grid-template-columns: 1fr; }
+        }
+        .anatomy-svg-wrapper {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+        .interactive-element {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .interactive-element:hover {
+            stroke: var(--accent) !important;
+            stroke-width: 3px !important;
+            fill: rgba(245, 158, 11, 0.1);
+        }
+        .anatomy-details-card {
+            background: #fafafa;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            height: 100%;
+            min-height: 250px;
+        }
+        .anatomy-details-card h4 { margin-top: 0; color: var(--primary); }
+
+        /* API Compare Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 1rem;
+        }
+        .tab {
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+        .tab.active {
+            color: var(--primary);
+            border-bottom-2px: solid var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Callout Boxes */
+        .callout {
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border-left: 4px solid;
+        }
+        .callout-info { background: #eff6ff; border-left-color: var(--primary-light); color: #1e3a8a; }
+        .callout-warning { background: #fffbeb; border-left-color: var(--accent); color: #78350f; }
+        .callout h4 { margin-top: 0; color: inherit; }
+
+        /* Business Decision Flow Engine */
+        .flow-container {
+            background: #f1f5f9;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .flow-step-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        .flow-option-btn {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 0.75rem 1.25rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .flow-option-btn:hover {
+            border-color: var(--primary-light);
+            background-color: #f8fafc;
+        }
+        .flow-option-btn.selected {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .flow-result-pane {
+            margin-top: 1.5rem;
+            background: white;
+            border-radius: 8px;
+            padding: 1.25rem;
+            border-left: 4px solid var(--success);
+            display: none;
+        }
+
+        /* Live Rendered SVG Mock Charts */
+        .rendered-mock-container {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Quiz Styling */
+        .quiz-card {
+            border-left: 4px solid var(--accent);
+            background: #fffdf5;
+        }
+        .quiz-question { font-weight: 600; margin-bottom: 1rem; color: var(--text-dark); }
+        .quiz-options { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+        .quiz-option-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .quiz-option-label:hover { background: #fafafa; }
+        .quiz-option-input { cursor: pointer; }
+        .quiz-feedback {
+            display: none;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+        }
+        .quiz-feedback.correct { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+        .quiz-feedback.incorrect { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
+        .quiz-submit-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.25rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Checklists */
+        .checklist-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .checklist-item {
+            display: flex;
+            align-items: start;
+            gap: 0.75rem;
+            background: #fff;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+        .checklist-item input[type="checkbox"] {
+            margin-top: 0.25rem;
+            width: 1.1rem;
+            height: 1.1rem;
+            cursor: pointer;
+        }
+
+        /* Button groups */
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .action-btn {
+            background: var(--primary-light);
+            color: #fff;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: opacity 0.2s;
+        }
+        .action-btn:hover { opacity: 0.9; }
+        .action-btn-secondary {
+            background: #64748b;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1024px) {
+            #sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            #sidebar.open {
+                transform: translateX(0);
+            }
+            #main-content {
+                margin-left: 0;
+                padding: 1.5rem;
+            }
+            .progress-container {
+                left: 0;
+            }
+            .mobile-header {
+                display: flex !important;
+                background: var(--secondary);
+                color: white;
+                padding: 1rem;
+                justify-content: space-between;
+                align-items: center;
+                position: sticky;
+                top: 0;
+                z-index: 1001;
+            }
+            .menu-toggle {
+                background: none;
+                border: none;
+                color: white;
+                font-size: 1.5rem;
+                cursor: pointer;
+            }
+        }
+
+        .mobile-header {
+            display: none;
+        }
+
+        /* Footer disclosure */
+        footer {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        /* Hidden helpers */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <h1 style="font-size: 1.1rem; border: none; margin: 0; color: white;">MSBA-510 Matplotlib</h1>
+        <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle Navigation">☰</button>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <nav id="sidebar" aria-label="Course Navigation">
+        <div class="sidebar-brand">
+            <h1>MSBA-510</h1>
+            <p>Sec 001: Python for Business Analytics</p>
+        </div>
+        <ul class="nav-list">
+            <li class="nav-item active"><a href="#intro" onclick="closeSidebar()">1. Intro & Decision Rule</a></li>
+            <li class="nav-item"><a href="#anatomy" onclick="closeSidebar()">2. Anatomy of a Plot</a></li>
+            <li class="nav-item"><a href="#api" onclick="closeSidebar()">3. OOP vs Pyplot API</a></li>
+            <li class="nav-item"><a href="#core-charts" onclick="closeSidebar()">4. Core Business Charts</a></li>
+            <li class="nav-item"><a href="#data-integration" onclick="closeSidebar()">5. NumPy & Pandas</a></li>
+            <li class="nav-item"><a href="#formatting" onclick="closeSidebar()">6. Formatting & Storytelling</a></li>
+            <li class="nav-item"><a href="#layouts" onclick="closeSidebar()">7. Multi-Chart Dashboards</a></li>
+            <li class="nav-item"><a href="#advanced" onclick="closeSidebar()">8. Advanced Export/Layouts</a></li>
+            <li class="nav-item"><a href="#debugging" onclick="closeSidebar()">9. Debugging & Pitfalls</a></li>
+            <li class="nav-item"><a href="#project" onclick="closeSidebar()">10. Mini-Project: Executive Dashboard</a></li>
+            <li class="nav-item"><a href="#checklist" onclick="closeSidebar()">11. Print Summary Checklist</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main id="main-content">
+        <!-- Progress Container -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <!-- Section 1: Intro -->
+        <section id="intro">
+            <div class="intro-note">
+                <p><strong>Note for MSBA-510 Students:</strong> This companion tutorial assumes you have a foundational working knowledge of NumPy arrays and Pandas DataFrames. It focuses strictly on translating business requirements into presentation-ready visuals using matplotlib. Python blocks are styled for your Jupyter Notebook or VS Code environment.</p>
+            </div>
+
+            <h1>Visual Analytics for Decision Makers</h1>
+            <p>In business analytics, data visualization is not about aesthetic appeal; it is about <strong>decision velocity</strong>. Raw Pandas DataFrames are indispensable for calculations, but executive stakeholders require rapid processing of core patterns to make strategic decisions.</p>
+
+            <div class="callout callout-info">
+                <h4>The Matplotlib Mission</h4>
+                <p>Matplotlib is Python’s standard-bearer engine. While high-level libraries like Seaborn are excellent for quick exploratory analysis, mastering raw Matplotlib grants you total control over fine elements—essential when tailoring charts to a company's corporate palette or meeting demanding regulatory report constraints.</p>
+            </div>
+
+            <h3>Our Framework: The Business Decision Rule</h3>
+            <p>Throughout this tutorial, always apply our structured five-step planning methodology before writing any plotting code:</p>
+            
+            <div style="background-color: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+                <ol style="padding-left: 1.5rem;">
+                    <li style="margin-bottom: 0.5rem;"><strong>Define the Business Question:</strong> What explicit action or trend is a stakeholder evaluating? (e.g., "Is our marketing efficiency declining?")</li>
+                    <li style="margin-bottom: 0.5rem;"><strong>Choose Chart Type:</strong> Match structure to question. Time trends use lines; segment comparison uses bars; relationships use scatters.</li>
+                    <li style="margin-bottom: 0.5rem;"><strong>Clean & Shape Data:</strong> Prepare the underlying Pandas DataFrame or NumPy arrays so aggregates are pre-calculated.</li>
+                    <li style="margin-bottom: 0.5rem;"><strong>Execute the Plot:</strong> Construct the base canvas using Matplotlib's object-oriented architecture.</li>
+                    <li style="margin-bottom: 0.5rem;"><strong>Refine for Audience:</strong> Eliminate unnecessary gridlines, highlight critical pivot points with annotations, and establish a clear visual hierarchy.</li>
+                </ol>
+            </div>
+
+            <!-- Interactive Scenario Widget -->
+            <div class="card">
+                <h3>Interactive Tool: Chart Type Decision Matrix</h3>
+                <p>Test your intuition. Select a scenario below to determine the business-fit chart type and see its implementation plan.</p>
+                <div class="flow-container">
+                    <p style="font-weight: bold; font-size: 0.9rem; text-transform: uppercase; color: var(--text-light); letter-spacing: 0.05em; margin-bottom: 0.5rem;">Scenario Selector</p>
+                    <div class="flow-step-options">
+                        <button class="flow-option-btn" onclick="selectScenario(1, this)">A: Compare Q4 Category Sales Contribution</button>
+                        <button class="flow-option-btn" onclick="selectScenario(2, this)">B: Relate CAC to Customer LTV</button>
+                        <button class="flow-option-btn" onclick="selectScenario(3, this)">C: Trace Revenue across past 36 Months</button>
+                    </div>
+
+                    <div id="flow-result" class="flow-result-pane">
+                        <h4 id="flow-result-title">Selected Strategy</h4>
+                        <p id="flow-result-desc" style="font-size: 0.95rem; margin-bottom: 1rem;"></p>
+                        <div class="code-container" style="margin-bottom: 0;">
+                            <div class="code-header"><span>Python Blueprint</span></div>
+                            <pre><code id="flow-result-code"></code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Anatomy -->
+        <section id="anatomy">
+            <h2>The Anatomy of a Matplotlib Visual</h2>
+            <p>To programmatically alter charts, you must understand how Matplotlib conceptualizes its workspace. The key mental model is a framed painting: the <strong>Figure</strong> is the physical canvas frame, while the <strong>Axes</strong> is the actual artwork drawn inside that frame.</p>
+
+            <div class="anatomy-explorer">
+                <div class="anatomy-svg-wrapper">
+                    <p style="font-weight: 600; font-size: 0.8rem; color: var(--text-light); margin-bottom: 0.5rem;">HOVER ELEMENTS TO REVEAL CODE API</p>
+                    <svg viewBox="0 0 400 300" width="100%" height="100%" style="background: #ffffff; border: 1px solid #ddd;" aria-label="Interactive Diagram of Matplotlib Anatomy">
+                        <!-- Canvas Boundary (Figure) -->
+                        <rect x="5" y="5" width="390" height="290" fill="none" stroke="#dc2626" stroke-dasharray="4" stroke-width="1.5" class="interactive-element" data-anatomy="figure" />
+                        <!-- Plot Boundary (Axes) -->
+                        <rect x="60" y="50" width="300" height="200" fill="#f8fafc" stroke="#475569" stroke-width="1.5" class="interactive-element" data-anatomy="axes" />
+                        
+                        <!-- Title -->
+                        <text x="210" y="30" font-family="sans-serif" font-weight="bold" font-size="14" text-anchor="middle" fill="#0f172a" class="interactive-element" data-anatomy="title">Monthly Active Users</text>
+                        
+                        <!-- X Axis Label -->
+                        <text x="210" y="280" font-family="sans-serif" font-size="11" text-anchor="middle" fill="#0f172a" class="interactive-element" data-anatomy="xlabel">Time Period (Fiscal Year)</text>
+                        <!-- Y Axis Label -->
+                        <text x="20" y="150" font-family="sans-serif" font-size="11" text-anchor="middle" fill="#0f172a" transform="rotate(-90, 20, 150)" class="interactive-element" data-anatomy="ylabel">User Count (Thousands)</text>
+                        
+                        <!-- Grid lines -->
+                        <line x1="60" y1="150" x2="360" y2="150" stroke="#cbd5e1" stroke-dasharray="2" class="interactive-element" data-anatomy="grid" />
+                        <line x1="60" y1="100" x2="360" y2="100" stroke="#cbd5e1" stroke-dasharray="2" class="interactive-element" data-anatomy="grid" />
+                        
+                        <!-- Markers and Line -->
+                        <path d="M 60 220 L 160 170 L 260 120 L 360 70" fill="none" stroke="#2563eb" stroke-width="2.5" class="interactive-element" data-anatomy="line" />
+                        <circle cx="160" cy="170" r="5" fill="#f59e0b" stroke="#fff" stroke-width="1.5" class="interactive-element" data-anatomy="marker" />
+                        <circle cx="260" cy="120" r="5" fill="#f59e0b" stroke="#fff" stroke-width="1.5" class="interactive-element" data-anatomy="marker" />
+
+                        <!-- Ticks -->
+                        <line x1="160" y1="250" x2="160" y2="255" stroke="#334155" stroke-width="1.5" class="interactive-element" data-anatomy="ticks" />
+                        <line x1="260" y1="250" x2="260" y2="255" stroke="#334155" stroke-width="1.5" class="interactive-element" data-anatomy="ticks" />
+                        <text x="160" y="265" font-family="sans-serif" font-size="9" text-anchor="middle">Q2</text>
+                        <text x="260" y="265" font-family="sans-serif" font-size="9" text-anchor="middle">Q3</text>
+                    </svg>
+                </div>
+                <div class="anatomy-details-card" id="anatomy-details">
+                    <h4 id="anatomy-title">Select a Plot Element</h4>
+                    <p id="anatomy-description">Hover or tap on any element within the chart canvas to learn its corresponding Matplotlib Python command, its business utility, and rendering details.</p>
+                    <div id="anatomy-code-snippet" style="display:none;" class="code-container">
+                        <div class="code-header"><span>Syntax</span></div>
+                        <pre style="padding: 0.5rem 1rem;"><code class="kw" id="anatomy-code-val"></code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: OOP vs Pyplot -->
+        <section id="api">
+            <h2>OOP Style vs Pyplot API</h2>
+            <p>You will see two different syntax methods online when learning Matplotlib. For executive reports and robust analytical pipelines, <strong>you must use the Object-Oriented (OO) style</strong>.</p>
+            
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('tab-oop', this)">✓ Recommended: Object-Oriented Style</div>
+                <div class="tab" onclick="switchTab('tab-pyplot', this)">Pyplot Style (State-machine)</div>
+            </div>
+
+            <div id="tab-oop" class="tab-content active">
+                <p>The OO approach creates explicit handles for your canvas (<code>fig</code>) and the plot subregion (<code>ax</code>). This method is cleaner, more scalable, and is necessary for managing secondary axes or plotting complex dashboards.</p>
+                <div class="code-container">
+                    <div class="code-header"><span>Object-Oriented Syntax</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                    <pre><code><span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+<span class="cmt"># Create canvas and axes container explicitly</span>
+fig, ax = plt.<span class="fn">subplots</span>(figsize=(<span class="num">8</span>, <span class="num">4</span>))
+
+<span class="cmt"># Call methods directly on the axes element object</span>
+ax.<span class="fn">plot</span>(months, sales_revenue, color=<span class="str">'#1e3a8a'</span>, marker=<span class="str">'o'</span>)
+ax.<span class="fn">set_title</span>(<span class="str">'FY24 Subscription Revenue Acceleration Trends'</span>, fontsize=<span class="num">12</span>, pad=<span class="num">15</span>)
+ax.<span class="fn">set_xlabel</span>(<span class="str">'Fiscal Month'</span>)
+ax.<span class="fn">set_ylabel</span>(<span class="str">'ARR ($ Thousands)'</span>)
+ax.<span class="fn">grid</span>(<span class="num">True</span>, linestyle=<span class="str">'--'</span>, alpha=<span class="num">0.5</span>)
+
+plt.<span class="fn">show</span>()</code></pre>
+                </div>
+            </div>
+
+            <div id="tab-pyplot" class="tab-content">
+                <p>The pyplot API is a state-based approach where commands affect the "currently active" figure. It mimics MATLAB. While fast for simple terminal executions, it becomes messy and leads to silent bugs when generating multi-panel dashboards or custom visual features.</p>
+                <div class="code-container">
+                    <div class="code-header"><span>Pyplot State-Machine Syntax</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                    <pre><code><span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+<span class="cmt"># Uses implicit state tracker internally</span>
+plt.<span class="fn">figure</span>(figsize=(<span class="num">8</span>, <span class="num">4</span>))
+plt.<span class="fn">plot</span>(months, sales_revenue, color=<span class="str">'#1e3a8a'</span>, marker=<span class="str">'o'</span>)
+plt.<span class="fn">title</span>(<span class="str">'FY24 Subscription Revenue Acceleration Trends'</span>)
+plt.<span class="fn">xlabel</span>(<span class="str">'Fiscal Month'</span>)
+plt.<span class="fn">ylabel</span>(<span class="str">'ARR ($ Thousands)'</span>)
+plt.<span class="fn">grid</span>(<span class="num">True</span>)
+
+plt.<span class="fn">show</span>()</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Core Charts & Data Integration -->
+        <section id="core-charts">
+            <h2>Core Business Charts & Data Structures</h2>
+            <p>Your primary data inputs will be 1D <strong>NumPy arrays</strong> and structured <strong>Pandas DataFrames</strong>. Matplotlib handles both seamlessly, as Pandas' internal plotting mechanism is built directly on top of Matplotlib.</p>
+
+            <div class="tabs">
+                <div class="tab active" onclick="switchChartTab('line-tab', this)">Line Chart</div>
+                <div class="tab" onclick="switchChartTab('bar-tab', this)">Bar Chart</div>
+                <div class="tab" onclick="switchChartTab('scatter-tab', this)">Scatter Plot</div>
+                <div class="tab" onclick="switchChartTab('hist-tab', this)">Histogram</div>
+            </div>
+
+            <!-- Line Chart Content -->
+            <div id="line-tab" class="tab-content active">
+                <p><strong>Business Case:</strong> Evaluating financial and transactional trends over time. Shows direction, velocity, and seasonality.</p>
+                <div class="code-container">
+                    <div class="code-header"><span>Line Plot with Pandas</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                    <pre><code><span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+<span class="cmt"># Business Data Preparation</span>
+data = {<span class="str">'Month'</span>: [<span class="str">'Jan'</span>, <span class="str">'Feb'</span>, <span class="str">'Mar'</span>, <span class="str">'Apr'</span>, <span class="str">'May'</span>],
+        <span class="str">'Revenue'</span>: [<span class="num">12000</span>, <span class="num">15000</span>, <span class="num">14500</span>, <span class="num">19000</span>, <span class="num">23000</span>]}
+df = pd.<span class="fn">DataFrame</span>(data)
+
+fig, ax = plt.<span class="fn">subplots</span>(figsize=(<span class="num">7</span>, <span class="num">3.5</span>))
+<span class="cmt"># Draw line using Pandas Series</span>
+ax.<span class="fn">plot</span>(df[<span class="str">'Month'</span>], df[<span class="str">'Revenue'</span>], marker=<span class="str">'o'</span>, color=<span class="str">'#1e3a8a'</span>, linewidth=<span class="num">2</span>)
+ax.<span class="fn">set_title</span>(<span class="str">'Monthly Sales Velocity'</span>)
+ax.<span class="fn">set_ylabel</span>(<span class="str">'USD ($)'</span>)
+ax.<span class="fn">grid</span>(<span class="num">True</span>, alpha=<span class="num">0.3</span>)</code></pre>
+                </div>
+                <div class="rendered-mock-container">
+                    <svg viewBox="0 0 400 150" width="100%" height="150" style="background:#fff;">
+                        <line x1="50" y1="120" x2="350" y2="120" stroke="#cbd5e1" stroke-width="1" />
+                        <line x1="50" y1="20" x2="50" y2="120" stroke="#cbd5e1" stroke-width="1" />
+                        <polyline points="50,110 125,95 200,100 275,60 350,25" fill="none" stroke="#1e3a8a" stroke-width="3"/>
+                        <circle cx="50" cy="110" r="4" fill="#1e3a8a"/>
+                        <circle cx="125" cy="95" r="4" fill="#1e3a8a"/>
+                        <circle cx="200" cy="100" r="4" fill="#1e3a8a"/>
+                        <circle cx="275" cy="60" r="4" fill="#1e3a8a"/>
+                        <circle cx="350" cy="25" r="4" fill="#1e3a8a"/>
+                        <text x="50" y="135" font-size="9" text-anchor="middle">Jan</text>
+                        <text x="125" y="135" font-size="9" text-anchor="middle">Feb</text>
+                        <text x="200" y="135" font-size="9" text-anchor="middle">Mar</text>
+                        <text x="275" y="135" font-size="9" text-anchor="middle">Apr</text>
+                        <text x="350" y="135" font-size="9" text-anchor="middle">May</text>
+                        <text x="40" y="112" font-size="8" text-anchor="end">12k</text>
+                        <text x="40" y="27" font-size="8" text-anchor="end">23k</text>
+                        <text x="200" y="15" font-size="10" font-weight="bold" text-anchor="middle">Monthly Sales Velocity (USD)</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Bar Chart Content -->
+            <div id="bar-tab" class="tab-content">
+                <p><strong>Business Case:</strong> Comparing independent, discrete categorical performance across entities like departments, regions, or products.</p>
+                <div class="code-container">
+                    <div class="code-header"><span>Bar Plot with Pandas</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                    <pre><code><span class="cmt"># Business Data Preparation</span>
+categories = [<span class="str">'SaaS'</span>, <span class="str">'Hardware'</span>, <span class="str">'Consulting'</span>, <span class="str">'Support'</span>]
+sales_totals = [<span class="num">85000</span>, <span class="num">42000</span>, <span class="num">28000</span>, <span class="num">15000</span>]
+
+fig, ax = plt.<span class="fn">subplots</span>(figsize=(<span class="num">7</span>, <span class="num">3.5</span>))
+<span class="cmt"># Create vertical bars</span>
+ax.<span class="fn">bar</span>(categories, sales_totals, color=<span class="str">'#3b82f6'</span>, edgecolor=<span class="str">'#1e3a8a'</span>, width=<span class="num">0.6</span>)
+ax.<span class="fn">set_title</span>(<span class="str">'Sales Revenue Contributions by Business Units'</span>)
+ax.<span class="fn">set_ylabel</span>(<span class="str">'Revenue ($)'</span>)</code></pre>
+                </div>
+                <div class="rendered-mock-container">
+                    <svg viewBox="0 0 400 150" width="100%" height="150" style="background:#fff;">
+                        <line x1="50" y1="120" x2="350" y2="120" stroke="#cbd5e1" stroke-width="1" />
+                        <!-- SaaS Bar -->
+                        <rect x="70" y="30" width="40" height="90" fill="#3b82f6" stroke="#1e3a8a" stroke-width="1" />
+                        <!-- Hardware -->
+                        <rect x="140" y="70" width="40" height="50" fill="#3b82f6" stroke="#1e3a8a" stroke-width="1" />
+                        <!-- Consulting -->
+                        <rect x="210" y="90" width="40" height="30" fill="#3b82f6" stroke="#1e3a8a" stroke-width="1" />
+                        <!-- Support -->
+                        <rect x="280" y="105" width="40" height="15" fill="#3b82f6" stroke="#1e3a8a" stroke-width="1" />
+                        
+                        <text x="90" y="135" font-size="9" text-anchor="middle">SaaS</text>
+                        <text x="160" y="135" font-size="9" text-anchor="middle">Hardware</text>
+                        <text x="230" y="135" font-size="9" text-anchor="middle">Consulting</text>
+                        <text x="300" y="135" font-size="9" text-anchor="middle">Support</text>
+                        <text x="200" y="15" font-size="10" font-weight="bold" text-anchor="middle">Sales Revenue Contributions by Business Units</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Scatter Plot Content -->
+            <div id="scatter-tab" class="tab-content">
+                <p><strong>Business Case:</strong> Evaluating variable relationships, correlation analysis, and spotting outliers in marketing campaign performance.</p>
+                <div class="code-container">
+                    <div class="code-header"><span>Scatter Plot with Pandas</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                    <pre><code><span class="cmt"># Business Data Preparation: Budget vs Conversion Rate</span>
+budget = [<span class="num">1000</span>, <span class="num">1500</span>, <span class="num">2000</span>, <span class="num">2500</span>, <span class="num">3000</span>, <span class="num">3500</span>, <span class="num">4000</span>, <span class="num">4500</span>]
+conversions = [<span class="num">2.1</span>, <span class="num">2.4</span>, <span class="num">2.8</span>, <span class="num">3.2</span>, <span class="num">3.1</span>, <span class="num">4.0</span>, <span class="num">4.2</span>, <span class="num">4.8</span>]
+
+fig, ax = plt.<span class="fn">subplots</span>(figsize=(<span class="num">7</span>, <span class="num">3.5</span>))
+ax.<span class="fn">scatter</span>(budget, conversions, color=<span class="str">'#f59e0b'</span>, s=<span class="num">80</span>, alpha=<span class="num">0.8</span>, edgecolors=<span class="str">'black'</span>)
+ax.<span class="fn">set_title</span>(<span class="str">'Marketing Efficiency: Spend vs Conversion Rate'</span>)
+ax.<span class="fn">set_xlabel</span>(<span class="str">'Budget ($)'</span>)
+ax.<span class="fn">set_ylabel</span>(<span class="str">'Conversion Rate (%)'</span>)</code></pre>
+                </div>
+                <div class="rendered-mock-container">
+                    <svg viewBox="0 0 400 150" width="100%" height="150" style="background:#fff;">
+                        <line x1="50" y1="120" x2="350" y2="120" stroke="#cbd5e1" stroke-width="1" />
+                        <line x1="50" y1="30" x2="50" y2="120" stroke="#cbd5e1" stroke-width="1" />
+                        <circle cx="80" cy="110" r="5" fill="#f59e0b" stroke="#000" />
+                        <circle cx="120" cy="100" r="5" fill="#f59e0b" stroke="#000" />
+                        <circle cx="160" cy="90" r="5" fill="#f59e0b" stroke="#000" />
+                        <circle cx="200" cy="80" r="5" fill="#f59e0b" stroke="#000" />
+                        <circle cx="240" cy="83" r="5" fill="#f59e0b" stroke="#000" />
+                        <circle cx="280" cy="60" r="5" fill="#f59e0b" stroke="#000" />
+                        <circle cx="320" cy="55" r="5" fill="#f59e0b" stroke="#000" />
+                        <circle cx="350" cy="35" r="5" fill="#f59e0b" stroke="#000" />
+                        <text x="200" y="15" font-size="10" font-weight="bold" text-anchor="middle">Marketing Spend vs Conversion Rate</text>
+                        <text x="200" y="135" font-size="8" text-anchor="middle">Budget ($)</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Histogram Content -->
+            <div id="hist-tab" class="tab-content">
+                <p><strong>Business Case:</strong> Assessing operational frequency distributions, like order values, customer support call times, or transaction counts.</p>
+                <div class="code-container">
+                    <div class="code-header"><span>Histogram with Pandas</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                    <pre><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cmt"># Business Data Preparation: Simulating customer order ticket basket size</span>
+order_sizes = np.random.<span class="fn">normal</span>(loc=<span class="num">150</span>, scale=<span class="num">40</span>, size=<span class="num">1000</span>)
+
+fig, ax = plt.<span class="fn">subplots</span>(figsize=(<span class="num">7</span>, <span class="num">3.5</span>))
+<span class="cmt"># Automatically group raw numerical points into density ranges (bins)</span>
+ax.<span class="fn">hist</span>(order_sizes, bins=<span class="num">15</span>, color=<span class="str">'#10b981'</span>, edgecolor=<span class="str">'#065f46'</span>, alpha=<span class="num">0.8</span>)
+ax.<span class="fn">set_title</span>(<span class="str">'Distribution of Order Basket Values'</span>)
+ax.<span class="fn">set_xlabel</span>(<span class="str">'Order Value ($)'</span>)
+ax.<span class="fn">set_ylabel</span>(<span class="str">'Order Ticket Count'</span>)</code></pre>
+                </div>
+                <div class="rendered-mock-container">
+                    <svg viewBox="0 0 400 150" width="100%" height="150" style="background:#fff;">
+                        <line x1="50" y1="120" x2="350" y2="120" stroke="#cbd5e1" stroke-width="1" />
+                        <!-- Rough Normal Curve distribution blocks -->
+                        <rect x="80" y="115" width="20" height="5" fill="#10b981" stroke="#065f46"/>
+                        <rect x="100" y="105" width="20" height="15" fill="#10b981" stroke="#065f46"/>
+                        <rect x="120" y="85" width="20" height="35" fill="#10b981" stroke="#065f46"/>
+                        <rect x="140" y="60" width="20" height="60" fill="#10b981" stroke="#065f46"/>
+                        <rect x="160" y="40" width="20" height="80" fill="#10b981" stroke="#065f46"/>
+                        <rect x="180" y="30" width="20" height="90" fill="#10b981" stroke="#065f46"/>
+                        <rect x="200" y="35" width="20" height="85" fill="#10b981" stroke="#065f46"/>
+                        <rect x="220" y="55" width="20" height="65" fill="#10b981" stroke="#065f46"/>
+                        <rect x="240" y="75" width="20" height="45" fill="#10b981" stroke="#065f46"/>
+                        <rect x="260" y="100" width="20" height="20" fill="#10b981" stroke="#065f46"/>
+                        <rect x="280" y="112" width="20" height="8" fill="#10b981" stroke="#065f46"/>
+                        
+                        <text x="200" y="15" font-size="10" font-weight="bold" text-anchor="middle">Distribution of Order Basket Values</text>
+                        <text x="200" y="135" font-size="8" text-anchor="middle">Order Value ($)</text>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Data Integration -->
+        <section id="data-integration">
+            <h2>Data Integration: NumPy & Pandas</h2>
+            <p>Most real-world analytics projects start with Pandas. You will calculate metrics, group by dimensions, and then feed those outputs directly to Matplotlib. Let's look at a realistic business case: aggregating sales figures by region and department.</p>
+
+            <div class="code-container">
+                <div class="code-header"><span>Processing Pandas Output for Plotting</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                <pre><code><span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+<span class="cmt"># 1. Simulating an export from CRM</span>
+df_crm = pd.<span class="fn">DataFrame</span>({
+    <span class="str">'Region'</span>: [<span class="str">'East'</span>, <span class="str">'West'</span>, <span class="str">'East'</span>, <span class="str">'West'</span>, <span class="str">'East'</span>, <span class="str">'West'</span>],
+    <span class="str">'Service'</span>: [<span class="str">'Cloud'</span>, <span class="str">'On-Premise'</span>, <span class="str">'Cloud'</span>, <span class="str">'Cloud'</span>, <span class="str">'On-Premise'</span>, <span class="str">'On-Premise'</span>],
+    <span class="str">'Revenue'</span>: [<span class="num">50000</span>, <span class="num">75000</span>, <span class="num">62000</span>, <span class="num">81000</span>, <span class="num">45000</span>, <span class="num">39000</span>]
+})
+
+<span class="cmt"># 2. Aggregating data using Pandas before plotting</span>
+df_regional = df_crm.<span class="fn">groupby</span>(<span class="str">'Region'</span>)[<span class="str">'Revenue'</span>].<span class="fn">sum</span>().<span class="fn">reset_index</span>()
+
+<span class="cmt"># 3. Passing DataFrame columns straight to Matplotlib</span>
+fig, ax = plt.<span class="fn">subplots</span>(figsize=(<span class="num">6</span>, <span class="num">3</span>))
+ax.<span class="fn">barh</span>(df_regional[<span class="str">'Region'</span>], df_regional[<span class="str">'Revenue'</span>], color=[<span class="str">'#1e3a8a'</span>, <span class="str">'#10b981'</span>])
+ax.<span class="fn">set_title</span>(<span class="str">'Aggregate Revenue performance by Region'</span>)
+ax.<span class="fn">set_xlabel</span>(<span class="str">'Total Revenue ($)'</span>)
+plt.<span class="fn">show</span>()</code></pre>
+            </div>
+        </section>
+
+        <!-- Section 6: Formatting & Storytelling -->
+        <section id="formatting">
+            <h2>Formatting, Customization & Storytelling</h2>
+            <p>An default plot looks raw and academic. Executive communication requires structural design decisions to direct the viewer’s eye to the most important business takeaways.</p>
+
+            <div class="callout callout-warning">
+                <h4>Data Visualization Principles</h4>
+                <ul>
+                    <li><strong>Clear Purpose:</strong> Focus on one key metric per visual.</li>
+                    <li><strong>Honest Scales:</strong> Ensure vertical bar axes start at absolute zero ($0) to avoid misleading comparison proportions.</li>
+                    <li><strong>Color Discipline:</strong> Reserve bright accents (like Amber or Crimson) to highlight critical anomalies, such as failing customer support goals. Keep normal ranges neutral.</li>
+                    <li><strong>Annotations as Explanations:</strong> Label outlier data directly. Your stakeholders shouldn't have to trace values to an axis to understand the plot.</li>
+                </ul>
+            </div>
+
+            <p>Let's look at how to refine a standard chart into a polished business visual using annotations, custom ticks, grid formatting, and clear labels.</p>
+
+            <div class="code-container">
+                <div class="code-header"><span>Polished Storytelling Plot</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                <pre><code>fig, ax = plt.<span class="fn">subplots</span>(figsize=(<span class="num">8</span>, <span class="num">4.5</span>))
+
+<span class="cmt"># Draw clean line</span>
+ax.<span class="fn">plot</span>(months, churn_rates, color=<span class="str">'#64748b'</span>, linewidth=<span class="num">2</span>, label=<span class="str">'Overall Trend'</span>)
+
+<span class="cmt"># Highlight anomalous data point</span>
+ax.<span class="fn">scatter</span>(<span class="str">'May'</span>, <span class="num">4.8</span>, color=<span class="str">'#ef4444'</span>, s=<span class="num">120</span>, zorder=<span class="num">5</span>, label=<span class="str">'System Outage Effect'</span>)
+
+<span class="cmt"># Focus with an Annotation pointer</span>
+ax.<span class="fn">annotate</span>(
+    <span class="str">'Severe API Outage\nMay 12th'</span>, 
+    xy=(<span class="str">'May'</span>, <span class="num">4.8</span>), 
+    xytext=(<span class="str">'Mar'</span>, <span class="num">4.0</span>),
+    arrowprops=<span class="fn">dict</span>(facecolor=<span class="str">'#ef4444'</span>, shrink=<span class="num">0.05</span>, width=<span class="num">1.5</span>, headwidth=<span class="num">8</span>)
+)
+
+<span class="cmt"># Refined formatting</span>
+ax.<span class="fn">set_title</span>(<span class="str">'System Downtime Impact on Monthly Churn Rate'</span>, fontsize=<span class="num">14</span>, fontweight=<span class="str">'bold'</span>, pad=<span class="num">20</span>)
+ax.<span class="fn">set_ylabel</span>(<span class="str">'Churn Percentage (%)'</span>)
+ax.<span class="fn">set_ylim</span>(<span class="num">0</span>, <span class="num">6</span>) <span class="cmt"># Give room at the top</span>
+ax.<span class="fn">spines</span>[<span class="str">'top'</span>].<span class="fn">set_visible</span>(<span class="num">False</span>)
+ax.<span class="fn">spines</span>[<span class="str">'right'</span>].<span class="fn">set_visible</span>(<span class="num">False</span>)
+ax.<span class="fn">legend</span>(loc=<span class="str">'upper left'</span>, frameon=<span class="num">False</span>)
+
+plt.<span class="fn">show</span>()</code></pre>
+            </div>
+        </section>
+
+        <!-- Section 7: Layouts -->
+        <section id="layouts">
+            <h2>Multi-Chart Layouts & Subplots</h2>
+            <p>An executive dashboard presents several key performance indicators (KPIs) side-by-side to tell a cohesive business story. The standard way to create clean sub-sections is by using <code>plt.subplots(nrows, ncols)</code>.</p>
+
+            <div class="code-container">
+                <div class="code-header"><span>2x1 Vertical Panel Setup</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                <pre><code><span class="cmt"># Initialize canvas grid: 2 Rows, 1 Column</span>
+fig, (ax1, ax2) = plt.<span class="fn">subplots</span>(nrows=<span class="num">2</span>, ncols=<span class="num">1</span>, figsize=(<span class="num">8</span>, <span class="num">7</span>), sharex=<span class="num">True</span>)
+
+<span class="cmt"># Panel 1: Operational Revenue</span>
+ax1.<span class="fn">plot</span>(months, revenue_data, color=<span class="str">'#1e3a8a'</span>)
+ax1.<span class="fn">set_title</span>(<span class="str">'Monthly Operations Cash Inflow'</span>)
+ax1.<span class="fn">set_ylabel</span>(<span class="str">'USD'</span>)
+
+<span class="cmt"># Panel 2: Customer Acquisition Spend</span>
+ax2.<span class="fn">bar</span>(months, ad_spend, color=<span class="str">'#10b981'</span>)
+ax2.<span class="fn">set_title</span>(<span class="str">'Targeted Acquisition Budget Outlay'</span>)
+ax2.<span class="fn">set_ylabel</span>(<span class="str">'USD'</span>)
+
+<span class="cmt"># Keep margins from clipping</span>
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">show</span>()</code></pre>
+            </div>
+        </section>
+
+        <!-- Section 8: Advanced Customization -->
+        <section id="advanced">
+            <h2>Advanced Reporting Operations</h2>
+            <p>When presenting data to senior leadership, standard layout templates often aren't enough. You will frequently need to combine different metric scales, account for confidence intervals, and write modular plotting functions.</p>
+
+            <h3>1. Secondary Y-Axis</h3>
+            <p>Use <code>ax.twinx()</code> to plot metrics with different scales (like revenue and conversion rate) on the same timeline.</p>
+            <div class="code-container">
+                <div class="code-header"><span>Secondary Dual-Y Axis Visual</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                <pre><code>fig, ax1 = plt.<span class="fn">subplots</span>(figsize=(<span class="num">8</span>, <span class="num">4</span>))
+
+<span class="cmt"># Base Y-Axis: Revenue in dollars</span>
+ax1.<span class="fn">bar</span>(months, revenue, color=<span class="str">'#3b82f6'</span>, alpha=<span class="num">0.6</span>, label=<span class="str">'Revenue'</span>)
+ax1.<span class="fn">set_ylabel</span>(<span class="str">'Revenue ($)'</span>, color=<span class="str">'#3b82f6'</span>)
+ax1.<span class="fn">tick_params</span>(axis=<span class="str">'y'</span>, labelcolor=<span class="str">'#3b82f6'</span>)
+
+<span class="cmt"># Create a shared X-axis overlay for a secondary metric</span>
+ax2 = ax1.<span class="fn">twinx</span>()
+ax2.<span class="fn">plot</span>(months, profit_margin, color=<span class="str">'#f59e0b'</span>, linewidth=<span class="num">2</span>, label=<span class="str">'Margin %'</span>)
+ax2.<span class="fn">set_ylabel</span>(<span class="str">'Gross Margin %'</span>, color=<span class="str">'#f59e0b'</span>)
+ax2.<span class="fn">tick_params</span>(axis=<span class="str">'y'</span>, labelcolor=<span class="str">'#f59e0b'</span>)
+
+plt.<span class="fn">title</span>(<span class="str">'Monthly Financial Performance and Margins'</span>)
+plt.<span class="fn">show</span>()</code></pre>
+            </div>
+
+            <h3>2. Confidence Bands & Reusable Layout Functions</h3>
+            <p>In business forecasting, avoiding false precision is key. Use <code>fill_between</code> to represent uncertainty, and bundle your chart styles into reusable functions for consistent reports.</p>
+            <div class="code-container">
+                <div class="code-header"><span>Modular Forecasting Code</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                <pre><code><span class="kw">def</span> <span class="fn">plot_forecast_model</span>(ax, df_data):
+    <span class="cmt"># Plot central forecast line</span>
+    ax.<span class="fn">plot</span>(df_data[<span class="str">'Month'</span>], df_data[<span class="str">'Projection'</span>], color=<span class="str">'#1e3a8a'</span>, label=<span class="str">'Projection'</span>)
+    
+    <span class="cmt"># Plot confidence band range</span>
+    ax.<span class="fn">fill_between</span>(
+        df_data[<span class="str">'Month'</span>], 
+        df_data[<span class="str">'Confidence_Lower'</span>], 
+        df_data[<span class="str">'Confidence_Upper'</span>],
+        color=<span class="str">'#1e3a8a'</span>, 
+        alpha=<span class="num">0.15</span>, 
+        label=<span class="str">'95% confidence bounds'</span>
+    )
+    ax.<span class="fn">legend</span>(loc=<span class="str">'upper left'</span>)
+    ax.<span class="fn">spines</span>[<span class="str">'top'</span>].<span class="fn">set_visible</span>(<span class="num">False</span>)
+    ax.<span class="fn">spines</span>[<span class="str">'right'</span>].<span class="fn">set_visible</span>(<span class="num">False</span>)</code></pre>
+            </div>
+        </section>
+
+        <!-- Section 9: Debugging & Quiz -->
+        <section id="debugging">
+            <h2>Common Pitfalls & Debugging</h2>
+            <div style="margin-bottom: 2rem;">
+                <p>Matplotlib errors can be frustrating. Here is how to quickly fix the three most common mistakes made by students:</p>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 1rem; background: white; border: 1px solid var(--border);">
+                    <thead>
+                        <tr style="background-color: #f1f5f9; border-bottom: 2px solid var(--border);">
+                            <th style="padding: 0.75rem; text-align: left;">Symptom</th>
+                            <th style="padding: 0.75rem; text-align: left;">Root Cause</th>
+                            <th style="padding: 0.75rem; text-align: left;">Fix</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.75rem; font-weight: bold; font-family: monospace;">Empty Chart Output</td>
+                            <td style="padding: 0.75rem;">Calling <code>plt.show()</code> before configuring plot elements.</td>
+                            <td style="padding: 0.75rem;">Move <code>plt.show()</code> to the absolute end of your code block.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.75rem; font-weight: bold; font-family: monospace;">Overlapping Text labels</td>
+                            <td style="padding: 0.75rem;">Uncontrolled axis ranges or crowded categories.</td>
+                            <td style="padding: 0.75rem;">Use <code>fig.autofmt_xdate()</code> or rotate labels with <code>plt.xticks(rotation=45)</code>.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem; font-weight: bold; font-family: monospace;">AttributeError: 'Axes' object...</td>
+                            <td style="padding: 0.75rem;">Mixing Pyplot methods with OO style (e.g. calling <code>ax.title()</code> instead of <code>ax.set_title()</code>).</td>
+                            <td style="padding: 0.75rem;">Double-check that you are using <code>set_</code> prefixes for OO methods.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Quiz Card -->
+            <div class="card quiz-card">
+                <h3>Quick Check: Interactive Review Quiz</h3>
+                <p>Test your knowledge before moving on to the final project. Select the best response below:</p>
+                
+                <div id="quiz-question-container">
+                    <p class="quiz-question" id="quiz-q-text">1. Which execution flow pattern represents the recommended Object-Oriented paradigm for complex multi-chart reports?</p>
+                    <div class="quiz-options">
+                        <label class="quiz-option-label">
+                            <input type="radio" name="quiz-ans" value="A" class="quiz-option-input">
+                            <span>A) Calling <code>plt.plot()</code> directly, relying on Matplotlib's active state tracker.</span>
+                        </label>
+                        <label class="quiz-option-label">
+                            <input type="radio" name="quiz-ans" value="B" class="quiz-option-input">
+                            <span>B) Using <code>fig, ax = plt.subplots()</code> and calling <code>ax.plot()</code> on the returned axes objects.</span>
+                        </label>
+                        <label class="quiz-option-label">
+                            <input type="radio" name="quiz-ans" value="C" class="quiz-option-input">
+                            <span>C) Direct styling using Pandas' native plot methods without customizing Matplotlib objects.</span>
+                        </label>
+                    </div>
+                    <button class="quiz-submit-btn" onclick="gradeQuiz()">Submit Answer</button>
+                    <div id="quiz-feedback-box" class="quiz-feedback"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 10: Mini-Project -->
+        <section id="project">
+            <h2>Course Mini-Project: Executive Dashboard</h2>
+            <p><strong>Scenario:</strong> You are the lead analyst presenting performance metrics to the Chief Operating Officer. You have been asked to build a clean <strong>2x2 Executive Dashboard</strong> using a unified layout to answer four key business questions.</p>
+
+            <div class="card" style="background-color: #fafafa;">
+                <h4>Business Questions to Answer:</h4>
+                <ul style="padding-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 1rem;">
+                    <li><strong>Q1:</strong> What is our overall revenue trajectory over the past six months? (Trend)</li>
+                    <li><strong>Q2:</strong> How do sales compare across our top product lines? (Contribution)</li>
+                    <li><strong>Q3:</strong> Is our ad spend correlated with conversion rates? (Marketing ROI)</li>
+                    <li><strong>Q4:</strong> What is the proportional breakdown of our customer segments? (Demographics)</li>
+                </ul>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header"><span>Complete Project Template (Run in Jupyter)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                <pre><code><span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+<span class="cmt"># -------------------------------------------------------------</span>
+<span class="cmt"># 1. GENERATE REPRESENTATIVE DATA</span>
+<span class="cmt"># -------------------------------------------------------------</span>
+months = [<span class="str">'Jul'</span>, <span class="str">'Aug'</span>, <span class="str">'Sep'</span>, <span class="str">'Oct'</span>, <span class="str">'Nov'</span>, <span class="str">'Dec'</span>]
+revenue = [<span class="num">120000</span>, <span class="num">135000</span>, <span class="num">150000</span>, <span class="num">142000</span>, <span class="num">165000</span>, <span class="num">195000</span>]
+products = [<span class="str">'SaaS'</span>, <span class="str">'Hardware'</span>, <span class="str">'Services'</span>, <span class="str">'Support'</span>]
+product_sales = [<span class="num">95000</span>, <span class="num">42000</span>, <span class="num">28000</span>, <span class="num">15000</span>]
+spend = np.array([<span class="num">1000</span>, <span class="num">1500</span>, <span class="num">2200</span>, <span class="num">3100</span>, <span class="num">4000</span>, <span class="num">4500</span>, <span class="num">5200</span>, <span class="num">6000</span>])
+conversions = np.array([<span class="num">1.5</span>, <span class="num">1.8</span>, <span class="num">2.4</span>, <span class="num">2.9</span>, <span class="num">3.5</span>, <span class="num">3.8</span>, <span class="num">4.5</span>, <span class="num">4.9</span>])
+segments = [<span class="str">'Enterprise'</span>, <span class="str">'Mid-Market'</span>, <span class="str">'SMB'</span>]
+segment_sizes = [<span class="num">45</span>, <span class="num">30</span>, <span class="num">25</span>]
+
+<span class="cmt"># -------------------------------------------------------------</span>
+<span class="cmt"># 2. CONSTRUCT 2x2 CANVAS GRID</span>
+<span class="cmt"># -------------------------------------------------------------</span>
+fig, axes = plt.<span class="fn">subplots</span>(nrows=<span class="num">2</span>, ncols=<span class="num">2</span>, figsize=(<span class="num">12</span>, <span class="num">9</span>))
+fig.<span class="fn">suptitle</span>(<span class="str">'Q2 Operational &amp; Financial Performance Dashboard'</span>, fontsize=<span class="num">16</span>, fontweight=<span class="str">'bold'</span>)
+
+<span class="cmt"># Flatten the 2x2 grid to a 1D array (ax1, ax2, ax3, ax4) for easy iteration</span>
+ax1, ax2, ax3, ax4 = axes.<span class="fn">flatten</span>()
+
+<span class="cmt"># Panel 1: Revenue Trend (Top Left)</span>
+ax1.<span class="fn">plot</span>(months, revenue, color=<span class="str">'#1e3a8a'</span>, marker=<span class="str">'o'</span>, linewidth=<span class="num">2</span>)
+ax1.<span class="fn">set_title</span>(<span class="str">'Revenue Growth Trend'</span>)
+ax1.<span class="fn">set_ylabel</span>(<span class="str">'USD ($)'</span>)
+ax1.<span class="fn">grid</span>(<span class="num">True</span>, alpha=<span class="num">0.3</span>)
+
+<span class="cmt"># Panel 2: Product Performance (Top Right)</span>
+ax2.<span class="fn">bar</span>(products, product_sales, color=<span class="str">'#10b981'</span>, edgecolor=<span class="str">'#065f46'</span>)
+ax2.<span class="fn">set_title</span>(<span class="str">'Sales Volume by Product Line'</span>)
+ax2.<span class="fn">set_ylabel</span>(<span class="str">'Units Sold'</span>)
+
+<span class="cmt"># Panel 3: Marketing Correlation (Bottom Left)</span>
+ax3.<span class="fn">scatter</span>(spend, conversions, color=<span class="str">'#f59e0b'</span>, s=<span class="num">100</span>, edgecolor=<span class="str">'black'</span>)
+ax3.<span class="fn">set_title</span>(<span class="str">'Marketing Spend vs. Conversions'</span>)
+ax3.<span class="fn">set_xlabel</span>(<span class="str">'Ad Spend ($)'</span>)
+ax3.<span class="fn">set_ylabel</span>(<span class="str">'Conversions (%)'</span>)
+
+<span class="cmt"># Panel 4: Customer Composition (Bottom Right)</span>
+ax4.<span class="fn">pie</span>(segment_sizes, labels=segments, autopct=<span class="str">'%1.1f%%'</span>, colors=[<span class="str">'#1e3a8a'</span>, <span class="str">'#3b82f6'</span>, <span class="str">'#93c5fd'</span>])
+ax4.<span class="fn">set_title</span>(<span class="str">'Customer Segmentation'</span>)
+
+<span class="cmt"># Optimize Spacing and Render</span>
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">show</span>()</code></pre>
+            </div>
+
+            <!-- Target Dashboard SVG Mock Preview -->
+            <div class="card">
+                <h3>Target Dashboard Output (Visualization Preview)</h3>
+                <p>This is a mockup of the visual layout generated by your Python code:</p>
+                <div class="rendered-mock-container" style="background-color: #f8fafc; border: 1px solid var(--border); padding: 1.5rem;">
+                    <svg viewBox="0 0 600 450" width="100%" height="450" style="background:#fff; border: 1px solid #94a3b8; border-radius: 6px;">
+                        <!-- Super Title -->
+                        <text x="300" y="30" font-size="14" font-weight="bold" text-anchor="middle" fill="#0f172a">Q2 Operational &amp; Financial Performance Dashboard</text>
+
+                        <!-- Box borders for subplots mapping -->
+                        <!-- TOP LEFT -->
+                        <g transform="translate(30, 50)">
+                            <rect x="0" y="0" width="240" height="160" fill="none" stroke="#e2e8f0" />
+                            <text x="120" y="20" font-size="10" font-weight="bold" text-anchor="middle" fill="#1e3a8a">Revenue Growth Trend</text>
+                            <polyline points="30,130 70,115 110,95 150,105 190,80 220,50" fill="none" stroke="#1e3a8a" stroke-width="2"/>
+                            <circle cx="220" cy="50" r="3" fill="#1e3a8a" />
+                            <text x="30" y="145" font-size="7">Jul</text>
+                            <text x="220" y="145" font-size="7">Dec</text>
+                        </g>
+
+                        <!-- TOP RIGHT -->
+                        <g transform="translate(330, 50)">
+                            <rect x="0" y="0" width="240" height="160" fill="none" stroke="#e2e8f0" />
+                            <text x="120" y="20" font-size="10" font-weight="bold" text-anchor="middle" fill="#1e3a8a">Sales Volume by Product Line</text>
+                            <rect x="40" y="50" width="25" height="90" fill="#10b981" />
+                            <rect x="85" y="80" width="25" height="60" fill="#10b981" />
+                            <rect x="130" y="100" width="25" height="40" fill="#10b981" />
+                            <rect x="175" y="120" width="25" height="20" fill="#10b981" />
+                            <text x="52" y="152" font-size="7" text-anchor="middle">SaaS</text>
+                            <text x="187" y="152" font-size="7" text-anchor="middle">Support</text>
+                        </g>
+
+                        <!-- BOTTOM LEFT -->
+                        <g transform="translate(30, 250)">
+                            <rect x="0" y="0" width="240" height="160" fill="none" stroke="#e2e8f0" />
+                            <text x="120" y="20" font-size="10" font-weight="bold" text-anchor="middle" fill="#1e3a8a">Marketing Spend vs. Conversions</text>
+                            <circle cx="50" cy="130" r="4" fill="#f59e0b" stroke="#000"/>
+                            <circle cx="90" cy="110" r="4" fill="#f59e0b" stroke="#000"/>
+                            <circle cx="130" cy="80" r="4" fill="#f59e0b" stroke="#000"/>
+                            <circle cx="180" cy="70" r="4" fill="#f59e0b" stroke="#000"/>
+                            <circle cx="210" cy="50" r="4" fill="#f59e0b" stroke="#000"/>
+                            <text x="120" y="152" font-size="7" text-anchor="middle">Spend ($)</text>
+                        </g>
+
+                        <!-- BOTTOM RIGHT -->
+                        <g transform="translate(330, 250)">
+                            <rect x="0" y="0" width="240" height="160" fill="none" stroke="#e2e8f0" />
+                            <text x="120" y="20" font-size="10" font-weight="bold" text-anchor="middle" fill="#1e3a8a">Customer Segmentation</text>
+                            <!-- Simple pie representation -->
+                            <circle cx="120" cy="90" r="40" fill="#1e3a8a" />
+                            <path d="M 120 90 L 120 50 A 40 40 0 0 1 160 90 Z" fill="#3b82f6" />
+                            <path d="M 120 90 L 160 90 A 40 40 0 0 1 120 130 Z" fill="#93c5fd" />
+                            <!-- Labels -->
+                            <text x="80" y="90" fill="#fff" font-size="7" font-weight="bold">45%</text>
+                            <text x="140" y="75" fill="#fff" font-size="7" font-weight="bold">30%</text>
+                            <text x="135" y="115" fill="#000" font-size="7" font-weight="bold">25%</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 11: Summary Checklist -->
+        <section id="checklist">
+            <h2>Matplotlib Best-Practice Checklist</h2>
+            <p>Save this quick reference to guide your coding workflow. Check off your tasks as you polish your visualizations for class submissions or business reports.</p>
+            
+            <div class="checklist-grid">
+                <div class="checklist-item">
+                    <input type="checkbox" id="item-oo" checked>
+                    <label for="item-oo"><strong>Use Object-Oriented Style:</strong> Created canvas and plots using <code>fig, ax = plt.subplots()</code> instead of relying on general state functions.</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="item-scale">
+                    <label for="item-scale"><strong>Honest Zero Scales:</strong> For bar charts, verified that the numerical baseline begins at $0 to avoid visual distortion.</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="item-spines">
+                    <label for="item-spines"><strong>De-clutter Layout:</strong> Cleaned up charts by removing unnecessary top and right borders using <code>ax.spines['top'].set_visible(False)</code>.</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="item-labels">
+                    <label for="item-labels"><strong>Comprehensive Labeling:</strong> Checked that all axes have clear labels, descriptive titles are present, and legends are visible if using multiple lines.</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="item-export">
+                    <label for="item-export"><strong>Clean Report Export:</strong> Exported high-resolution charts for presentations using <code>plt.savefig('output.png', dpi=300, bbox_inches='tight')</code>.</label>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="action-btn" onclick="printChecklist()">Print Checklist &amp; Guide</button>
+                <button class="action-btn action-btn-secondary" onclick="resetChecklist()">Reset Checklist States</button>
+            </div>
+        </section>
+
+        <!-- Attribution and Footer -->
+        <footer>
+            <p>MSBA-510 Section 001 | Python for Business Analytics Course Manual</p>
+            <p style="margin-top:0.5rem; font-size:0.75rem;">Interactive Learning System designed using HeuriSight methodologies.</p>
+        </footer>
+    </main>
+
+    <!-- Interactive JavaScript Engine -->
+    <script>
+        // Progress bar controller
+        window.onscroll = function() { updateProgressBar() };
+
+        function updateProgressBar() {
+            const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById("progressBar").style.width = scrolled + "%";
+
+            // Track active section to highlight sidebar
+            const sections = document.querySelectorAll("section");
+            const navItems = document.querySelectorAll(".nav-item");
+            
+            let current = "";
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (winScroll >= sectionTop - 150) {
+                    current = section.getAttribute("id");
+                }
+            });
+
+            navItems.forEach(item => {
+                item.classList.remove("active");
+                if (item.querySelector("a").getAttribute("href").substring(1) === current) {
+                    item.classList.add("active");
+                }
+            });
+        }
+
+        // Sidebar drawer helper
+        function toggleSidebar() {
+            document.getElementById("sidebar").classList.toggle("open");
+        }
+        function closeSidebar() {
+            document.getElementById("sidebar").classList.remove("open");
+        }
+
+        // Copy Button Helper
+        function copyCode(btn) {
+            const pre = btn.parentElement.nextElementSibling;
+            const text = pre.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                btn.innerText = "Copied!";
+                setTimeout(() => { btn.innerText = "Copy"; }, 2000);
+            });
+        }
+
+        // Anatomy Plot Exploration Data
+        const anatomyData = {
+            figure: {
+                title: "The Figure (fig)",
+                desc: "The overarching window or frame boundary container. It controls the master size (figsize), file saving operations, resolution properties, and can contain multiple charts (Axes).",
+                code: "fig, ax = plt.subplots(figsize=(10, 6))"
+            },
+            axes: {
+                title: "The Axes (ax)",
+                desc: "The actual chart canvas area where lines, bars, markers, and axis bounds are plotted. This is where most plot customization happens.",
+                code: "ax.plot(x, y)"
+            },
+            title: {
+                title: "The Chart Title",
+                desc: "Provides instant business context. Set a clear title, adjust font size, and add spacing (pad) so it doesn't crowd the chart.",
+                code: "ax.set_title('Q2 Metric Revenue Growth', pad=15)"
+            },
+            xlabel: {
+                title: "X-Axis Label",
+                desc: "Explains the horizontal variable. Keep category names concise so they are easy to read.",
+                code: "ax.set_xlabel('Fiscal Quarters')"
+            },
+            ylabel: {
+                title: "Y-Axis Label",
+                desc: "Explains the vertical scale. Always include units (e.g., Millions, Percentages) so stakeholders have context.",
+                code: "ax.set_ylabel('Total Revenue ($)')"
+            },
+            grid: {
+                title: "Plot Gridlines",
+                desc: "Provides reference points to trace values. Keep gridlines subtle (use alpha=0.3 and a dashed style) so they don't distract from the data.",
+                code: "ax.grid(True, linestyle='--', alpha=0.3)"
+            },
+            marker: {
+                title: "Data Markers",
+                desc: "Highlight individual data points on line charts. Useful for drawing attention to specific intervals.",
+                code: "ax.plot(x, y, marker='o', markersize=6)"
+            },
+            line: {
+                title: "Line Trace",
+                desc: "Represents continuous temporal connections. Adjust line thickness and use professional colors to guide the viewer.",
+                code: "ax.plot(x, y, linewidth=2.5, color='#1e3a8a')"
+            },
+            ticks: {
+                title: "Axis Ticks",
+                desc: "Labels that mark specific intervals on your axes. Customize tick locations and label values to ensure clean formatting.",
+                code: "ax.set_xticks([0, 1, 2])\nax.set_xticklabels(['Q1', 'Q2', 'Q3'])"
+            }
+        };
+
+        // Attach listeners to SVG interactive elements
+        document.querySelectorAll('.interactive-element').forEach(el => {
+            el.addEventListener('mouseenter', function() {
+                const item = this.getAttribute('data-anatomy');
+                if (anatomyData[item]) {
+                    document.getElementById('anatomy-title').innerText = anatomyData[item].title;
+                    document.getElementById('anatomy-description').innerText = anatomyData[item].desc;
+                    document.getElementById('anatomy-code-val').innerText = anatomyData[item].code;
+                    document.getElementById('anatomy-code-snippet').style.display = 'block';
+                }
+            });
+        });
+
+        // Tab Selectors
+        function switchTab(tabId, el) {
+            const tabs = el.parentElement.querySelectorAll('.tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+
+            const tabContents = el.parentElement.parentElement.querySelectorAll('.tab-content');
+            tabContents.forEach(c => c.style.display = 'none');
+            document.getElementById(tabId).style.display = 'block';
+        }
+
+        function switchChartTab(tabId, el) {
+            const tabs = el.parentElement.querySelectorAll('.tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+
+            // Hide siblings of line, bar, scatter, hist
+            const parent = el.parentElement.parentElement;
+            parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // Scenario Decision Engine Logic
+        const scenarioBlueprints = {
+            1: {
+                title: "Scenario A: Compare Q4 Category Sales Contribution",
+                desc: "<strong>Strategic Goal:</strong> Assess discrete product line categories at a specific point in time.<br><strong>Verdict:</strong> Use a horizontal bar chart to rank categories. This provides clear vertical labels and avoids text crowding.",
+                code: "fig, ax = plt.subplots(figsize=(7, 4))\n# Always sort DataFrame values before plotting for a clean visual hierarchy\ndf_sorted = df.sort_values('Revenue')\nax.barh(df_sorted['Category'], df_sorted['Revenue'], color='#1e3a8a')"
+            },
+            2: {
+                title: "Scenario B: Relate CAC to Customer LTV",
+                desc: "<strong>Strategic Goal:</strong> Evaluate the relationship between two numerical variables to identify trends or clusters.<br><strong>Verdict:</strong> Use a scatter plot. Add a trendline to clearly show positive or negative correlation.",
+                code: "fig, ax = plt.subplots(figsize=(6, 4))\nax.scatter(df['CAC'], df['LTV'], color='#f59e0b', edgecolors='black')\n# Add a line of best fit using NumPy\nm, b = np.polyfit(df['CAC'], df['LTV'], 1)\nax.plot(df['CAC'], m*df['CAC'] + b, color='#ef4444', linestyle='--')"
+            },
+            3: {
+                title: "Scenario C: Trace Revenue across past 36 Months",
+                desc: "<strong>Strategic Goal:</strong> Track financial and performance metrics over a continuous timeline.<br><strong>Verdict:</strong> Use a line chart. Remove top and right borders (spines) to keep the focus on the historical trend line.",
+                code: "fig, ax = plt.subplots(figsize=(10, 4))\nax.plot(df['Date'], df['Revenue'], color='#2563eb', linewidth=2)\nax.grid(True, linestyle='--', alpha=0.3)\nfig.autofmt_xdate() # Auto-rotate date labels to avoid overlap"
+            }
+        };
+
+        function selectScenario(index, btn) {
+            const btns = btn.parentElement.querySelectorAll('.flow-option-btn');
+            btns.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+
+            const res = scenarioBlueprints[index];
+            document.getElementById('flow-result-title').innerHTML = res.title;
+            document.getElementById('flow-result-desc').innerHTML = res.desc;
+            document.getElementById('flow-result-code').innerHTML = res.code;
+            document.getElementById('flow-result').style.display = 'block';
+        }
+
+        // Quiz Logic
+        const quizQuestions = [
+            {
+                q: "1. Which execution flow pattern represents the recommended Object-Oriented paradigm for complex multi-chart reports?",
+                options: [
+                    "A) Calling plt.plot() directly, relying on Matplotlib's active state tracker.",
+                    "B) Using fig, ax = plt.subplots() and calling ax.plot() on the returned axes objects.",
+                    "C) Direct styling using Pandas' native plot methods without customizing Matplotlib objects."
+                ],
+                correct: "B",
+                feedback: "Correct! The Object-Oriented style (using fig, ax) is the industry standard. It gives you explicit control over individual charts, which is essential for building complex, professional layouts."
+            }
+        ];
+
+        function gradeQuiz() {
+            const selected = document.querySelector('input[name="quiz-ans"]:checked');
+            const feedbackBox = document.getElementById('quiz-feedback-box');
+            
+            if (!selected) {
+                feedbackBox.className = "quiz-feedback incorrect";
+                feedbackBox.innerText = "Please select an answer option before submitting.";
+                feedbackBox.style.display = "block";
+                return;
+            }
+
+            if (selected.value === quizQuestions[0].correct) {
+                feedbackBox.className = "quiz-feedback correct";
+                feedbackBox.innerText = quizQuestions[0].feedback;
+            } else {
+                feedbackBox.className = "quiz-feedback incorrect";
+                feedbackBox.innerText = "Incorrect. Remember that state-machine syntax (like plt.plot()) is prone to errors in complex dashboards. The Object-Oriented style (ax.plot()) is always recommended.";
+            }
+            feedbackBox.style.display = "block";
+        }
+
+        // Checklist State Persistence Logic
+        document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(checkbox => {
+            // Load saved state
+            const savedState = localStorage.getItem(checkbox.id);
+            if (savedState !== null) {
+                checkbox.checked = savedState === 'true';
+            }
+            // Save state on change
+            checkbox.addEventListener('change', function() {
+                localStorage.setItem(this.id, this.checked);
+            });
+        });
+
+        function resetChecklist() {
+            document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+                localStorage.setItem(checkbox.id, 'false');
+            });
+        }
+
+        function printChecklist() {
+            window.print();
+        }
+    </script>
+</body>
+</html>
