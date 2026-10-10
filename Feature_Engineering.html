@@ -1,0 +1,1414 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Feature Engineering Lab</title>
+  <style>
+    :root {
+      --ink: #112a46;
+      --muted: #5f7186;
+      --line: #dbe5ee;
+      --paper: #f6f9fc;
+      --white: #ffffff;
+      --blue: #2867c7;
+      --blue-soft: #e9f1ff;
+      --teal: #118a7e;
+      --teal-soft: #e1f7f2;
+      --coral: #d8554b;
+      --coral-soft: #ffebe8;
+      --gold: #f3b74f;
+      --shadow: 0 12px 30px rgba(31, 61, 91, 0.10);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 0%, #e8f6ff 0, transparent 26rem),
+        radial-gradient(circle at 92% 14%, #e9fbf5 0, transparent 24rem),
+        var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    button, input, select { font: inherit; }
+
+    button {
+      cursor: pointer;
+      border: 0;
+    }
+
+    button:focus-visible,
+    summary:focus-visible {
+      outline: 3px solid #ffbf5b;
+      outline-offset: 3px;
+    }
+
+    .wrap {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 11px;
+      border-radius: 999px;
+      color: var(--blue);
+      background: var(--blue-soft);
+      font-weight: 800;
+      font-size: 0.79rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hero {
+      padding: 62px 0 38px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+      gap: 44px;
+      align-items: center;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      max-width: 760px;
+      margin: 16px 0;
+      font-size: clamp(2.45rem, 6vw, 4.8rem);
+      letter-spacing: -0.065em;
+      line-height: 0.98;
+    }
+
+    h1 span { color: var(--teal); }
+
+    .hero p {
+      max-width: 680px;
+      color: var(--muted);
+      font-size: 1.12rem;
+    }
+
+    .goal-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .goal-list span {
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,.76);
+      font-size: .91rem;
+      font-weight: 700;
+    }
+
+    .hero-visual {
+      position: relative;
+      min-height: 285px;
+      overflow: hidden;
+      border: 1px solid #d6e4ee;
+      border-radius: 30px;
+      background: linear-gradient(145deg, #ffffff 0%, #e9f8f7 100%);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-visual::after {
+      position: absolute;
+      width: 250px;
+      height: 250px;
+      right: -90px;
+      bottom: -115px;
+      border-radius: 50%;
+      background: #b9e9e2;
+      content: "";
+    }
+
+    .data-stack {
+      position: absolute;
+      top: 52px;
+      left: 38px;
+      display: grid;
+      gap: 11px;
+      width: 174px;
+      z-index: 1;
+    }
+
+    .data-row {
+      height: 34px;
+      border-radius: 9px;
+      background: linear-gradient(90deg, #dbeaff 0 24%, #fff 24% 100%);
+      box-shadow: 0 4px 10px rgba(31, 74, 107, 0.10);
+    }
+
+    .transform-arrow {
+      position: absolute;
+      top: 111px;
+      left: 205px;
+      width: 88px;
+      height: 22px;
+      border-top: 6px solid var(--blue);
+      z-index: 2;
+    }
+
+    .transform-arrow::after {
+      position: absolute;
+      top: -12px;
+      right: -3px;
+      width: 0;
+      height: 0;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      border-left: 16px solid var(--blue);
+      content: "";
+    }
+
+    .feature-card {
+      position: absolute;
+      top: 42px;
+      right: 29px;
+      width: 175px;
+      padding: 18px;
+      border: 2px solid var(--teal);
+      border-radius: 17px;
+      background: #ffffff;
+      box-shadow: 0 10px 20px rgba(20, 104, 97, .14);
+      z-index: 2;
+    }
+
+    .feature-card strong {
+      display: block;
+      color: var(--teal);
+      font-size: 1rem;
+    }
+
+    .feature-card small {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: .76rem;
+    }
+
+    .feature-bars {
+      display: flex;
+      align-items: end;
+      gap: 7px;
+      height: 60px;
+      margin-top: 12px;
+    }
+
+    .feature-bars i {
+      display: block;
+      width: 20px;
+      border-radius: 7px 7px 2px 2px;
+      background: var(--teal);
+    }
+
+    .feature-bars i:nth-child(1) { height: 25px; }
+    .feature-bars i:nth-child(2) { height: 42px; }
+    .feature-bars i:nth-child(3) { height: 57px; }
+
+    section { padding: 34px 0; }
+
+    .section-heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 20px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      font-size: clamp(1.65rem, 3vw, 2.35rem);
+      letter-spacing: -0.045em;
+    }
+
+    .section-heading p {
+      max-width: 570px;
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .lifecycle {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin: 8px 0 10px;
+    }
+
+    .lifecycle-step {
+      position: relative;
+      min-height: 104px;
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.76);
+      font-weight: 800;
+    }
+
+    .lifecycle-step.active {
+      border-color: var(--teal);
+      background: var(--teal-soft);
+      box-shadow: inset 0 0 0 1px var(--teal);
+    }
+
+    .lifecycle-step small {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: .76rem;
+      font-weight: 600;
+    }
+
+    .lifecycle-step:not(:last-child)::after {
+      position: absolute;
+      top: 43px;
+      right: -8px;
+      width: 12px;
+      height: 12px;
+      border-top: 3px solid #9cb2c6;
+      border-right: 3px solid #9cb2c6;
+      transform: rotate(45deg);
+      content: "";
+      z-index: 2;
+    }
+
+    .caption {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .workflow-layout {
+      display: grid;
+      grid-template-columns: 1.08fr .92fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .workflow-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .workflow-card {
+      min-height: 148px;
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      color: var(--ink);
+      text-align: left;
+      background: var(--white);
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .workflow-card:hover {
+      transform: translateY(-3px);
+      border-color: #a7c5eb;
+      box-shadow: 0 8px 18px rgba(30, 75, 120, .10);
+    }
+
+    .workflow-card.active {
+      color: #093e39;
+      border-color: var(--teal);
+      background: var(--teal-soft);
+      box-shadow: inset 0 0 0 1px var(--teal);
+    }
+
+    .step-number {
+      display: grid;
+      width: 31px;
+      height: 31px;
+      place-items: center;
+      margin-bottom: 16px;
+      border-radius: 50%;
+      color: white;
+      background: var(--blue);
+      font-size: .84rem;
+      font-weight: 900;
+    }
+
+    .workflow-card.active .step-number { background: var(--teal); }
+
+    .workflow-card strong {
+      display: block;
+      line-height: 1.22;
+      font-size: .96rem;
+    }
+
+    .workflow-card span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: .8rem;
+      line-height: 1.25;
+    }
+
+    .detail-panel {
+      display: flex;
+      min-height: 380px;
+      flex-direction: column;
+      padding: 28px;
+      border-radius: var(--radius);
+      color: white;
+      background: linear-gradient(145deg, #153858, #174d70);
+      box-shadow: var(--shadow);
+    }
+
+    .detail-panel .progress {
+      color: #a8d8ff;
+      font-size: .86rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .detail-panel h3 {
+      margin: 10px 0 11px;
+      font-size: 1.65rem;
+      letter-spacing: -0.03em;
+    }
+
+    .detail-panel p {
+      color: #e3eef8;
+      font-size: 1rem;
+    }
+
+    .detail-panel .example {
+      margin-top: auto;
+      padding: 15px;
+      border: 1px solid rgba(255,255,255,.19);
+      border-radius: 12px;
+      background: rgba(255,255,255,.10);
+    }
+
+    .detail-panel .example b {
+      display: block;
+      margin-bottom: 5px;
+      color: #8ee6d8;
+      font-size: .78rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .detail-panel pre {
+      overflow-x: auto;
+      margin: 16px 0 0;
+      padding: 13px;
+      border-radius: 10px;
+      color: #daf6f1;
+      background: #0d2b43;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: .78rem;
+      white-space: pre-wrap;
+    }
+
+    .demo {
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--white);
+      box-shadow: var(--shadow);
+    }
+
+    .demo-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .demo-top h3 { margin: 0; }
+
+    .demo-top p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: .91rem;
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .primary, .secondary {
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 800;
+    }
+
+    .primary {
+      color: white;
+      background: var(--blue);
+    }
+
+    .primary:hover { background: #1e55ac; }
+
+    .secondary {
+      color: var(--blue);
+      border: 1px solid #b9cce6;
+      background: white;
+    }
+
+    .secondary:hover { background: var(--blue-soft); }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid #e5edf4;
+      border-radius: 13px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .89rem;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #e6edf3;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      color: #38516b;
+      background: #f3f7fb;
+      font-size: .76rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .demo-note {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 12px;
+      color: #135d56;
+      background: var(--teal-soft);
+      font-size: .92rem;
+    }
+
+    .demo-note b { color: #0d7065; }
+
+    .accordion-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .accordion-item {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: white;
+    }
+
+    .accordion-trigger {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 17px;
+      color: var(--ink);
+      text-align: left;
+      background: white;
+      font-weight: 850;
+    }
+
+    .accordion-trigger:hover { background: #f8fbfe; }
+
+    .accordion-trigger span:first-child {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .plus {
+      font-size: 1.4rem;
+      font-weight: 400;
+      transition: transform .2s ease;
+    }
+
+    .accordion-trigger[aria-expanded="true"] .plus { transform: rotate(45deg); }
+
+    .accordion-panel {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows .26s ease;
+    }
+
+    .accordion-panel.open { grid-template-rows: 1fr; }
+
+    .accordion-panel > div {
+      overflow: hidden;
+      padding: 0 17px;
+    }
+
+    .accordion-panel.open > div { padding-bottom: 18px; }
+
+    .accordion-panel p {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: .91rem;
+    }
+
+    .formula {
+      padding: 10px 12px;
+      border-radius: 9px;
+      color: #0a6158;
+      background: #eaf9f6;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: .83rem;
+    }
+
+    .leakage-card {
+      overflow: hidden;
+      border-radius: var(--radius);
+      background: var(--white);
+      box-shadow: var(--shadow);
+    }
+
+    .leakage-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 24px 27px;
+      color: white;
+      background: linear-gradient(110deg, #153858, #2867c7);
+    }
+
+    .leakage-head h2 { margin: 0; }
+
+    .leakage-head p {
+      max-width: 430px;
+      margin: 0;
+      color: #dcecff;
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: 1fr 172px 1fr;
+      min-height: 220px;
+    }
+
+    .window {
+      padding: 24px;
+    }
+
+    .window h3 {
+      margin-bottom: 8px;
+      font-size: 1.1rem;
+    }
+
+    .historical { background: var(--teal-soft); }
+    .future { background: var(--coral-soft); }
+
+    .window p {
+      margin-bottom: 16px;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: .81rem;
+      font-weight: 800;
+    }
+
+    .tag.good {
+      color: #075c53;
+      border: 1px solid #8bd7cb;
+      background: white;
+    }
+
+    .tag.bad {
+      color: #a4322a;
+      border: 1px solid #f3aaa4;
+      background: white;
+      text-decoration: line-through;
+    }
+
+    .cutoff {
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      text-align: center;
+      background: #eef4fa;
+    }
+
+    .cutoff-line {
+      position: relative;
+      width: 5px;
+      height: 56px;
+      margin: 9px auto;
+      border-radius: 10px;
+      background: var(--blue);
+    }
+
+    .cutoff-line::before,
+    .cutoff-line::after {
+      position: absolute;
+      left: 50%;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: var(--blue);
+      transform: translateX(-50%);
+      content: "";
+    }
+
+    .cutoff-line::before { top: -7px; }
+    .cutoff-line::after { bottom: -7px; }
+
+    .cutoff strong { display: block; }
+
+    .rule {
+      padding: 17px 22px;
+      color: #7d2923;
+      text-align: center;
+      background: #fff4f2;
+      font-size: 1.07rem;
+      font-weight: 900;
+    }
+
+    .quiz-grid {
+      display: grid;
+      grid-template-columns: 1fr .86fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .quiz-card, .takeaway-card {
+      padding: 25px;
+      border-radius: var(--radius);
+      background: white;
+      box-shadow: var(--shadow);
+    }
+
+    .quiz-card h3, .takeaway-card h3 { margin-bottom: 8px; }
+
+    .quiz-options {
+      display: grid;
+      gap: 9px;
+      margin-top: 16px;
+    }
+
+    .quiz-option {
+      padding: 12px 14px;
+      border: 1px solid #cfdae5;
+      border-radius: 10px;
+      color: var(--ink);
+      text-align: left;
+      background: white;
+      font-weight: 750;
+    }
+
+    .quiz-option:hover:not(:disabled) {
+      border-color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .quiz-option.correct {
+      color: #075c53;
+      border-color: var(--teal);
+      background: var(--teal-soft);
+    }
+
+    .quiz-option.incorrect {
+      color: #93352f;
+      border-color: var(--coral);
+      background: var(--coral-soft);
+    }
+
+    .quiz-option:disabled { cursor: default; }
+
+    .feedback {
+      min-height: 48px;
+      margin: 13px 0 0;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .next-question {
+      display: none;
+      margin-top: 4px;
+    }
+
+    .takeaway-card {
+      color: white;
+      background: linear-gradient(145deg, #0f7c72, #155576);
+    }
+
+    .takeaway-card p {
+      color: #e5fbf6;
+      font-size: 1.02rem;
+    }
+
+    .takeaway-rule {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 12px;
+      background: rgba(255,255,255,.10);
+      font-size: 1.08rem;
+      font-weight: 900;
+      line-height: 1.25;
+    }
+
+    footer {
+      padding: 35px 0 46px;
+      color: var(--muted);
+      text-align: center;
+      font-size: .88rem;
+    }
+
+    @media (max-width: 880px) {
+      .hero-grid,
+      .workflow-layout,
+      .quiz-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-visual { min-height: 245px; }
+
+      .lifecycle {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .lifecycle-step:not(:last-child)::after { display: none; }
+
+      .timeline { grid-template-columns: 1fr; }
+
+      .cutoff { min-height: 132px; }
+
+      .cutoff-line {
+        width: 58px;
+        height: 5px;
+      }
+
+      .cutoff-line::before,
+      .cutoff-line::after {
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .cutoff-line::before { left: -7px; }
+      .cutoff-line::after { left: auto; right: -7px; }
+    }
+
+    @media (max-width: 620px) {
+      .hero { padding-top: 40px; }
+
+      .section-heading {
+        display: block;
+      }
+
+      .section-heading p { margin-top: 10px; }
+
+      .workflow-grid,
+      .accordion-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .lifecycle { grid-template-columns: 1fr; }
+
+      .hero-visual { transform: scale(.94); transform-origin: top left; width: 106.4%; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <div class="eyebrow">Interactive student lesson</div>
+          <h1>Feature engineering turns <span>raw data</span> into useful signals.</h1>
+          <p>
+            Explore how business analysts create, select, and validate features
+            before they use a model or make a data-informed decision.
+          </p>
+          <div class="goal-list" aria-label="Learning goals">
+            <span>✓ Identify useful features</span>
+            <span>✓ Build customer signals</span>
+            <span>✓ Avoid data leakage</span>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-label="Raw table rows transform into a feature card">
+          <div class="data-stack" aria-hidden="true">
+            <div class="data-row"></div>
+            <div class="data-row"></div>
+            <div class="data-row"></div>
+            <div class="data-row"></div>
+          </div>
+          <div class="transform-arrow" aria-hidden="true"></div>
+          <div class="feature-card">
+            <strong>Customer features</strong>
+            <small>One row per customer</small>
+            <div class="feature-bars" aria-hidden="true"><i></i><i></i><i></i></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section>
+      <div class="wrap">
+        <div class="section-heading">
+          <h2>Feature engineering in the analytics life cycle</h2>
+          <p>It is one important step between data preparation and model evaluation.</p>
+        </div>
+
+        <div class="lifecycle" aria-label="Business analytics life cycle">
+          <div class="lifecycle-step">1. Business question<small>What decision must we support?</small></div>
+          <div class="lifecycle-step">2. Data preparation<small>Clean and understand the data.</small></div>
+          <div class="lifecycle-step active">3. Feature engineering<small>Create and select useful signals.</small></div>
+          <div class="lifecycle-step">4. Model or analysis<small>Find patterns or make predictions.</small></div>
+          <div class="lifecycle-step">5. Decision and monitoring<small>Act, measure, and improve.</small></div>
+        </div>
+        <p class="caption">Feature engineering does not replace the other stages. It helps connect prepared data to a useful analysis or model.</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="section-heading">
+          <h2>Explore the workflow</h2>
+          <p>Select a step to see its purpose, a business example, and a common Python technique.</p>
+        </div>
+
+        <div class="workflow-layout">
+          <div class="workflow-grid" id="workflowGrid" aria-label="Feature engineering workflow">
+            <button class="workflow-card active" data-step="0" aria-pressed="true">
+              <span class="step-number">1</span>
+              <strong>Define the decision</strong>
+              <span>Start with the business question.</span>
+            </button>
+            <button class="workflow-card" data-step="1" aria-pressed="false">
+              <span class="step-number">2</span>
+              <strong>Set the time boundary</strong>
+              <span>Separate past features from future outcomes.</span>
+            </button>
+            <button class="workflow-card" data-step="2" aria-pressed="false">
+              <span class="step-number">3</span>
+              <strong>Create candidate features</strong>
+              <span>Transform events into signals.</span>
+            </button>
+            <button class="workflow-card" data-step="3" aria-pressed="false">
+              <span class="step-number">4</span>
+              <strong>Select useful features</strong>
+              <span>Remove weak, duplicate, or unsafe fields.</span>
+            </button>
+            <button class="workflow-card" data-step="4" aria-pressed="false">
+              <span class="step-number">5</span>
+              <strong>Validate features</strong>
+              <span>Test with data the model has not seen.</span>
+            </button>
+            <button class="workflow-card" data-step="5" aria-pressed="false">
+              <span class="step-number">6</span>
+              <strong>Document and monitor</strong>
+              <span>Keep features clear and reliable.</span>
+            </button>
+          </div>
+
+          <aside class="detail-panel" aria-live="polite">
+            <div class="progress" id="detailProgress">Step 1 of 6</div>
+            <h3 id="detailTitle">Define the decision</h3>
+            <p id="detailText">Start with the decision that the analysis must support.</p>
+            <div class="example">
+              <b>Business example</b>
+              <div id="detailExample"></div>
+            </div>
+            <pre id="detailCode"></pre>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="section-heading">
+          <h2>Before and after: from transactions to features</h2>
+          <p>Raw data records events. Features summarize customer behavior.</p>
+        </div>
+
+        <div class="demo">
+          <div class="demo-top">
+            <div>
+              <h3 id="tableTitle">Raw transaction data</h3>
+              <p id="tableSubtitle">Six order records from four customers</p>
+            </div>
+            <div class="action-row">
+              <button class="primary" id="buildFeatures">Build customer features</button>
+              <button class="secondary" id="showRaw">Show raw data</button>
+            </div>
+          </div>
+
+          <div class="table-wrap" id="datasetTable" aria-live="polite"></div>
+
+          <div class="demo-note" id="demoNote">
+            <span aria-hidden="true">💡</span>
+            <div><b>Read the rows:</b> Each row is one purchase event. A predictive model for churn usually needs one row for each customer.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="section-heading">
+          <h2>Open an example</h2>
+          <p>Feature types describe different parts of customer behavior.</p>
+        </div>
+
+        <div class="accordion-grid">
+          <article class="accordion-item">
+            <button class="accordion-trigger" aria-expanded="false" aria-controls="panel-date">
+              <span><span aria-hidden="true">📅</span> Date features</span><span class="plus">+</span>
+            </button>
+            <div class="accordion-panel" id="panel-date">
+              <div>
+                <p>Dates can show timing and seasonality. A useful customer feature is how long it has been since the last purchase.</p>
+                <div class="formula">DaysSinceLastPurchase = CutoffDate − LastPurchaseDate</div>
+              </div>
+            </div>
+          </article>
+
+          <article class="accordion-item">
+            <button class="accordion-trigger" aria-expanded="false" aria-controls="panel-aggregation">
+              <span><span aria-hidden="true">📊</span> Aggregations</span><span class="plus">+</span>
+            </button>
+            <div class="accordion-panel" id="panel-aggregation">
+              <div>
+                <p>Group transaction rows by customer to calculate values such as total revenue, order count, and average order value.</p>
+                <div class="formula">df.groupby("CustomerID")["Revenue"].mean()</div>
+              </div>
+            </div>
+          </article>
+
+          <article class="accordion-item">
+            <button class="accordion-trigger" aria-expanded="false" aria-controls="panel-ratio">
+              <span><span aria-hidden="true">➗</span> Ratios and interactions</span><span class="plus">+</span>
+            </button>
+            <div class="accordion-panel" id="panel-ratio">
+              <div>
+                <p>Ratios make values comparable. Interactions combine two values when their relationship matters.</p>
+                <div class="formula">DiscountRate = AverageDiscount × 100</div>
+              </div>
+            </div>
+          </article>
+
+          <article class="accordion-item">
+            <button class="accordion-trigger" aria-expanded="false" aria-controls="panel-category">
+              <span><span aria-hidden="true">🏷️</span> Categories</span><span class="plus">+</span>
+            </button>
+            <div class="accordion-panel" id="panel-category">
+              <div>
+                <p>Region, acquisition channel, and product category may show useful segment differences. A model converts them into machine-readable values.</p>
+                <div class="formula">OneHotEncoder(handle_unknown="ignore")</div>
+              </div>
+            </div>
+          </article>
+
+          <article class="accordion-item">
+            <button class="accordion-trigger" aria-expanded="false" aria-controls="panel-selection">
+              <span><span aria-hidden="true">✓</span> Feature selection</span><span class="plus">+</span>
+            </button>
+            <div class="accordion-panel" id="panel-selection">
+              <div>
+                <p>Keep features that are relevant, reliable, and useful on validation data. Remove IDs, duplicates, and fields that cannot be known at prediction time.</p>
+                <div class="formula">Keep: DaysSinceLastPurchase · Remove: CustomerID</div>
+              </div>
+            </div>
+          </article>
+
+          <article class="accordion-item">
+            <button class="accordion-trigger" aria-expanded="false" aria-controls="panel-leakage">
+              <span><span aria-hidden="true">⚠</span> Data leakage</span><span class="plus">+</span>
+            </button>
+            <div class="accordion-panel" id="panel-leakage">
+              <div>
+                <p>Data leakage occurs when a feature contains future information. It can make test results look excellent but fail in real use.</p>
+                <div class="formula">Never use FutureOrders to predict future churn.</div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="leakage-card">
+          <div class="leakage-head">
+            <div>
+              <div class="eyebrow" style="background:rgba(255,255,255,.15); color:#fff;">Critical guardrail</div>
+              <h2 style="margin-top:12px;">Keep the future out of the feature table.</h2>
+            </div>
+            <p>Use information that exists at the decision date. Use future information only to measure what happened later.</p>
+          </div>
+
+          <div class="timeline" aria-label="Data leakage timeline">
+            <div class="window historical">
+              <h3>Historical feature window</h3>
+              <p>Information known before the prediction date.</p>
+              <div class="tag-list">
+                <span class="tag good">DaysSinceLastPurchase</span>
+                <span class="tag good">OrdersLast90Days</span>
+                <span class="tag good">AverageOrderValue</span>
+              </div>
+            </div>
+
+            <div class="cutoff">
+              <strong>Decision date</strong>
+              <div class="cutoff-line" aria-hidden="true"></div>
+              <span>Make prediction</span>
+            </div>
+
+            <div class="window future">
+              <h3>Future outcome window</h3>
+              <p>Information that happens after the prediction date.</p>
+              <div class="tag-list">
+                <span class="tag bad">FutureOrders</span>
+                <span class="tag bad">RevenueNext60Days</span>
+                <span class="tag bad">ChurnedNext60Days</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="rule">FEATURES = PAST &nbsp; | &nbsp; TARGET = FUTURE</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap quiz-grid">
+        <div class="quiz-card">
+          <div class="eyebrow">Quick check</div>
+          <h3 id="quizQuestion">Can you use <code>FutureOrders</code> to predict whether a customer will churn next month?</h3>
+          <div class="quiz-options" id="quizOptions"></div>
+          <div class="feedback" id="quizFeedback" aria-live="polite"></div>
+          <button class="primary next-question" id="nextQuestion">Next question</button>
+        </div>
+
+        <aside class="takeaway-card">
+          <h3>One idea to remember</h3>
+          <p>Feature engineering is not just making more columns. It creates useful, time-valid, and decision-ready signals.</p>
+          <div class="takeaway-rule">Start with the decision. Then build features from information available at that time.</div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Feature Engineering Lab · Explore the steps, then try changing the business question and designing new features.
+  </footer>
+
+  <script>
+    const workflow = [
+      {
+        title: "Define the decision",
+        text: "Start with the business decision. State the target, the unit of analysis, and the time horizon.",
+        example: "Which customers are likely to make no purchase in the next 60 days?",
+        code: '# One row = one customer\\ntarget = "ChurnedNext60Days"'
+      },
+      {
+        title: "Set the time boundary",
+        text: "Choose the date when the prediction happens. Features can use only information known on or before that date.",
+        example: "Use orders before September 30 to predict customer activity after September 30.",
+        code: 'history = df[df["OrderDate"] <= cutoff_date]'
+      },
+      {
+        title: "Create candidate features",
+        text: "Turn raw events into signals. Use dates, counts, averages, ratios, categories, and meaningful combinations.",
+        example: "Turn several purchase rows into DaysSinceLastPurchase and AverageOrderValue.",
+        code: 'df.groupby("CustomerID")["Revenue"].mean()'
+      },
+      {
+        title: "Select useful features",
+        text: "Keep features that are relevant, reliable, and useful. Remove IDs, exact duplicates, and future information.",
+        example: "Keep OrdersLast90Days. Remove CustomerID and FutureOrders.",
+        code: 'selected = candidates.drop(columns=["CustomerID", "FutureOrders"])'
+      },
+      {
+        title: "Validate features",
+        text: "Test whether features help on unseen data. Do not choose features only because they look useful in one sample.",
+        example: "Compare model performance with and without DaysSinceLastPurchase.",
+        code: 'train_test_split(X, y, test_size=0.25, random_state=42)'
+      },
+      {
+        title: "Document and monitor",
+        text: "Write down each feature definition, data source, refresh schedule, and owner. Check that it stays reliable over time.",
+        example: "Refresh OrdersLast90Days each day from completed orders.",
+        code: 'feature_name = "OrdersLast90Days"'
+      }
+    ];
+
+    const workflowButtons = [...document.querySelectorAll(".workflow-card")];
+    const detailProgress = document.getElementById("detailProgress");
+    const detailTitle = document.getElementById("detailTitle");
+    const detailText = document.getElementById("detailText");
+    const detailExample = document.getElementById("detailExample");
+    const detailCode = document.getElementById("detailCode");
+
+    function showWorkflowStep(index) {
+      const item = workflow[index];
+      workflowButtons.forEach((button, buttonIndex) => {
+        const active = buttonIndex === index;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+      detailProgress.textContent = `Step ${index + 1} of ${workflow.length}`;
+      detailTitle.textContent = item.title;
+      detailText.textContent = item.text;
+      detailExample.textContent = item.example;
+      detailCode.textContent = item.code;
+    }
+
+    workflowButtons.forEach(button => {
+      button.addEventListener("click", () => showWorkflowStep(Number(button.dataset.step)));
+    });
+
+    showWorkflowStep(0);
+
+    const transactions = [
+      { customer: "C101", orderDate: "2025-07-04", revenue: 120, discount: 0.10 },
+      { customer: "C101", orderDate: "2025-09-26", revenue: 180, discount: 0.00 },
+      { customer: "C102", orderDate: "2025-08-14", revenue: 80, discount: 0.25 },
+      { customer: "C103", orderDate: "2025-08-10", revenue: 200, discount: 0.20 },
+      { customer: "C103", orderDate: "2025-09-22", revenue: 120, discount: 0.00 },
+      { customer: "C104", orderDate: "2025-07-01", revenue: 210, discount: 0.00 }
+    ];
+
+    const cutoffDate = new Date("2025-09-30T00:00:00Z");
+    const datasetTable = document.getElementById("datasetTable");
+    const tableTitle = document.getElementById("tableTitle");
+    const tableSubtitle = document.getElementById("tableSubtitle");
+    const demoNote = document.getElementById("demoNote");
+
+    function money(value) {
+      return `$${value.toFixed(2)}`;
+    }
+
+    function percent(value) {
+      return `${(value * 100).toFixed(1)}%`;
+    }
+
+    function createTable(headers, rows) {
+      const table = document.createElement("table");
+      const thead = document.createElement("thead");
+      const headRow = document.createElement("tr");
+
+      headers.forEach(header => {
+        const th = document.createElement("th");
+        th.textContent = header;
+        headRow.appendChild(th);
+      });
+
+      thead.appendChild(headRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+      rows.forEach(row => {
+        const tr = document.createElement("tr");
+        row.forEach(value => {
+          const td = document.createElement("td");
+          td.textContent = value;
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      return table;
+    }
+
+    function renderRawData() {
+      tableTitle.textContent = "Raw transaction data";
+      tableSubtitle.textContent = "Six order records from four customers";
+      const rows = transactions.map(row => [
+        row.customer,
+        row.orderDate,
+        money(row.revenue),
+        percent(row.discount)
+      ]);
+      datasetTable.replaceChildren(createTable(
+        ["CustomerID", "OrderDate", "Revenue", "Discount"],
+        rows
+      ));
+      demoNote.innerHTML = "<span aria-hidden='true'>💡</span><div><b>Read the rows:</b> Each row is one purchase event. A predictive model for churn usually needs one row for each customer.</div>";
+    }
+
+    function daysAgo(dateText) {
+      const date = new Date(`${dateText}T00:00:00Z`);
+      return Math.round((cutoffDate - date) / 86400000);
+    }
+
+    function buildFeatures() {
+      const groups = {};
+
+      transactions.forEach(row => {
+        if (!groups[row.customer]) groups[row.customer] = [];
+        groups[row.customer].push(row);
+      });
+
+      return Object.entries(groups).map(([customer, orders]) => {
+        const latestOrder = orders.reduce((latest, order) =>
+          order.orderDate > latest.orderDate ? order : latest
+        );
+
+        const totalRevenue = orders.reduce((sum, order) => sum + order.revenue, 0);
+        const avgDiscount = orders.reduce((sum, order) => sum + order.discount, 0) / orders.length;
+        const ordersLast90 = orders.filter(order => daysAgo(order.orderDate) <= 90).length;
+
+        return {
+          customer,
+          daysSinceLastPurchase: daysAgo(latestOrder.orderDate),
+          ordersLast90,
+          averageOrderValue: totalRevenue / orders.length,
+          discountRate: avgDiscount
+        };
+      }).sort((a, b) => a.customer.localeCompare(b.customer));
+    }
+
+    function renderFeatureData() {
+      tableTitle.textContent = "Engineered customer features";
+      tableSubtitle.textContent = "One row per customer, created from the raw transaction table";
+      const rows = buildFeatures().map(row => [
+        row.customer,
+        row.daysSinceLastPurchase,
+        row.ordersLast90,
+        money(row.averageOrderValue),
+        percent(row.discountRate)
+      ]);
+
+      datasetTable.replaceChildren(createTable(
+        ["CustomerID", "DaysSinceLastPurchase", "OrdersLast90Days", "AverageOrderValue", "DiscountRate"],
+        rows
+      ));
+
+      demoNote.innerHTML = "<span aria-hidden='true'>✨</span><div><b>What changed:</b> The data now describes customer behavior. These features can support a churn model or customer-retention analysis.</div>";
+    }
+
+    document.getElementById("buildFeatures").addEventListener("click", renderFeatureData);
+    document.getElementById("showRaw").addEventListener("click", renderRawData);
+    renderRawData();
+
+    document.querySelectorAll(".accordion-trigger").forEach(trigger => {
+      trigger.addEventListener("click", () => {
+        const panel = document.getElementById(trigger.getAttribute("aria-controls"));
+        const isOpen = trigger.getAttribute("aria-expanded") === "true";
+
+        document.querySelectorAll(".accordion-trigger").forEach(other => {
+          other.setAttribute("aria-expanded", "false");
+          document.getElementById(other.getAttribute("aria-controls")).classList.remove("open");
+        });
+
+        if (!isOpen) {
+          trigger.setAttribute("aria-expanded", "true");
+          panel.classList.add("open");
+        }
+      });
+    });
+
+    const quiz = [
+      {
+        question: "Can you use FutureOrders to predict whether a customer will churn next month?",
+        options: ["Yes, because it is accurate", "No, because it comes from the future", "Yes, if the model is simple"],
+        answer: 1,
+        feedback: "Correct. FutureOrders is not known at the decision date. Using it would cause data leakage."
+      },
+      {
+        question: "Which field is the best feature for recent customer activity?",
+        options: ["CustomerID", "DaysSinceLastPurchase", "RevenueNext60Days"],
+        answer: 1,
+        feedback: "Correct. DaysSinceLastPurchase describes behavior that is known when you make the prediction."
+      },
+      {
+        question: "Why remove RevenuePerOrder if it is exactly the same as AverageOrderValue?",
+        options: ["It is a duplicate feature", "It has too many letters", "It is always missing"],
+        answer: 0,
+        feedback: "Correct. Duplicate features add little information and can make a model harder to explain."
+      }
+    ];
+
+    let quizIndex = 0;
+    const quizQuestion = document.getElementById("quizQuestion");
+    const quizOptions = document.getElementById("quizOptions");
+    const quizFeedback = document.getElementById("quizFeedback");
+    const nextQuestion = document.getElementById("nextQuestion");
+
+    function renderQuiz() {
+      const current = quiz[quizIndex];
+      quizQuestion.textContent = current.question;
+      quizFeedback.textContent = "";
+      nextQuestion.style.display = "none";
+      quizOptions.replaceChildren();
+
+      current.options.forEach((option, index) => {
+        const button = document.createElement("button");
+        button.className = "quiz-option";
+        button.textContent = option;
+        button.addEventListener("click", () => checkAnswer(index));
+        quizOptions.appendChild(button);
+      });
+    }
+
+    function checkAnswer(selectedIndex) {
+      const current = quiz[quizIndex];
+      const buttons = [...quizOptions.querySelectorAll("button")];
+
+      buttons.forEach((button, index) => {
+        button.disabled = true;
+        if (index === current.answer) button.classList.add("correct");
+        if (index === selectedIndex && index !== current.answer) button.classList.add("incorrect");
+      });
+
+      quizFeedback.textContent = selectedIndex === current.answer
+        ? current.feedback
+        : `Not quite. ${current.feedback}`;
+
+      nextQuestion.style.display = "inline-block";
+      nextQuestion.textContent = quizIndex === quiz.length - 1 ? "Start again" : "Next question";
+    }
+
+    nextQuestion.addEventListener("click", () => {
+      quizIndex = (quizIndex + 1) % quiz.length;
+      renderQuiz();
+    });
+
+    renderQuiz();
+  </script>
+</body>
+</html>
