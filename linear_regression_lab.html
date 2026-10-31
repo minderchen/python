@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>From Business Question to Prediction • Linear Regression Lab</title>
+<style>
+:root{--ink:#182d3b;--muted:#516473;--teal:#087e83;--light:#e7f5f3;--paper:#fff;--bg:#f4f6f8;--line:#d8e1e6;--amber:#fff4db}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #c27113;outline-offset:3px}
+header{background:#143745;color:white;padding:38px max(24px,5vw)}header small{letter-spacing:2px;color:#a2e1d9;font-weight:700}
+h1{font-size:clamp(30px,4.8vw,56px);line-height:1.12;letter-spacing:-1.5px;max-width:850px;margin:15px 0}
+header p{max-width:760px;color:#dce9ed}header .tag{display:inline-block;padding:5px 12px;border:1px solid #65848d;border-radius:20px;font-size:13px;margin:4px 8px 0 0}
+.layout{display:grid;grid-template-columns:255px minmax(0,1fr);max-width:1440px;margin:auto}
+aside{padding:24px 18px;position:sticky;top:0;height:100vh;overflow:auto;border-right:1px solid var(--line)}
+aside p{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px}
+nav button{display:block;width:100%;border:0;text-align:left;padding:10px 12px;background:transparent;color:var(--muted);border-radius:8px;margin:3px 0;font-size:14px}
+nav button.active{background:var(--teal);color:white;font-weight:700}nav button:hover:not(.active){background:#e0e9ed}
+main{padding:32px clamp(18px,4vw,58px) 60px;min-width:0}.lesson{display:none;max-width:980px;margin:auto}.lesson.active{display:block}
+.eyebrow{color:var(--teal);text-transform:uppercase;letter-spacing:1.4px;font-size:12px;font-weight:800}
+h2{font-size:32px;line-height:1.2;letter-spacing:-.8px;margin:8px 0 18px}h3{font-size:20px;margin:25px 0 10px}
+.lead{font-size:19px;color:var(--muted)}.card{background:white;padding:22px;border:1px solid var(--line);border-radius:14px;margin:18px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.grid .card{margin:0}
+.callout{background:var(--light);border-left:4px solid var(--teal);padding:16px 20px;border-radius:0 9px 9px 0;margin:20px 0}
+.caution{background:var(--amber);border-color:#b87816}.muted{color:var(--muted)}.small{font-size:13px}
+.metric{font-size:32px;font-weight:800;color:var(--teal);line-height:1.3}.formula{font-size:clamp(18px,2.5vw,27px);background:var(--light);padding:22px;border-radius:12px;font-family:Georgia,serif}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:11px;border-bottom:1px solid var(--line);vertical-align:top}th{background:#edf3f5} .tablewrap{overflow:auto}
+.codebox{background:#142b38;border-radius:12px;margin:18px 0;overflow:hidden}.codebar{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;color:#c2d9e0;font-size:12px;border-bottom:1px solid #35515d}
+pre{margin:0;padding:20px;overflow:auto;color:#e7f2f5;font:13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:4}code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}p code,li code,td code{background:#e8eef1;border-radius:3px;padding:2px 4px;font-size:.9em}
+button.primary{background:var(--teal);border:0;color:white;padding:11px 18px;border-radius:8px;font-weight:700}
+button.secondary{border:1px solid #9aafb9;background:white;color:var(--ink);padding:9px 15px;border-radius:8px}
+.codebar button{color:white;border:1px solid #6d8996;background:transparent;border-radius:5px;padding:3px 10px}
+.controls label{display:block;margin:16px 0;font-weight:600}.controls input[type=range]{width:100%;accent-color:var(--teal)}output{font-variant-numeric:tabular-nums}
+.feedback{min-height:26px;color:#165e61;font-weight:600;margin-top:12px}.question{border:1px solid #a8d4cf;border-radius:12px;padding:20px;margin:20px 0;background:#f4fbfa}
+.question button{margin:5px 7px 5px 0;max-width:100%;text-align:left}.footer-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding-top:24px;margin-top:36px}
+progress{width:100%;height:8px;accent-color:var(--teal)}.steps{display:flex;flex-wrap:wrap;gap:7px;font-size:13px}.steps span{padding:7px 11px;border-radius:7px;background:#e3ecef}
+details{margin:16px 0;background:white;border:1px solid var(--line);border-radius:9px;padding:14px}summary{cursor:pointer;font-weight:700}
+svg{width:100%;height:auto;display:block}.charttext{font:12px system-ui;fill:#516473}a{color:#086b77}header a{color:#bcf0ed}
+ul,ol{padding-left:23px}li{margin:6px 0}.numeric{width:100%;padding:8px;border:1px solid #9aafb9;border-radius:7px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}.status{font-size:13px;color:var(--muted)}.hidden{display:none!important}
+@media(max-width:800px){.layout{display:block}aside{position:relative;height:auto;border:0;padding:12px 18px}nav{display:flex;overflow:auto;gap:5px}nav button{width:auto;flex-shrink:0}aside p,aside progress,aside .small{display:none}main{padding-top:15px}.grid{grid-template-columns:1fr}h2{font-size:27px}}
+@media print{header{background:white;color:black;padding:15px}header p{color:black}.layout{display:block}aside,.footer-nav,.toolbar,.codebar button,.question button{display:none}.lesson{display:block!important;break-before:page}main{padding:0}.codebox{background:#f1f3f5}pre{color:black;white-space:pre-wrap}.card{break-inside:avoid}header .tag{color:black}}
+</style>
+</head>
+<body>
+<header>
+<small>MSBA / PYTHON FOR BUSINESS ANALYTICS</small>
+<h1>From business question<br>to first prediction.</h1>
+<p>A guided linear regression lab with scikit-learn. Learn the reasoning, run the Python, and decide whether the predictions are useful.</p>
+<span class="tag">First predictive model</span><span class="tag">Retail planning case</span><span class="tag">90–120 minutes + practice</span>
+</header>
+<div class="layout">
+<aside aria-label="Tutorial navigation">
+<p>Your learning journey</p>
+<progress id="progress" value="1" max="12" aria-label="Current lesson position"></progress>
+<div id="position" class="small muted">Lesson 1 of 12</div>
+<nav id="nav" aria-label="Lessons"></nav>
+<div class="toolbar"><button class="secondary" id="allcode">All Python</button><button class="secondary" onclick="window.print()">Print</button></div>
+<p class="small muted" style="text-transform:none;letter-spacing:0;font-weight:400">Prerequisites: pandas, basic plots, and Python functions. No machine learning experience required.</p>
+</aside>
+<main id="main">
+<section class="lesson active" data-title="Start with a decision">
+<div class="eyebrow">01 / Business understanding</div>
+<h2>What decision will the model support?</h2>
+<p class="lead">A retail chain needs a sales estimate for each store before a planning week begins.</p>
+<div class="card">
+<h3 style="margin-top:0">The business brief</h3>
+<p>Use planned advertising spend, store size, and planned promotion status to predict weekly sales. Managers will use estimates as one input to inventory and staffing plans.</p>
+<div class="grid">
+<div><strong>Prediction unit</strong><p>One store during one planning week.</p></div>
+<div><strong>Prediction moment</strong><p>Before the week starts, when all three inputs are available.</p></div>
+<div><strong>Target</strong><p>Weekly sales, measured in thousands of dollars.</p></div>
+<div><strong>Illustrative success rule</strong><p>Test MAE below $3,000 and at least 20% better than a mean-sales baseline.</p></div>
+</div>
+</div>
+<p>The success rule is a teaching assumption, not an industry benchmark. In practice, agree on acceptable error with decision makers before modeling.</p>
+<div class="steps" aria-label="Data science methodology"><span>Understand the business</span><span>Understand the data</span><span>Prepare</span><span>Model</span><span>Evaluate</span><span>Use & monitor</span></div>
+<div class="callout"><strong>Learning goals.</strong> Define features and a target; protect unseen data; fit a regression pipeline; compare models; interpret MAE, RMSE, and R²; and communicate limitations.</div>
+<h3>From EDA to prediction</h3>
+<p>EDA asks, “What patterns appear in these data?” Predictive modeling adds, “Will those patterns help us predict outcomes for observations the model has never seen?”</p>
+<div class="question">
+<strong>Think first: What kind of task is this?</strong><br>
+<button class="secondary" onclick="answer(this,false,'Classification predicts a category. Here, sales is a numeric amount.')">Classification</button>
+<button class="secondary" onclick="answer(this,true,'Correct. Regression predicts a numeric quantity; supervised learning uses examples with known outcomes.')">Supervised regression</button>
+<button class="secondary" onclick="answer(this,false,'Clustering groups observations without using a known sales target.')">Clustering</button>
+<div class="feedback" aria-live="polite"></div>
+</div>
+<div class="card small"><strong>How this tutorial runs</strong><p>Browser controls use JavaScript for immediate demonstrations. They do not execute Python or train scikit-learn. Copy the Python blocks into Jupyter or Colab and run them in order, or open <strong>All Python</strong> for the complete script. Python examples were executed with scikit-learn 1.8.0; last-digit results can vary across environments.</p></div>
+</section>
+
+<section class="lesson" data-title="Meet the data">
+<div class="eyebrow">02 / Data understanding</div><h2>A small, reproducible business dataset.</h2>
+<p>We generate 240 independent stores, each observed once in the same planning period. This is a <strong>synthetic teaching dataset</strong>, not company evidence. The random seed makes it reproducible.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Column</th><th>Role</th><th>Meaning / unit</th></tr></thead>
+<tbody><tr><td><code>ad_k</code></td><td>Feature</td><td>Planned advertising, $1,000s; 12 values are missing.</td></tr>
+<tr><td><code>area_sqft</code></td><td>Feature</td><td>Store area, square feet.</td></tr>
+<tr><td><code>promotion</code></td><td>Feature</td><td>Planned promotion: 0 = no, 1 = yes.</td></tr>
+<tr><td><code>sales_k</code></td><td>Target</td><td>Observed weekly sales, $1,000s.</td></tr></tbody></table></div>
+<h3>Set up Python</h3>
+<p>In a notebook, run this once if needed, then restart the kernel if requested:</p>
+<div class="codebox"><div class="codebar"><span>Notebook setup • not part of the Python script</span></div><pre>%pip install numpy pandas matplotlib seaborn scikit-learn joblib</pre></div>
+<div class="py" data-code="setup"></div>
+<div class="py" data-code="data"></div>
+<div class="callout"><strong>Noise is intentional.</strong> Stores with identical inputs can have different sales because the model does not observe everything. The generator’s coefficients are not available to the fitted model.</div>
+<p><strong>With your own CSV:</strong> replace the generation block with <code>df = pd.read_csv("stores.csv")</code>, then check definitions, units, missing-value codes, duplicates, and when each field becomes available. The code below assumes these four column names and numeric types.</p>
+</section>
+
+<section class="lesson" data-title="Audit & protect the test set">
+<div class="eyebrow">03 / Data preparation</div><h2>Set aside the final exam.</h2>
+<p>Before exploring relationships or learning preprocessing values, reserve 20% of the observations for one final test. Use only the remaining 80% for development.</p>
+<div class="grid">
+<div class="card"><div class="metric">192 stores</div><strong>Training / development</strong><p>Explore relationships, fit preprocessing, and compare models using cross-validation.</p></div>
+<div class="card"><div class="metric">48 stores</div><strong>Test</strong><p>Keep untouched until the model and evaluation rules are fixed.</p></div>
+</div>
+<div class="py" data-code="split"></div>
+<p><code>X</code> is a two-dimensional table of feature columns. <code>y</code> is a one-dimensional target Series. Double brackets such as <code>X_train[["ad_k"]]</code> retain a table for scikit-learn.</p>
+<p><code>random_state=42</code> makes the row assignment reproducible. It does not make a split objectively best.</p>
+<div class="callout caution"><strong>The split must match the business use.</strong> A random split fits this independent-store exercise. For future-week forecasting, train on earlier weeks and test on later weeks. For repeated customers or stores, consider grouping by entity to prevent overlap.</div>
+<h3>What can you inspect before splitting?</h3>
+<p>Check the data schema, target availability, identifiers, impossible values, and collection rules. Here, negative amounts are invalid by definition. Do not calculate imputation values, select features using correlations, or remove statistical outliers using the full dataset.</p>
+<div class="question"><strong>Which feature creates leakage?</strong><br>
+<button class="secondary" onclick="answer(this,false,'Planned advertising is known at the prediction moment, so it is eligible.')">Planned ad spend</button>
+<button class="secondary" onclick="answer(this,true,'Correct. End-of-week revenue is unavailable when the prediction is needed and directly reveals the target.')">End-of-week revenue</button>
+<div class="feedback" aria-live="polite"></div></div>
+</section>
+
+<section class="lesson" data-title="Explore training data">
+<div class="eyebrow">04 / Data understanding</div><h2>Explore the data you may learn from.</h2>
+<p>Use the training set to inspect distributions, missing values, feature relationships, and unusual observations.</p>
+<div class="py" data-code="eda"></div>
+<div class="card"><h3 style="margin-top:0">Read the plots before fitting</h3><ul>
+<li>Does sales tend to increase with planned advertising or store area?</li>
+<li>Is a straight-line relationship plausible, or do you see a curve?</li>
+<li>Do promotion groups overlap? A group difference alone is not causal evidence.</li>
+<li>Are extreme values errors or legitimate large stores? Investigate before removing them.</li>
+</ul></div>
+<p>The plots leave missing values out where needed for visualization. The modeling pipeline will impute missing feature values, preserving those observations.</p>
+<div class="callout"><strong>Pause and write.</strong> State two observations and one modeling concern. “Advertising and sales rise together” describes association. “Advertising causes sales to rise” requires a stronger study design.</div>
+</section>
+
+<section class="lesson" data-title="Explore a regression line">
+<div class="eyebrow">05 / Modeling intuition</div><h2>What does a regression model learn?</h2>
+<div class="formula">Predicted sales = intercept + slope × advertising</div>
+<p>The <strong>intercept</strong> sets the line’s height when advertising is zero. The <strong>slope</strong> is the change in predicted sales for a one-unit increase in advertising.</p>
+<div class="card">
+<div class="eyebrow">Interactive concept lab • six illustrative stores</div>
+<p class="small muted">Separate from the 240-store Python dataset. Both axes are in $1,000s.</p>
+<div class="grid">
+<div class="controls">
+<label for="slope">Slope: <output id="slopeout">2.0</output><input id="slope" type="range" min="-1" max="6" step=".05" value="2"></label>
+<label for="intercept">Intercept: <output id="interceptout">8.0</output><input id="intercept" type="range" min="0" max="22" step=".1" value="8"></label>
+<button class="primary" id="fitline">Find the least-squares line</button>
+<p>Sum of squared errors</p><div class="metric" id="sse" aria-live="polite"></div>
+<p class="small">Try reducing this value manually, then compare with the fitted line. Dashed segments show observed minus predicted sales.</p>
+</div>
+<div><svg id="linechart" viewBox="0 0 500 330" role="img" aria-label="Observed sales and adjustable regression line"></svg></div>
+</div>
+<details><summary>View the same values as a table</summary><div class="tablewrap"><table><thead><tr><th>Ad ($k)</th><th>Actual ($k)</th><th>Predicted ($k)</th><th>Residual ($k)</th></tr></thead><tbody id="linetable"></tbody></table></div></details>
+</div>
+<p>A <strong>residual</strong> is actual minus predicted: <code>e = y − ŷ</code>. Positive residuals mean the model underpredicted; negative residuals mean it overpredicted.</p>
+<p>Ordinary least squares selects coefficients that minimize the sum of squared training residuals. Squaring gives larger errors more influence. A good training fit alone does not establish good prediction on unseen data.</p>
+<h3>From one feature to several</h3>
+<div class="formula">ŷ = b₀ + b₁ × ad_k + b₂ × area_sqft + b₃ × promotion</div>
+<p>This is <strong>multiple linear regression</strong>. Each coefficient describes a change in prediction while the other included inputs are held constant.</p>
+</section>
+
+<section class="lesson" data-title="Build a safe pipeline">
+<div class="eyebrow">06 / Preparation + modeling</div><h2>Keep preparation and prediction together.</h2>
+<p>Some advertising values are missing. Replace them with the median learned from the relevant training data, then fit a linear regression.</p>
+<div class="py" data-code="pipelines"></div>
+<div class="tablewrap"><table>
+<thead><tr><th>Method</th><th>What it does</th><th>Where it belongs</th></tr></thead>
+<tbody>
+<tr><td><code>fit(X, y)</code></td><td>Learns median values and regression coefficients.</td><td>Training data only.</td></tr>
+<tr><td><code>predict(X)</code></td><td>Applies learned medians and calculates predictions.</td><td>Validation, test, or new observations.</td></tr>
+<tr><td><code>DummyRegressor</code></td><td>Always predicts the training target mean.</td><td>A simple benchmark to beat.</td></tr>
+</tbody></table></div>
+<div class="callout"><strong>Why use a pipeline?</strong> During cross-validation, each fold learns its own imputation values from that fold’s training rows. Validation rows do not influence those values.</div>
+<h3>Why no scaling or one-hot encoding?</h3>
+<p>These predictors are numeric; promotion is already a 0/1 indicator. Unregularized ordinary least squares does not require scaling for this example. Raw units also make the coefficients easier to interpret. Text categories would require encoding, commonly with a <code>ColumnTransformer</code> and <code>OneHotEncoder</code>.</p>
+<details><summary>Common mistake: fill all missing values before splitting</summary><p>Computing a median on the complete dataset lets held-out rows influence preparation. Even without target values, that is information leakage. Put learned preprocessing inside the pipeline.</p></details>
+</section>
+
+<section class="lesson" data-title="Compare on training folds">
+<div class="eyebrow">07 / Model development</div><h2>Choose a model without opening the test set.</h2>
+<p>Five-fold cross-validation divides the 192 training observations into five parts. Fit on four parts and validate on the remaining part, repeating until each part has served as validation.</p>
+<div class="py" data-code="cv"></div>
+<div class="card">
+<h3 style="margin-top:0">Reference results • cross-validation MAE</h3>
+<p class="small muted">Lower is better. Values are in $1,000s; fold SD describes variation across folds, not a confidence interval.</p>
+<div class="tablewrap"><table><thead><tr><th>Candidate</th><th>Mean MAE</th><th>Fold SD</th></tr></thead>
+<tbody><tr><td>Mean baseline</td><td>7.049</td><td>0.741</td></tr><tr><td>Advertising only</td><td>4.493</td><td>0.605</td></tr><tr><td>Multiple regression</td><td><strong>2.731</strong></td><td>0.363</td></tr></tbody></table></div>
+</div>
+<p><code>neg_mean_absolute_error</code> returns negative errors because scikit-learn’s scoring convention treats larger scores as better. Negating those scores gives ordinary positive MAE.</p>
+<div class="callout"><strong>Decision:</strong> multiple regression has the lowest average validation MAE here. Refit that candidate on all 192 training observations. Keep the test set reserved for the next step.</div>
+<p>Cross-validation helps compare candidates, but selecting the best score can make that score optimistic. The untouched test set provides the final independent check.</p>
+<div class="question"><strong>The test result is disappointing. What next?</strong><br>
+<button class="secondary" onclick="answer(this,false,'Repeatedly choosing models by this test score turns the test set into development data.')">Try models until this test score improves</button>
+<button class="secondary" onclick="answer(this,true,'Correct. Return to development, and reserve fresh independent data for the next final assessment.')">Revisit development and plan a new final evaluation</button>
+<div class="feedback" aria-live="polite"></div></div>
+</section>
+
+<section class="lesson" data-title="Evaluate unseen predictions">
+<div class="eyebrow">08 / Evaluation</div><h2>Translate error into business units.</h2>
+<div class="py" data-code="evaluate"></div>
+<div class="grid">
+<div class="card"><div class="metric">$2,468</div><strong>Selected model test MAE</strong><p>Mean absolute prediction error across the 48 held-out stores.</p></div>
+<div class="card"><div class="metric">59.2%</div><strong>Lower MAE than baseline</strong><p>Baseline test MAE is about $6,043. The reduction is (baseline − model) / baseline.</p></div>
+</div>
+<div class="tablewrap"><table>
+<thead><tr><th>Metric</th><th>Definition</th><th>Selected model</th><th>Interpretation</th></tr></thead>
+<tbody>
+<tr><td>MAE</td><td>mean(|y − ŷ|)</td><td>2.468 ($k)</td><td>Average absolute error. Lower is better.</td></tr>
+<tr><td>RMSE</td><td>√mean((y − ŷ)²)</td><td>2.883 ($k)</td><td>Gives larger errors more influence. Lower is better.</td></tr>
+<tr><td>R²</td><td>1 − SSE / Σ(y − mean(y))²</td><td>0.857</td><td>About 85.7% reduction in squared error relative to the test-target mean benchmark.</td></tr>
+</tbody></table></div>
+<p>R² is not “85.7% accuracy.” It can be negative when a model performs worse than the evaluation-set mean benchmark. Its denominator uses the test target mean; our deployable baseline instead predicts the <em>training</em> target mean.</p>
+<div class="callout caution"><strong>MAE is not an error bound.</strong> An MAE of $2,468 does not mean every prediction is within $2,468, or that this is a confidence interval.</div>
+<p>The illustrative success rule is met on this synthetic split: MAE is below $3,000 and improves on baseline by more than 20%. This supports a teaching conclusion, not production readiness.</p>
+<h3>Mini-lab: see the effect of a large error</h3>
+<div class="card controls">
+<label for="error">Third residual ($k): <output id="errorout">3</output><input id="error" type="range" min="0" max="20" step="1" value="3"></label>
+<p>Three illustrative residuals: 1, −2, and <span id="third">3</span> ($k).</p>
+<p><strong id="errmetrics" aria-live="polite"></strong></p>
+<p class="small muted">Move the slider. RMSE reacts more strongly as the third error becomes large.</p>
+</div>
+</section>
+
+<section class="lesson" data-title="Diagnose & interpret">
+<div class="eyebrow">09 / Evaluation + explanation</div><h2>One score cannot tell the whole story.</h2>
+<div class="py" data-code="diagnostics"></div>
+<div class="card"><h3 style="margin-top:0">What should you look for?</h3>
+<ul><li><strong>Actual vs. predicted:</strong> observations near the diagonal have small prediction errors.</li>
+<li><strong>Residuals vs. predicted:</strong> a cloud around zero is reassuring; a curve suggests missing structure, and a funnel suggests changing error variance.</li>
+<li><strong>Group MAE:</strong> overall performance may hide weaker predictions for stores with or without promotions. Small groups give unstable estimates.</li>
+</ul></div>
+<div class="callout caution">These are final diagnostic checks. If they motivate feature changes or model selection, you have begun a new development cycle; use new independent data for its final evaluation.</div>
+<h3>Read the fitted coefficients</h3>
+<div class="py" data-code="coefficients"></div>
+<p>Reference fitted equation, rounded:</p>
+<div class="formula">ŷ = 7.755 + 2.874 × ad_k<br>+ 0.003868 × area_sqft + 4.992 × promotion</div>
+<ul>
+<li>An additional $1,000 of planned advertising is associated with approximately $2,874 higher predicted weekly sales, holding area and promotion constant.</li>
+<li>An additional 100 square feet is associated with approximately $387 higher predicted sales, holding the other inputs constant.</li>
+<li>Changing promotion from 0 to 1 changes predicted sales by approximately $4,992, holding the other inputs constant.</li>
+</ul>
+<p>Do not compare raw coefficient magnitudes as feature importance: advertising and area use different units. The intercept represents zero advertising, zero area, and no promotion, which is outside the observed store-size range.</p>
+<details><summary>Assumptions and limitations for a first regression model</summary>
+<p>Check whether an additive linear relationship is reasonable and whether observations match the independence assumptions of the evaluation design. Extreme observations and strongly correlated predictors can destabilize coefficients.</p>
+<p>Constant residual variance and approximate normality matter for classical standard errors and intervals; they are not prerequisites for calling <code>predict()</code>. Scikit-learn’s <code>LinearRegression</code> does not automatically provide coefficient p-values or prediction intervals.</p>
+<p>Sales associations do not establish advertising ROI or a causal promotion effect. Those questions need additional design and evidence.</p>
+</details>
+</section>
+
+<section class="lesson" data-title="Predict a new store">
+<div class="eyebrow">10 / Use</div><h2>Make a prediction with the same inputs.</h2>
+<p>Use the fitted pipeline, the original feature names, and the same units. The target column is not part of the input.</p>
+<div class="py" data-code="predict"></div>
+<div class="card">
+<div class="eyebrow">Interactive scenario • fixed fitted coefficients</div>
+<p class="small muted">This calculator uses the Python model’s fitted coefficients. It does not retrain the model or prove that changing an input causes sales to change.</p>
+<div class="grid">
+<div class="controls">
+<label for="ad">Advertising ($1,000s): <output id="adout">4.0</output><input id="ad" type="range" min=".5" max="8" step=".1" value="4"></label>
+<label for="area">Store area (sq ft): <output id="areaout">2200</output><input id="area" type="range" min="800" max="4000" step="50" value="2200"></label>
+<label for="promo">Promotion<select id="promo" class="numeric"><option value="0">No</option><option value="1" selected>Yes</option></select></label>
+</div>
+<div><p>Predicted weekly sales</p><div class="metric" id="prediction" aria-live="polite">$32,753</div><p class="muted">A point estimate, not a guarantee.</p><p class="small">Controls stay within the synthetic generation ranges. Even a combination inside those ranges may have limited support among observed stores.</p></div>
+</div>
+</div>
+<div class="callout"><strong>Prediction ≠ decision.</strong> A sales estimate can inform inventory planning, but inventory choices also require margins, stockout costs, lead times, and uncertainty.</div>
+<p>Do not extrapolate casually to a store with $50,000 advertising or an area of 20,000 square feet. Linear regression can produce implausible values outside its development domain.</p>
+</section>
+
+<section class="lesson" data-title="Communicate & monitor">
+<div class="eyebrow">11 / Deployment planning</div><h2>Finish the workflow, not just the fit.</h2>
+<div class="card"><h3 style="margin-top:0">Example managerial summary</h3>
+<p>“On 48 held-out synthetic stores, the regression model’s average absolute weekly sales error was approximately $2,468, compared with $6,043 for a mean-sales baseline. It met our illustrative error target. The model uses planned advertising, store area, and promotion status, all available before the week begins. We recommend a monitored pilot on real store data before operational use. These estimates describe predictive associations and do not establish the causal return on advertising or promotions.”</p></div>
+<div class="py" data-code="save"></div>
+<p>This saves the pipeline and evaluation metadata locally when you run Python. It does not deploy a service. Only load model files from a trusted source; pickle-based formats such as joblib can execute code during loading.</p>
+<h3>A practical pilot checklist</h3>
+<ul>
+<li>Validate incoming feature names, types, units, missingness, and allowed ranges.</li>
+<li>Log model version, input data, prediction date, and prediction; protect confidential data.</li>
+<li>When actual sales arrive, monitor MAE, large misses, and errors by store segment.</li>
+<li>Watch for changed inputs, changing business conditions, or new store formats.</li>
+<li>Agree on review triggers, retraining, approval ownership, and a fallback planning process.</li>
+</ul>
+<p>For a pilot, keep this evaluated training-set model. A later refit on all available labeled data produces a different model: record that version and evaluate its behavior on new outcomes.</p>
+<div class="callout"><strong>Workflow recap:</strong> define the decision → audit and split → explore training data → build a pipeline → compare with cross-validation → evaluate once → communicate → predict → monitor. Findings can send you back to an earlier step.</div>
+</section>
+
+<section class="lesson" data-title="Practice & full Python">
+<div class="eyebrow">12 / Consolidate</div><h2>Show that you can explain the model.</h2>
+<div class="card">
+<h3 style="margin-top:0">Practice in pairs</h3>
+<ol>
+<li>Explain why a train/test split is needed even when the scatterplot looks convincing.</li>
+<li>Before looking at the reference results, predict whether adding store area will reduce validation error. Explain your reasoning.</li>
+<li>Use the line lab to construct one positive and one negative residual.</li>
+<li>Write a two-sentence explanation of MAE for an inventory manager.</li>
+<li>Identify two changes needed if the data contain weekly records for the same stores.</li>
+<li>Write a recommendation that states a result, one limitation, and a next action.</li>
+</ol>
+</div>
+<details><summary>Review the central ideas</summary><ul>
+<li>Training fits the model; validation compares choices; testing assesses the final selected approach.</li>
+<li>Fit preprocessing on training data inside each fold.</li>
+<li>Compare against a simple baseline, not just a perfect score.</li>
+<li>Sales predictions are numeric values; MAE and RMSE are in target units.</li>
+<li>Predictive associations do not prove causation.</li>
+<li>Repeated stores and future weeks require a split aligned to the intended use.</li>
+</ul></details>
+<h3>The complete Python workflow</h3>
+<p>Copy this script into a notebook cell or a <code>.py</code> file after installing the dependencies. It generates its own data, so no CSV download is required. Running the final block writes a model and metadata to your working directory.</p>
+<button class="primary" id="copyall">Copy complete Python</button><span class="status" id="copystatus" role="status"></span>
+<div class="codebox"><div class="codebar"><span>Complete script • run from top to bottom</span></div><pre id="fullpython" tabindex="0"></pre></div>
+<h3>Official references</h3>
+<ul class="small">
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html" target="_blank" rel="noopener">LinearRegression: ordinary least squares</a></li>
+<li><a href="https://scikit-learn.org/stable/common_pitfalls.html" target="_blank" rel="noopener">Common pitfalls: preprocessing and data leakage</a></li>
+<li><a href="https://scikit-learn.org/stable/modules/cross_validation.html" target="_blank" rel="noopener">Cross-validation and model evaluation</a></li>
+<li><a href="https://scikit-learn.org/stable/modules/model_evaluation.html" target="_blank" rel="noopener">Regression metrics</a></li>
+</ul>
+<p class="small muted">Suggested revisions: adapt the business case, shorten the lesson for one class meeting, or add a companion Jupyter exercise.</p>
+</section>
+<div class="footer-nav"><button class="secondary" id="prev">← Previous</button><span class="status" id="bottomposition"></span><button class="primary" id="next">Next lesson →</button></div>
+</main>
+</div>
+<script>
+const blocks={
+setup:`# 1. Imports
+import json
+import joblib
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import sklearn
+
+from sklearn.model_selection import train_test_split, KFold, cross_val_score
+from sklearn.pipeline import make_pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LinearRegression
+from sklearn.dummy import DummyRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+sns.set_theme(style="whitegrid")
+print("scikit-learn version:", sklearn.__version__)`,
+data:`# 2. Generate a synthetic teaching dataset
+rng = np.random.default_rng(42)
+n = 240
+
+ad = rng.uniform(0.5, 8.0, n)      # advertising in $1,000s
+area = rng.uniform(800, 4000, n)  # square feet
+promo = rng.integers(0, 2, n)     # planned promotion
+
+# The true mechanism is known only because this is a simulation.
+sales = (8 + 2.8 * ad + 0.004 * area + 5 * promo
+         + rng.normal(0, 3, n))
+
+df = pd.DataFrame({
+    "ad_k": ad,
+    "area_sqft": area,
+    "promotion": promo,
+    "sales_k": sales
+})
+
+# Simulate 12 missing feature values, not missing targets.
+missing_rows = rng.choice(n, size=12, replace=False)
+df.loc[missing_rows, "ad_k"] = np.nan
+print(df.head())`,
+split:`# 3. Audit schema, then reserve the test set
+features = ["ad_k", "area_sqft", "promotion"]
+target = "sales_k"
+
+print(df.dtypes)
+print("Missing values:", df.isna().sum().to_dict())
+# One row per distinct store by construction.
+# In real data, check duplicates using the correct business key.
+assert df[target].notna().all(), "Investigate missing outcomes."
+assert df["ad_k"].dropna().ge(0).all()
+assert df["area_sqft"].gt(0).all()
+assert df["promotion"].isin([0, 1]).all()
+assert df[target].ge(0).all()
+
+X = df[features]  # DataFrame: 240 rows x 3 columns
+y = df[target]    # Series: 240 values
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.20, random_state=42
+)
+print("Train:", X_train.shape, "Test:", X_test.shape)
+# Expected: Train (192, 3), Test (48, 3)`,
+eda:`# 4. Explore TRAINING data only
+train = X_train.join(y_train)
+print(train.describe())
+print("Training missing values:", X_train.isna().sum())
+
+fig, axes = plt.subplots(1, 3, figsize=(14, 4))
+sns.scatterplot(data=train, x="ad_k", y="sales_k", ax=axes[0])
+sns.scatterplot(data=train, x="area_sqft", y="sales_k", ax=axes[1])
+sns.boxplot(data=train, x="promotion", y="sales_k", ax=axes[2])
+axes[0].set(xlabel="Planned advertising ($k)", ylabel="Weekly sales ($k)")
+axes[1].set(xlabel="Store area (sq ft)", ylabel="Weekly sales ($k)")
+axes[2].set(xlabel="Planned promotion: 0=no, 1=yes", ylabel="Weekly sales ($k)")
+plt.tight_layout()
+plt.show()
+
+# Correlations describe associations, not causal effects.
+print(train.corr(numeric_only=True).round(2))`,
+pipelines:`# 5. Define candidate pipelines and a mean-sales baseline
+def regression_pipeline():
+    return make_pipeline(
+        SimpleImputer(strategy="median"),
+        LinearRegression()
+    )
+
+candidates = {
+    "Mean baseline": (features, DummyRegressor(strategy="mean")),
+    "Advertising only": (["ad_k"], regression_pipeline()),
+    "Multiple regression": (features, regression_pipeline())
+}
+# No fit on X_test. No imputation using the full dataset.`,
+cv:`# 6. Compare candidates using only the training partition
+cv = KFold(n_splits=5, shuffle=True, random_state=42)
+rows = []
+
+for name, (cols, estimator) in candidates.items():
+    fold_mae = -cross_val_score(
+        estimator,
+        X_train[cols],
+        y_train,
+        cv=cv,
+        scoring="neg_mean_absolute_error"
+    )
+    rows.append({
+        "model": name,
+        "CV_MAE_k": fold_mae.mean(),
+        "fold_SD_k": fold_mae.std()
+    })
+
+cv_results = pd.DataFrame(rows).set_index("model")
+print(cv_results.round(3))
+
+# Predeclared selection rule: lowest mean cross-validation MAE
+selected_name = cv_results["CV_MAE_k"].idxmin()
+selected_cols, final_model = candidates[selected_name]
+final_model.fit(X_train[selected_cols], y_train)
+
+baseline = DummyRegressor(strategy="mean")
+baseline.fit(X_train, y_train)
+print("Selected:", selected_name)`,
+evaluate:`# 7. Final test assessment, after selection is complete
+y_pred = final_model.predict(X_test[selected_cols])
+baseline_pred = baseline.predict(X_test)
+
+def evaluate(actual, predicted):
+    return {
+        "MAE_k": mean_absolute_error(actual, predicted),
+        "RMSE_k": np.sqrt(mean_squared_error(actual, predicted)),
+        "R2": r2_score(actual, predicted)
+    }
+
+test_results = pd.DataFrame({
+    "Mean baseline": evaluate(y_test, baseline_pred),
+    selected_name: evaluate(y_test, y_pred)
+}).T
+print(test_results.round(3))
+
+model_mae = mean_absolute_error(y_test, y_pred)
+base_mae = mean_absolute_error(y_test, baseline_pred)
+improvement = 1 - model_mae / base_mae
+meets_rule = (model_mae < 3.0) and (improvement >= 0.20)
+
+print(f"Selected model MAE: \${model_mae * 1000:,.0f}")
+print(f"MAE reduction vs. baseline: {improvement:.1%}")
+print("Meets illustrative success rule:", meets_rule)`,
+diagnostics:`# 8. Final diagnostics: do not use these to tune on this test set
+residuals = y_test - y_pred
+fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+
+axes[0].scatter(y_test, y_pred, alpha=0.7)
+lo = min(y_test.min(), y_pred.min())
+hi = max(y_test.max(), y_pred.max())
+axes[0].plot([lo, hi], [lo, hi], "--", color="black")
+axes[0].set(xlabel="Actual sales ($k)", ylabel="Predicted sales ($k)",
+            title="Actual vs. predicted")
+
+axes[1].scatter(y_pred, residuals, alpha=0.7)
+axes[1].axhline(0, linestyle="--", color="black")
+axes[1].set(xlabel="Predicted sales ($k)", ylabel="Actual - predicted ($k)",
+            title="Residual check")
+plt.tight_layout()
+plt.show()
+
+errors = pd.DataFrame({
+    "promotion": X_test["promotion"],
+    "absolute_error_k": np.abs(y_test - y_pred)
+})
+print(errors.groupby("promotion")["absolute_error_k"].agg(["count", "mean"]))`,
+coefficients:`# 9. Inspect coefficients when regression was selected
+if selected_name != "Mean baseline":
+    fitted_lr = final_model.named_steps["linearregression"]
+    coefficients = pd.Series(
+        fitted_lr.coef_, index=selected_cols, name="coefficient"
+    )
+    print("Intercept:", fitted_lr.intercept_)
+    print(coefficients)
+else:
+    print("The selected baseline has no feature coefficients.")`,
+predict:`# 10. Predict a new observation using the fitted pipeline
+new_store = pd.DataFrame([{
+    "ad_k": 4.0,           # $4,000 planned advertising
+    "area_sqft": 2200,
+    "promotion": 1
+}])
+
+new_sales_k = final_model.predict(new_store[selected_cols])[0]
+print(f"Predicted weekly sales: \${new_sales_k * 1000:,.0f}")
+# Reference result for this dataset: approximately $32,753
+# This is a point prediction, not a prediction interval.`,
+save:`# 11. Save the evaluated model and its input contract
+# These files are written only when you run this Python block.
+joblib.dump(final_model, "weekly_sales_pipeline.joblib")
+
+metadata = {
+    "selected_model": selected_name,
+    "features": selected_cols,
+    "feature_units": {
+        "ad_k": "USD thousands",
+        "area_sqft": "square feet",
+        "promotion": "0=no, 1=yes"
+    },
+    "target": "sales_k",
+    "target_unit": "USD thousands",
+    "sklearn_version": sklearn.__version__,
+    "test_metrics": evaluate(y_test, y_pred),
+    "synthetic_teaching_data": True,
+    "training_rows": len(X_train),
+    "test_rows": len(X_test)
+}
+with open("weekly_sales_metadata.json", "w") as f:
+    json.dump(metadata, f, indent=2)
+
+# Load only a model file you trust.
+loaded_model = joblib.load("weekly_sales_pipeline.joblib")
+print(loaded_model.predict(new_store[selected_cols]))`
+};
+const order=["setup","data","split","eda","pipelines","cv","evaluate","diagnostics","coefficients","predict","save"];
+const full=order.map(k=>blocks[k]).join("\n\n");
+async function copyText(value,button){
+try{
+if(!navigator.clipboard)throw Error("Clipboard unavailable");
+await navigator.clipboard.writeText(value);
+const old=button.textContent;button.textContent="Copied ✓";setTimeout(()=>button.textContent=old,1800);
+}catch(e){
+const target=document.getElementById("fullpython");
+go(11);target.focus();
+const range=document.createRange();range.selectNodeContents(target);
+const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+document.getElementById("copystatus").textContent=" Clipboard unavailable. Complete script selected; use Copy.";
+}
+}
+document.querySelectorAll(".py").forEach(el=>{
+const key=el.dataset.code;
+const box=document.createElement("div");box.className="codebox";
+const bar=document.createElement("div");bar.className="codebar";
+const label=document.createElement("span");label.textContent="Python • run in sequence";
+const btn=document.createElement("button");btn.textContent="Copy";btn.setAttribute("aria-label","Copy "+key+" Python code");
+btn.onclick=()=>copyText(blocks[key],btn);
+bar.append(label,btn);const pre=document.createElement("pre");pre.tabIndex=0;pre.textContent=blocks[key];
+box.append(bar,pre);el.append(box);
+});
+document.getElementById("fullpython").textContent=full;
+document.getElementById("copyall").onclick=function(){copyText(full,this)};
+const lessons=[...document.querySelectorAll(".lesson")];let current=0;
+const nav=document.getElementById("nav");
+lessons.forEach((lesson,i)=>{
+const b=document.createElement("button");b.textContent=String(i+1).padStart(2,"0")+"  "+lesson.dataset.title;
+b.onclick=()=>go(i);nav.append(b);
+});
+function go(i){
+current=Math.max(0,Math.min(lessons.length-1,i));
+lessons.forEach((l,j)=>l.classList.toggle("active",j===current));
+[...nav.children].forEach((b,j)=>{
+b.classList.toggle("active",j===current);
+if(j===current)b.setAttribute("aria-current","step");else b.removeAttribute("aria-current");
+});
+document.getElementById("progress").value=current+1;
+const label="Lesson "+(current+1)+" of "+lessons.length;
+document.getElementById("position").textContent=label;
+document.getElementById("bottomposition").textContent=label;
+document.getElementById("prev").disabled=current===0;
+document.getElementById("next").textContent=current===11?"Back to start ↺":"Next lesson →";
+if(current===4)drawLine();
+if(current===7)metricDemo();
+if(current===9)predictDemo();
+}
+function changeLesson(i){go(i);document.getElementById("main").scrollIntoView({block:"start",behavior:"smooth"});}
+document.getElementById("next").onclick=()=>changeLesson(current===11?0:current+1);
+document.getElementById("prev").onclick=()=>changeLesson(current-1);
+document.getElementById("allcode").onclick=()=>changeLesson(11);
+function answer(button,correct,message){
+const box=button.closest(".question");
+box.querySelector(".feedback").textContent=(correct?"✓ ":"Try again: ")+message;
+}
+const points=[[1,12],[2,14],[3,19],[4,21],[5,25],[6,28]];
+let exactLine=null;
+function lineParameters(){
+if(exactLine)return exactLine;
+return [+document.getElementById("intercept").value,+document.getElementById("slope").value];
+}
+function drawLine(){
+const [b,m]=lineParameters();
+document.getElementById("slopeout").textContent=m.toFixed(2);
+document.getElementById("interceptout").textContent=b.toFixed(2);
+const sx=x=>54+x*61,sy=y=>276-y*5.25;
+let s='<rect width="500" height="330" fill="#fff"/>';
+for(let y=0;y<=50;y+=10)s+=`<line x1="54" y1="${sy(y)}" x2="455" y2="${sy(y)}" stroke="#e2eaee"/><text class="charttext" x="43" y="${sy(y)+4}" text-anchor="end">${y}</text>`;
+for(let x=0;x<=6;x++)s+=`<text class="charttext" x="${sx(x)}" y="298" text-anchor="middle">${x}</text>`;
+s+='<line x1="54" y1="276" x2="455" y2="276" stroke="#516473"/><text class="charttext" x="240" y="322" text-anchor="middle">Advertising ($k)</text><text class="charttext" x="12" y="18">Sales ($k)</text>';
+let sse=0;let rows="";
+points.forEach(([x,y])=>{
+const pred=b+m*x,e=y-pred;sse+=e*e;
+s+=`<line x1="${sx(x)}" y1="${sy(y)}" x2="${sx(x)}" y2="${sy(pred)}" stroke="#a96314" stroke-dasharray="4 3"/><circle cx="${sx(x)}" cy="${sy(y)}" r="5" fill="#087e83"/>`;
+rows+=`<tr><td>${x}</td><td>${y}</td><td>${pred.toFixed(2)}</td><td>${e.toFixed(2)}</td></tr>`;
+});
+const end=Math.min(6.5,m>0?(51-b)/m:6.5);
+s+=`<line x1="${sx(0)}" y1="${sy(b)}" x2="${sx(end)}" y2="${sy(b+m*end)}" stroke="#304db0" stroke-width="3"/>`;
+document.getElementById("linechart").innerHTML=s;
+document.getElementById("linetable").innerHTML=rows;
+document.getElementById("sse").textContent=sse.toFixed(2)+" ($k)²";
+}
+["slope","intercept"].forEach(id=>document.getElementById(id).oninput=()=>{exactLine=null;drawLine()});
+document.getElementById("fitline").onclick=()=>{
+const mx=points.reduce((a,p)=>a+p[0],0)/points.length,my=points.reduce((a,p)=>a+p[1],0)/points.length;
+const m=points.reduce((a,p)=>a+(p[0]-mx)*(p[1]-my),0)/points.reduce((a,p)=>a+(p[0]-mx)**2,0);
+exactLine=[my-m*mx,m];
+document.getElementById("slope").value=m;
+document.getElementById("intercept").value=exactLine[0];drawLine();
+};
+function metricDemo(){
+const e=+document.getElementById("error").value;
+document.getElementById("errorout").textContent=e;
+document.getElementById("third").textContent=e;
+document.getElementById("errmetrics").textContent="MAE = "+((3+e)/3).toFixed(2)+" ($k)    •    RMSE = "+Math.sqrt((5+e*e)/3).toFixed(2)+" ($k)";
+}
+document.getElementById("error").oninput=metricDemo;
+function predictDemo(){
+const ad=+document.getElementById("ad").value,area=+document.getElementById("area").value,promo=+document.getElementById("promo").value;
+document.getElementById("adout").textContent=ad.toFixed(1);
+document.getElementById("areaout").textContent=area;
+const y=7.7549844035602895+2.87399368*ad+.00386830871*area+4.99170909*promo;
+document.getElementById("prediction").textContent=new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(y*1000);
+}
+["ad","area","promo"].forEach(id=>document.getElementById(id).oninput=predictDemo);
+drawLine();metricDemo();predictDemo();go(0);
+</script>
+</body>
+</html>
