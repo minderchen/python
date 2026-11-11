@@ -1,0 +1,957 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Logistic Regression with scikit-learn</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: sticky contents rail + one reading column; every module is three labelled rows (What / Why / How). */
+:root{
+  --bg:#f6f7fa; --surface:#ffffff; --surface-2:#edf0f5; --ink:#141922; --ink-2:#465061; --ink-3:#68717f;
+  --line:#dde2ea; --accent:#2a78d6; --accent-ink:#1c5cab; --accent-soft:#e4eefb;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300;
+  --good:#1a7f4b; --bad:#b3372f;
+  --tk-key:#8a3fc4; --tk-str:#0f7a52; --tk-num:#b3541a; --tk-com:#7a8391; --tk-fn:#1c5cab;
+  --font-display:"Space Grotesk","Segoe UI",system-ui,sans-serif;
+  --font-body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#11141a; --surface:#191d25; --surface-2:#232934; --ink:#eceff4; --ink-2:#b9c0cc; --ink-3:#8c95a3;
+  --line:#2d3440; --accent:#3987e5; --accent-ink:#85b6f3; --accent-soft:#1c2c44;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300;
+  --good:#4cc38a; --bad:#f0827a;
+  --tk-key:#c79bf0; --tk-str:#6fd3a6; --tk-num:#f0a66f; --tk-com:#7f8897; --tk-fn:#85b6f3;
+  color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#11141a; --surface:#191d25; --surface-2:#232934; --ink:#eceff4; --ink-2:#b9c0cc; --ink-3:#8c95a3;
+  --line:#2d3440; --accent:#3987e5; --accent-ink:#85b6f3; --accent-soft:#1c2c44;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300;
+  --good:#4cc38a; --bad:#f0827a;
+  --tk-key:#c79bf0; --tk-str:#6fd3a6; --tk-num:#f0a66f; --tk-com:#7f8897; --tk-fn:#85b6f3;
+  color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.65}
+.wrap{max-width:1160px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--font-display);text-wrap:balance;line-height:1.15;margin:0}
+p{margin:0}
+a{color:var(--accent-ink)}
+code{font-family:var(--font-mono);font-size:.88em;background:var(--surface-2);padding:.1em .35em;border-radius:4px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* hero */
+.hero{padding-block:44px 28px;border-bottom:1px solid var(--line)}
+.eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.hero h1{font-size:clamp(30px,5vw,46px);font-weight:700;margin-top:10px;letter-spacing:-.01em}
+.hero .sub{max-width:62ch;margin-top:14px;color:var(--ink-2);font-size:17px}
+.facts{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:20px;font-size:14px;color:var(--ink-2)}
+.facts b{color:var(--ink);font-weight:600}
+.frame-key{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin-top:26px;border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden}
+.frame-key div{padding:14px 16px;border-left:1px solid var(--line);min-width:0}
+.frame-key div:first-child{border-left:0}
+.frame-key .tag{display:block;margin-bottom:4px}
+.frame-key p{font-size:14px;color:var(--ink-2);line-height:1.5}
+
+/* shell */
+.shell{display:grid;grid-template-columns:230px minmax(0,1fr);gap:48px;align-items:start;padding-block:32px 80px}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);font-size:14px}
+.toc h2{font-family:var(--font-mono);font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.toc ol{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:1px}
+.toc .lvl{margin-top:14px;font-size:12px;color:var(--ink-3);font-weight:600}
+.toc a{display:flex;gap:9px;align-items:baseline;padding:5px 8px;border-radius:6px;color:var(--ink-2);text-decoration:none;line-height:1.35}
+.toc a:hover{background:var(--surface-2);color:var(--ink)}
+.toc a.on{background:var(--accent-soft);color:var(--ink);font-weight:500}
+.toc .n{font-family:var(--font-mono);font-size:12px;color:var(--ink-3);min-width:1.2em}
+.toc a.done .n{color:var(--good)}
+.toc a.done .n::after{content:" ✓"}
+.progress{margin-top:16px;font-size:13px;color:var(--ink-3)}
+.bar{height:4px;background:var(--surface-2);border-radius:2px;margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);border-radius:2px;transition:width .2s}
+main{min-width:0;display:flex;flex-direction:column;gap:64px}
+
+/* module */
+.module{display:flex;flex-direction:column;gap:0;scroll-margin-top:16px}
+.mod-head{padding-bottom:18px}
+.mod-head h2{font-size:clamp(24px,3.4vw,31px);font-weight:600;margin-top:6px}
+.mod-head .lede{color:var(--ink-2);margin-top:10px;max-width:66ch}
+.wwh{display:grid;grid-template-columns:64px minmax(0,1fr);gap:20px;padding-block:24px;border-top:1px solid var(--line)}
+.tag{font-family:var(--font-mono);font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-ink);padding-top:4px}
+.body{min-width:0;display:flex;flex-direction:column;gap:14px}
+.body>p,.body>ul,.body>ol,.body>h3{max-width:68ch}
+.body h3{font-size:17px;font-weight:600;margin-top:8px}
+.body ul,.body ol{margin:0;padding-left:1.25em;display:flex;flex-direction:column;gap:6px}
+.math{font-family:var(--font-mono);font-size:14.5px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto;white-space:nowrap}
+.note{font-size:14.5px;color:var(--ink-2);border-left:2px solid var(--line);padding-left:12px;max-width:68ch}
+
+/* figures */
+.fig{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.fig figcaption{font-size:14px;color:var(--ink-2);line-height:1.45}
+.fig figcaption b{display:block;font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--ink)}
+.chart{min-width:0;width:100%}
+.chart svg{display:block;max-width:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:14px;height:3px;border-radius:2px;display:inline-block;flex:none}
+.sw.box{height:10px;width:10px}
+.sw.dot{height:9px;width:9px;border-radius:50%;background:var(--ink-2)}
+.sw.ring{height:9px;width:9px;border-radius:50%;background:transparent;border:2px solid var(--s1)}
+.grid{stroke:var(--line);stroke-width:1}
+.axis{stroke:var(--ink-3);stroke-width:1}
+.tick{fill:var(--ink-3);font-size:11.5px;font-family:var(--font-body);font-variant-numeric:tabular-nums}
+.axl{fill:var(--ink-2);font-size:12px;font-family:var(--font-body)}
+.lbl{fill:var(--ink-2);font-size:12px;font-family:var(--font-body);font-weight:500}
+.val{fill:var(--ink);font-size:12px;font-family:var(--font-body);font-weight:600;font-variant-numeric:tabular-nums}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px 22px}
+.ctl{display:flex;flex-direction:column;gap:4px;min-width:0;font-size:14px}
+.ctl label,.ctl .lab{display:flex;justify-content:space-between;gap:8px;color:var(--ink-2)}
+.ctl output,.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums;color:var(--ink);font-size:13.5px}
+input[type=range]{width:100%;accent-color:var(--accent);margin:0}
+select,input[type=number]{font:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);width:100%}
+.btn{font:inherit;font-size:14px;font-weight:500;padding:7px 13px;border-radius:7px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.07);background:var(--accent)}
+.btn[aria-pressed=true]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.readout{font-size:14.5px;color:var(--ink-2)}
+.readout b{color:var(--ink);font-variant-numeric:tabular-nums}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+.stat{background:var(--surface-2);border-radius:8px;padding:10px 12px;min-width:0}
+.stat .k{font-size:12.5px;color:var(--ink-2)}
+.stat .v{font-family:var(--font-display);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.stat .d{font-size:12px;color:var(--ink-3);line-height:1.35}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.two>*{min-width:0}
+
+/* tables */
+.tscroll{overflow-x:auto}
+table{border-collapse:collapse;font-size:14px;width:100%}
+th,td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:13px}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--font-mono);font-size:13px}
+.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:999px;background:var(--surface-2);color:var(--ink-2)}
+.pill.y{background:var(--s2);color:#fff}
+
+/* code */
+.cell{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface);min-width:0}
+.cell-h{display:flex;justify-content:space-between;align-items:center;padding:6px 8px 6px 14px;border-bottom:1px solid var(--line);font-family:var(--font-mono);font-size:12px;color:var(--ink-3)}
+.cell-h .btn{font-size:12px;padding:3px 10px}
+pre{margin:0;padding:14px;overflow-x:auto;font-family:var(--font-mono);font-size:13px;line-height:1.6;tab-size:4}
+pre code{background:none;padding:0;font-size:inherit}
+.out{background:var(--surface-2);border-top:1px solid var(--line)}
+.out-h{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding:8px 14px 0}
+.out pre{padding-top:6px;color:var(--ink)}
+.hljs-keyword,.hljs-literal{color:var(--tk-key)}
+.hljs-string{color:var(--tk-str)}
+.hljs-number{color:var(--tk-num)}
+.hljs-comment{color:var(--tk-com);font-style:italic}
+.hljs-built_in,.hljs-title{color:var(--tk-fn)}
+
+/* pipeline diagram */
+.pipe{display:flex;flex-direction:column;align-items:stretch;gap:6px;font-size:14px}
+.pipe .arrow{text-align:center;color:var(--ink-3);line-height:1}
+.pipe .box{border:1px solid var(--line);border-radius:8px;padding:9px 12px;background:var(--surface-2);min-width:0}
+.pipe .box b{font-family:var(--font-mono);font-size:13px;font-weight:500}
+.pipe .box span{display:block;color:var(--ink-2);font-size:13px;line-height:1.4}
+.pipe .split{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.pipe .group{border:1px dashed var(--ink-3);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.pipe .group>small{font-family:var(--font-mono);font-size:12px;color:var(--ink-3)}
+.pipe .final{background:var(--accent-soft);border-color:var(--accent)}
+
+/* contribution bars */
+.bars{display:flex;flex-direction:column;gap:10px}
+.brow{display:grid;grid-template-columns:minmax(0,1fr);gap:3px}
+.brow .bl{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;color:var(--ink-2)}
+.brow .bl b{font-family:var(--font-mono);font-weight:500;color:var(--ink);font-size:13px;white-space:nowrap}
+.track{position:relative;height:12px;background:var(--surface-2);border-radius:3px}
+.track::after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--ink-3)}
+.track i{position:absolute;top:0;bottom:0;border-radius:3px}
+.track i.neg{background:var(--s1)}
+.track i.pos{background:var(--s2)}
+
+/* confusion matrix */
+.cm{display:grid;grid-template-columns:auto repeat(2,minmax(0,1fr));gap:6px;font-size:13px;align-items:stretch}
+.cm .h{color:var(--ink-2);font-size:12.5px;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.3;padding:2px}
+.cm .rh{justify-content:flex-end;text-align:right;max-width:84px}
+.cm .c{border-radius:8px;padding:10px 8px;text-align:center;border:1px solid var(--line);min-width:0}
+.cm .c b{display:block;font-family:var(--font-display);font-size:24px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.1}
+.cm .c span{color:var(--ink-2);font-size:12px;line-height:1.3;display:block}
+.cm .ok{background:var(--surface-2)}
+.cm .err{border-style:dashed;border-color:var(--ink-3)}
+
+/* folds */
+.folds{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.fold{display:grid;grid-template-columns:52px repeat(5,minmax(0,1fr)) 62px;gap:4px;align-items:center}
+.fold i{height:22px;border-radius:4px;background:var(--surface-2);font-style:normal}
+.fold i.v{background:var(--s1)}
+.fold .sc{text-align:right;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+
+/* quiz + done */
+.quiz{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:16px;display:flex;flex-direction:column;gap:10px}
+.quiz .q{font-weight:600}
+.quiz .opts{display:flex;flex-direction:column;gap:6px}
+.quiz .opt{font:inherit;font-size:14.5px;text-align:left;padding:8px 12px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink);cursor:pointer;line-height:1.45}
+.quiz .opt:hover{background:var(--surface-2)}
+.quiz .opt.right{border-color:var(--good);box-shadow:inset 0 0 0 1px var(--good)}
+.quiz .opt.wrong{border-color:var(--bad);border-style:dashed}
+.quiz .fb{font-size:14.5px;color:var(--ink-2)}
+.quiz .fb b.g{color:var(--good)} .quiz .fb b.b{color:var(--bad)}
+.foot{display:flex;flex-direction:column;gap:14px;padding-top:8px}
+.done{display:inline-flex;gap:8px;align-items:center;font-size:14.5px;color:var(--ink-2);cursor:pointer}
+.done input{width:16px;height:16px;accent-color:var(--accent)}
+.check li{list-style:none;position:relative}
+.checklist{padding-left:0!important}
+.checklist li{list-style:none;padding-left:22px;position:relative}
+.checklist li::before{content:"";position:absolute;left:0;top:.5em;width:10px;height:10px;border:1.5px solid var(--ink-3);border-radius:2px}
+
+#tip{position:fixed;z-index:50;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12.5px;line-height:1.45;padding:7px 10px;border-radius:6px;max-width:240px;font-variant-numeric:tabular-nums}
+#tip b{font-weight:600}
+
+@media (max-width:980px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:28px;padding-block:24px 60px}
+  .toc{position:static;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px}
+  .toc ol{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1px 12px}
+  .toc .lvl{grid-column:1/-1}
+}
+@media (max-width:640px){
+  .wwh{grid-template-columns:minmax(0,1fr);gap:8px;padding-block:20px}
+  .frame-key{grid-template-columns:minmax(0,1fr)}
+  .frame-key div{border-left:0;border-top:1px solid var(--line)}
+  .frame-key div:first-child{border-top:0}
+  .pipe .split{grid-template-columns:minmax(0,1fr)}
+  .fig{padding:12px}
+  pre{font-size:12px}
+  main{gap:48px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div id="tip" hidden></div>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Interactive tutorial · Python · scikit-learn</p>
+    <h1>Logistic Regression with scikit-learn</h1>
+    <p class="sub">Nine modules that take you from the S-shaped curve to a tuned, validated model. Every module follows the same three steps, uses the same 1,000-customer churn dataset, and shows code you can paste into a notebook and run.</p>
+    <div class="facts">
+      <span><b>9</b> modules, basics to advanced</span>
+      <span><b>1</b> dataset: 1,000 telecom customers</span>
+      <span><b>15</b> figures, 5 to experiment with</span>
+      <span>Outputs produced with scikit-learn <b id="ver">1.9</b></span>
+    </div>
+    <div class="frame-key" aria-label="How each module is organised">
+      <div><span class="tag">What</span><p>The idea in plain words, with the one definition or formula you need.</p></div>
+      <div><span class="tag">Why</span><p>The reason it exists and what goes wrong without it.</p></div>
+      <div><span class="tag">How</span><p>The scikit-learn code, its real output, and a figure to experiment with.</p></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap shell">
+  <nav class="toc" aria-label="Modules">
+    <h2>Modules</h2>
+    <ol>
+      <li class="lvl">Basics</li>
+      <li><a href="#m1" data-m="1"><span class="n">1</span>The S-curve idea</a></li>
+      <li><a href="#m2" data-m="2"><span class="n">2</span>The churn dataset</a></li>
+      <li><a href="#m3" data-m="3"><span class="n">3</span>Your first model</a></li>
+      <li class="lvl">Core skills</li>
+      <li><a href="#m4" data-m="4"><span class="n">4</span>Many features, one pipeline</a></li>
+      <li><a href="#m5" data-m="5"><span class="n">5</span>Reading coefficients</a></li>
+      <li><a href="#m6" data-m="6"><span class="n">6</span>Evaluating predictions</a></li>
+      <li class="lvl">Advanced</li>
+      <li><a href="#m7" data-m="7"><span class="n">7</span>Regularization</a></li>
+      <li><a href="#m8" data-m="8"><span class="n">8</span>Validation and tuning</a></li>
+      <li><a href="#m9" data-m="9"><span class="n">9</span>Going further</a></li>
+    </ol>
+    <div class="progress"><span id="prog-text">0 of 9 modules finished</span><div class="bar"><i id="prog-bar"></i></div></div>
+  </nav>
+
+  <main>
+
+  <!-- ============ 1 ============ -->
+  <section class="module" id="m1">
+    <header class="mod-head">
+      <p class="eyebrow">Module 1 · Basics</p>
+      <h2>A yes/no question, answered with a probability</h2>
+      <p class="lede">Will this customer leave? Will this loan default? Is this email spam? Logistic regression answers questions like these with a number between 0 and 1.</p>
+    </header>
+    <div class="wwh"><div class="tag">What</div><div class="body">
+      <p>Logistic regression is a <b>classification</b> model. The name says "regression" because it borrows the first half of linear regression, but its job is to predict which of two groups a case belongs to.</p>
+      <p>It works in two steps. First it adds up the evidence: each feature is multiplied by a weight, and the results are summed into one score called <i>z</i>. Then it squashes that score into a probability with the <b>sigmoid</b> function.</p>
+      <div class="math">z = b<sub>0</sub> + b<sub>1</sub>·x<sub>1</sub> + b<sub>2</sub>·x<sub>2</sub> + …  &nbsp;&nbsp;&nbsp;then&nbsp;&nbsp;&nbsp;  P(yes) = 1 / (1 + e<sup>−z</sup>)</div>
+      <p>A large positive <i>z</i> gives a probability near 1, a large negative <i>z</i> gives a probability near 0, and <i>z</i> = 0 gives exactly 0.5.</p>
+    </div></div>
+    <div class="wwh"><div class="tag">Why</div><div class="body">
+      <p>You could fit an ordinary straight line to a 0/1 outcome. The figure shows what happens when you do that with our churn data: the line keeps falling, and for long-tenured customers it predicts a churn probability below zero.</p>
+      <figure class="fig">
+        <figcaption><b>A straight line leaves the 0–100% range. The S-curve cannot.</b>Churn against months as a customer. Both models were fitted to the same 1,000 customers, then extended past the data.</figcaption>
+        <div class="legend"><span><i class="sw" style="background:var(--s1)"></i>Logistic regression</span><span><i class="sw" style="background:var(--s2)"></i>Linear regression</span><span><i class="sw dot"></i>Observed churn rate, 6-month groups</span></div>
+        <div class="chart" id="c-line"></div>
+      </figure>
+      <p>Three more reasons it is usually the first classifier people reach for: it trains in milliseconds, its weights can be read and explained to a manager, and it outputs probabilities you can rank and budget against.</p>
+    </div></div>
+    <div class="wwh"><div class="tag">How</div><div class="body">
+      <p>Before any code, get a feel for the curve. The model with one feature has two numbers: a weight and an intercept. Move them and watch what each one does.</p>
+      <figure class="fig">
+        <figcaption><b>Sigmoid playground</b>The weight sets how steep the curve is and which way it leans. The intercept slides it left or right.</figcaption>
+        <div class="controls">
+          <div class="ctl"><label for="sg-w"><span>Weight b<sub>1</sub></span> <output id="sg-w-o"></output></label><input type="range" id="sg-w" min="-3" max="3" step="0.1" value="1"></div>
+          <div class="ctl"><label for="sg-b"><span>Intercept b<sub>0</sub></span> <output id="sg-b-o"></output></label><input type="range" id="sg-b" min="-5" max="5" step="0.1" value="0"></div>
+        </div>
+        <div class="chart" id="c-sig"></div>
+        <p class="readout" id="sg-read"></p>
+      </figure>
+      <p>Training a logistic regression means finding the weights that make this curve fit your data best. From module 3 onward, scikit-learn does that search for you.</p>
+    </div></div>
+    <div class="foot"><div class="quiz" data-q="0"></div><label class="done"><input type="checkbox" id="done-1"> I have finished module 1</label></div>
+  </section>
+
+  <!-- ============ 2 ============ -->
+  <section class="module" id="m2">
+    <header class="mod-head">
+      <p class="eyebrow">Module 2 · Basics</p>
+      <h2>Meet the 1,000 customers</h2>
+      <p class="lede">One dataset carries the whole tutorial: customers of a subscription telecom company, and whether each one cancelled.</p>
+    </header>
+    <div class="wwh"><div class="tag">What</div><div class="body">
+      <p>Each row is one customer. Five columns describe the customer and the sixth, <code>churn</code>, is the answer we want to predict: 1 if they left, 0 if they stayed.</p>
+      <div class="tscroll"><table>
+        <thead><tr><th>Column</th><th>Type</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>tenure_months</code></td><td>number</td><td>Months as a customer, 1 to 72</td></tr>
+          <tr><td><code>monthly_charges</code></td><td>number</td><td>Monthly bill in dollars, 20 to 120</td></tr>
+          <tr><td><code>support_calls</code></td><td>count</td><td>Calls to customer support in the last quarter</td></tr>
+          <tr><td><code>contract</code></td><td>category</td><td>Month-to-month, One year, or Two year</td></tr>
+          <tr><td><code>autopay</code></td><td>0 / 1</td><td>1 if the bill is paid automatically</td></tr>
+          <tr><td><code>churn</code></td><td>0 / 1</td><td><b>Target.</b> 1 if the customer cancelled</td></tr>
+        </tbody>
+      </table></div>
+    </div></div>
+    <div class="wwh"><div class="tag">Why</div><div class="body">
+      <p>The data is <b>synthetic</b>: the code below invents it from a fixed random seed. That has two advantages for learning. You can recreate the exact same rows without downloading a file, and because we wrote the rule that decides who churns, we can later check whether the model found it (module 5).</p>
+      <p>Churn is also a typical business use of this model. The outcome is yes/no, the company wants a ranked list of at-risk customers, and it needs to know which factors drive the risk.</p>
+    </div></div>
+    <div class="wwh"><div class="tag">How</div><div class="body">
+      <p>Create the dataset. You need <code>numpy</code>, <code>pandas</code> and <code>scikit-learn</code> installed (<code>pip install scikit-learn pandas</code>); a Jupyter or Colab notebook works well.</p>
+      <div class="cell" data-cell="data"></div>
+      <p>Always look at the target before modelling. How common is a "yes"?</p>
+      <div class="cell" data-cell="explore"></div>
+      <p>One customer in four churned. Keep that number in mind: a model that predicts "stays" for everyone would already be right 75% of the time, so 75% is the score to beat.</p>
+      <div class="two">
+        <figure class="fig"><figcaption><b>Churn rate by contract</b>Longer contracts churn far less.</figcaption><div class="chart" id="c-contract"></div></figure>
+        <figure class="fig"><figcaption><b>Churn rate by support calls</b>More calls, more churn.</figcaption><div class="chart" id="c-calls"></div></figure>
+      </div>
+    </div></div>
+    <div class="foot"><div class="quiz" data-q="1"></div><label class="done"><input type="checkbox" id="done-2"> I have finished module 2</label></div>
+  </section>
+
+  <!-- ============ 3 ============ -->
+  <section class="module" id="m3">
+    <header class="mod-head">
+      <p class="eyebrow">Module 3 · Basics</p>
+      <h2>Your first model: one feature, one curve</h2>
+      <p class="lede">Predict churn from tenure alone. The whole model is two numbers.</p>
+    </header>
+    <div class="wwh"><div class="tag">What</div><div class="body">
+      <p>With one feature the model is <span style="white-space:nowrap">P(churn) = sigmoid(b<sub>0</sub> + b<sub>1</sub> × tenure)</span>. <b>Fitting</b> the model means choosing b<sub>0</sub> and b<sub>1</sub> so the curve agrees with the data as closely as possible.</p>
+      <p>"As closely as possible" needs a score. Logistic regression uses <b>log loss</b>: for every customer, take the probability the model gave to what actually happened, and average the negative logarithms.</p>
+      <div class="math">log loss = − average of [ y·ln(p) + (1 − y)·ln(1 − p) ]</div>
+    </div></div>
+    <div class="wwh"><div class="tag">Why</div><div class="body">
+      <p>Log loss rewards honest probabilities. Suppose a customer stayed. A model that said "60% chance of churn" pays −ln(0.4) = 0.92 for that customer. A model that said "90% chance of churn" pays −ln(0.1) = 2.30. Being confidently wrong costs much more than being unsure, so the best strategy is to report probabilities that match reality.</p>
+      <p>A model that says 50% for everyone scores ln(2) = 0.693. Anything lower means the model has learned something.</p>
+    </div></div>
+    <div class="wwh"><div class="tag">How</div><div class="body">
+      <p>Try the fitting job by hand first. Move the two sliders to pull the curve through the grey dots and watch the log loss fall.</p>
+      <figure class="fig">
+        <figcaption><b>Fit the curve yourself</b>Each tick on the top edge is a customer who churned; each tick on the bottom edge is one who stayed. The dots are churn rates for 6-month tenure groups.</figcaption>
+        <div class="controls">
+          <div class="ctl"><label for="ft-b0"><span>Intercept b<sub>0</sub></span> <output id="ft-b0-o"></output></label><input type="range" id="ft-b0" min="-2" max="2" step="0.02" value="0"></div>
+          <div class="ctl"><label for="ft-b1"><span>Slope b<sub>1</sub></span> <output id="ft-b1-o"></output></label><input type="range" id="ft-b1" min="-0.12" max="0.06" step="0.002" value="0"></div>
+        </div>
+        <div class="chart" id="c-fit"></div>
+        <div class="stats">
+          <div class="stat"><div class="k">Your log loss</div><div class="v" id="ft-loss"></div></div>
+          <div class="stat"><div class="k">scikit-learn's log loss</div><div class="v" id="ft-best"></div></div>
+          <div class="stat"><div class="k">Gap</div><div class="v" id="ft-gap"></div><div class="d" id="ft-msg"></div></div>
+        </div>
+        <div class="row"><button class="btn primary" id="ft-snap">Show scikit-learn's fit</button><button class="btn" id="ft-reset">Reset</button></div>
+      </figure>
+      <p>Now let scikit-learn do it. Every scikit-learn model follows the same three calls: create it, <code>fit</code> it, then <code>predict</code>.</p>
+      <div class="cell" data-cell="first_model"></div>
+      <p>The slope is negative: longer tenure, lower churn. Ask for predictions for three new customers.</p>
+      <div class="cell" data-cell="first_predict"></div>
+      <p><code>predict_proba</code> returns one column per class. A 3-month customer has a 50.7% chance of leaving, a 60-month customer 10.7%. <code>predict</code> turns those into labels by asking whether P(churn) is at least 0.5.</p>
+      <p>Nothing is hidden inside the model. You can rebuild the first prediction with the formula from module 1:</p>
+      <div class="cell" data-cell="by_hand"></div>
+    </div></div>
+    <div class="foot"><div class="quiz" data-q="2"></div><label class="done"><input type="checkbox" id="done-3"> I have finished module 3</label></div>
+  </section>
+
+  <!-- ============ 4 ============ -->
+  <section class="module" id="m4">
+    <header class="mod-head">
+      <p class="eyebrow">Module 4 · Core skills</p>
+      <h2>Many features, one pipeline</h2>
+      <p class="lede">Use all five columns, hold back test data, and wrap the preparation steps and the model into a single object.</p>
+    </header>
+    <div class="wwh"><div class="tag">What</div><div class="body">
+      <p>Adding features adds terms to <i>z</i>. The shape of the model stays the same. With two features, the set of customers at exactly 50% forms a straight line that splits the chart into a "predict churn" side and a "predict stay" side. With more features it is a flat plane in more dimensions. This is why logistic regression is called a <b>linear classifier</b>.</p>
+      <figure class="fig">
+        <figcaption><b>Two features give a straight decision boundary</b>A model fitted on tenure and support calls. 350 of the 1,000 customers are drawn; hover a point for its predicted probability.</figcaption>
+        <div class="legend"><span><i class="sw dot" style="background:var(--s2)"></i>Churned</span><span><i class="sw ring"></i>Stayed</span><span><i class="sw" style="background:var(--ink)"></i>P(churn) = 50%</span><span><i class="sw" style="background:var(--ink-3)"></i>25% and 75%</span></div>
+        <div class="chart" id="c-bound"></div>
+      </figure>
+      <p>Real tables need three preparation steps before the model can use them: split the rows, scale the numbers, and encode the categories.</p>
+    </div></div>
+    <div class="wwh"><div class="tag">Why</div><div class="body">
+      <ul>
+        <li><b>Split</b> into training and test rows because a model always looks good on data it has already seen. The test rows stand in for future customers.</li>
+        <li><b>Scale</b> numeric columns to mean 0 and standard deviation 1. Tenure runs to 72 and autopay only to 1; without scaling, the solver works harder and regularization (module 7) treats the columns unfairly.</li>
+        <li><b>Encode</b> <code>contract</code> as 0/1 columns because the model needs numbers. One-hot encoding makes one column per category; dropping the first makes Month-to-month the reference that the others are compared with.</li>
+        <li><b>Pipeline</b> them together so the scaler learns its mean and standard deviation from training rows only. Learning them from all rows lets information about the test set leak into training.</li>
+      </ul>
+    </div></div>
+    <div class="wwh"><div class="tag">How</div><div class="body">
+      <p>Split first. <code>stratify=y</code> keeps the churn rate the same in both parts.</p>
+      <div class="cell" data-cell="split"></div>
+      <figure class="fig">
+        <figcaption><b>What the pipeline does to each row</b></figcaption>
+        <div class="pipe">
+          <div class="box"><b>X_train</b><span>5 raw columns: 3 numeric, 1 text, 1 already 0/1</span></div>
+          <div class="arrow" aria-hidden="true">↓</div>
+          <div class="group"><small>ColumnTransformer ("prep")</small>
+            <div class="split">
+              <div class="box"><b>StandardScaler</b><span>tenure, charges, calls → mean 0, SD 1</span></div>
+              <div class="box"><b>OneHotEncoder</b><span>contract → One year, Two year</span></div>
+              <div class="box"><b>passthrough</b><span>autopay, unchanged</span></div>
+            </div>
+          </div>
+          <div class="arrow" aria-hidden="true">↓</div>
+          <div class="box"><b>6 numeric columns</b><span>ready for the model</span></div>
+          <div class="arrow" aria-hidden="true">↓</div>
+          <div class="box"><b>LogisticRegression ("model")</b><span>weighted sum, then sigmoid</span></div>
+          <div class="arrow" aria-hidden="true">↓</div>
+          <div class="box final"><b>P(churn)</b><span>one probability per customer</span></div>
+        </div>
+      </figure>
+      <div class="cell" data-cell="pipeline"></div>
+      <p>The model is right for 86.4% of test customers against a 75.2% baseline. Test accuracy coming out above training accuracy is unusual; it is the luck of this particular split, and module 8 shows how to measure that luck.</p>
+      <p>Because preparation lives inside the pipeline, you can hand it raw rows for new customers:</p>
+      <div class="cell" data-cell="score_new"></div>
+    </div></div>
+    <div class="foot"><div class="quiz" data-q="3"></div><label class="done"><input type="checkbox" id="done-4"> I have finished module 4</label></div>
+  </section>
+
+  <!-- ============ 5 ============ -->
+  <section class="module" id="m5">
+    <header class="mod-head">
+      <p class="eyebrow">Module 5 · Core skills</p>
+      <h2>Reading the coefficients</h2>
+      <p class="lede">The fitted weights tell you which factors push churn up or down, and by how much.</p>
+    </header>
+    <div class="wwh"><div class="tag">What</div><div class="body">
+      <p>Coefficients live on the <b>log-odds</b> scale, so you need three ways of saying the same thing:</p>
+      <div class="tscroll"><table>
+        <thead><tr><th class="n">Probability</th><th class="n">Odds = p / (1 − p)</th><th class="n">Log-odds = ln(odds)</th></tr></thead>
+        <tbody>
+          <tr><td class="n">0.20</td><td class="n">0.25 &nbsp;(1 to 4)</td><td class="n">−1.39</td></tr>
+          <tr><td class="n">0.50</td><td class="n">1.00 &nbsp;(even)</td><td class="n">0.00</td></tr>
+          <tr><td class="n">0.80</td><td class="n">4.00 &nbsp;(4 to 1)</td><td class="n">+1.39</td></tr>
+        </tbody>
+      </table></div>
+      <p>A coefficient is the change in log-odds when its feature goes up by one unit and the others stay fixed. Take <i>e</i> to the power of the coefficient and you get the <b>odds ratio</b>: the number the odds are multiplied by. Above 1 raises the odds, below 1 lowers them.</p>
+    </div></div>
+    <div class="wwh"><div class="tag">Why</div><div class="body">
+      <p>This is the main reason analysts still choose logistic regression when fancier models exist. A retention team can act on "each extra support call multiplies the odds of churn by about 1.8". It cannot act on a black-box score.</p>
+      <p class="note">Coefficients describe association in this data. They say customers on two-year contracts churn less; they do not prove that moving a customer to a two-year contract will make that customer stay.</p>
+    </div></div>
+    <div class="wwh"><div class="tag">How</div><div class="body">
+      <p>Pull the coefficients out of the pipeline and convert them to odds ratios with <code>np.exp</code>.</p>
+      <div class="cell" data-cell="coefs"></div>
+      <figure class="fig">
+        <figcaption><b>What pushes churn down and up</b>Coefficients from the fitted pipeline. Numeric features are per one standard deviation; contract and autopay are compared with a month-to-month customer without autopay.</figcaption>
+        <div class="legend"><span><i class="sw box" style="background:var(--s1)"></i>Lowers churn odds</span><span><i class="sw box" style="background:var(--s2)"></i>Raises churn odds</span></div>
+        <div class="bars" id="c-coef"></div>
+      </figure>
+      <p>Read two of them. A two-year contract has an odds ratio of 0.086: the odds of churn are about 91% lower than for a month-to-month customer who is otherwise the same. Autopay has 0.677: odds about 32% lower.</p>
+      <p>The numeric columns were scaled, so their coefficients are per standard deviation. Divide by the scaler's standard deviations to get them per month, per dollar and per call. Since we invented the data, we can put the hidden rule from module 2 beside them:</p>
+      <div class="cell" data-cell="per_unit"></div>
+      <p>The model recovered the rule closely from 750 training rows. It is not exact, because the sample is finite and because scikit-learn applies a little regularization by default (module 7).</p>
+      <figure class="fig">
+        <figcaption><b>Customer calculator</b>The fitted model, running in your browser. Change a customer and see how each feature moves the log-odds away from the starting point.</figcaption>
+        <div class="row"><button class="btn" id="cu-p1">New, unhappy customer</button><button class="btn" id="cu-p2">Loyal customer</button><button class="btn" id="cu-p3">Average customer</button></div>
+        <div class="controls">
+          <div class="ctl"><label for="cu-ten">Tenure (months) <output id="cu-ten-o"></output></label><input type="range" id="cu-ten" min="1" max="72" step="1" value="2"></div>
+          <div class="ctl"><label for="cu-chg">Monthly charges ($) <output id="cu-chg-o"></output></label><input type="range" id="cu-chg" min="20" max="120" step="1" value="95"></div>
+          <div class="ctl"><label for="cu-cal">Support calls <output id="cu-cal-o"></output></label><input type="range" id="cu-cal" min="0" max="8" step="1" value="4"></div>
+          <div class="ctl"><label for="cu-con">Contract</label><select id="cu-con"><option value="0">Month-to-month</option><option value="1">One year</option><option value="2">Two year</option></select></div>
+          <div class="ctl"><label for="cu-auto">Autopay</label><select id="cu-auto"><option value="0">Off</option><option value="1">On</option></select></div>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="k">P(churn)</div><div class="v" id="cu-p"></div></div>
+          <div class="stat"><div class="k">Odds</div><div class="v" id="cu-odds"></div></div>
+          <div class="stat"><div class="k">Log-odds z</div><div class="v" id="cu-z"></div></div>
+        </div>
+        <div class="bars" id="cu-bars"></div>
+      </figure>
+      <p class="note">An odds ratio is not a change in probability. Turning autopay on always multiplies the odds by 0.677, but the probability drop depends on where the customer started. Try it in the calculator with a risky customer and then a safe one.</p>
+    </div></div>
+    <div class="foot"><div class="quiz" data-q="4"></div><label class="done"><input type="checkbox" id="done-5"> I have finished module 5</label></div>
+  </section>
+
+  <!-- ============ 6 ============ -->
+  <section class="module" id="m6">
+    <header class="mod-head">
+      <p class="eyebrow">Module 6 · Core skills</p>
+      <h2>Evaluating predictions</h2>
+      <p class="lede">A probability becomes a decision only when you choose a cut-off. That choice decides which mistakes you make.</p>
+    </header>
+    <div class="wwh"><div class="tag">What</div><div class="body">
+      <p><code>predict</code> labels a customer "churn" when P(churn) is at least 0.5. Every labelled customer then falls into one of four boxes, laid out in a <b>confusion matrix</b>: caught churners, missed churners, false alarms, and correctly ignored customers.</p>
+      <ul>
+        <li><b>Accuracy</b>: share of all customers labelled correctly.</li>
+        <li><b>Precision</b>: of those flagged as churners, the share who really churned.</li>
+        <li><b>Recall</b>: of those who really churned, the share you flagged.</li>
+        <li><b>F1</b>: one number that balances precision and recall.</li>
+        <li><b>ROC AUC</b>: the chance the model ranks a random churner above a random stayer. It does not depend on any threshold; 0.5 is guessing, 1.0 is perfect.</li>
+      </ul>
+    </div></div>
+    <div class="wwh"><div class="tag">Why</div><div class="body">
+      <p>Accuracy alone hides the mistakes that matter. Missing a churner loses a customer. Flagging a loyal customer costs one unneeded retention offer. Those costs are rarely equal, so the default 0.5 is rarely the best cut-off for the business.</p>
+    </div></div>
+    <div class="wwh"><div class="tag">How</div><div class="body">
+      <div class="cell" data-cell="evaluate"></div>
+      <p>At the default threshold the model catches 36 of 62 churners (recall 0.58) and raises 8 false alarms. Move the threshold below and watch the trade.</p>
+      <figure class="fig">
+        <figcaption><b>Threshold explorer</b>All 250 test customers, grouped by predicted probability. Everything right of the line is flagged as "will churn".</figcaption>
+        <div class="controls"><div class="ctl"><label for="th-t">Decision threshold <output id="th-t-o"></output></label><input type="range" id="th-t" min="0.05" max="0.95" step="0.01" value="0.5"></div></div>
+        <div class="legend"><span><i class="sw box" style="background:var(--s1)"></i>Actually stayed</span><span><i class="sw box" style="background:var(--s2)"></i>Actually churned</span></div>
+        <div class="chart" id="c-hist"></div>
+        <div class="two">
+          <div><div class="cm" id="th-cm"></div></div>
+          <div class="stats" id="th-stats"></div>
+        </div>
+        <div class="two">
+          <div>
+            <p class="readout" style="margin-bottom:6px"><b>ROC curve.</b> The dot is the current threshold.</p>
+            <div class="chart" id="c-roc"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <p class="readout"><b>What does each mistake cost?</b> Example figures; replace them with your own.</p>
+            <div class="controls">
+              <div class="ctl"><label for="th-miss">Cost of a missed churner ($)</label><input type="number" id="th-miss" min="0" step="10" value="400"></div>
+              <div class="ctl"><label for="th-offer">Cost of one retention offer ($)</label><input type="number" id="th-offer" min="0" step="5" value="40"></div>
+            </div>
+            <p class="readout" id="th-cost"></p>
+            <div class="row"><button class="btn" id="th-best">Jump to the cheapest threshold</button></div>
+          </div>
+        </div>
+      </figure>
+      <p>To apply your own threshold in code, compare the probabilities with it yourself:</p>
+      <div class="cell" data-cell="threshold"></div>
+      <p>Recall rises from 0.58 to 0.79 and precision falls from 0.82 to 0.59. Whether that trade is worth it depends on the two costs.</p>
+      <figure class="fig">
+        <figcaption><b>Can you trust the probabilities?</b>Test customers split into five equal groups by predicted probability. A well-calibrated model sits on the diagonal: among customers given about 30%, about 30% churn.</figcaption>
+        <div class="chart" id="c-cal" style="max-width:420px"></div>
+      </figure>
+    </div></div>
+    <div class="foot"><div class="quiz" data-q="5"></div><label class="done"><input type="checkbox" id="done-6"> I have finished module 6</label></div>
+  </section>
+
+  <!-- ============ 7 ============ -->
+  <section class="module" id="m7">
+    <header class="mod-head">
+      <p class="eyebrow">Module 7 · Advanced</p>
+      <h2>Regularization: keeping coefficients in check</h2>
+      <p class="lede">scikit-learn's logistic regression penalizes large weights by default. Knowing how to set that penalty is the main tuning skill for this model.</p>
+    </header>
+    <div class="wwh"><div class="tag">What</div><div class="body">
+      <p>Regularization adds a cost for large coefficients to the log loss, so the model prefers smaller weights unless the data argues strongly for big ones.</p>
+      <ul>
+        <li><b>C</b> sets the strength, and it is inverted: a <b>small C means a strong penalty</b>. The default is <code>C=1.0</code>.</li>
+        <li><b>L2</b> (ridge, the default) shrinks all coefficients smoothly toward zero.</li>
+        <li><b>L1</b> (lasso) pushes the weakest coefficients to exactly zero, which removes those features from the model.</li>
+      </ul>
+      <p class="note">Because the default is not "no penalty", scikit-learn's coefficients differ slightly from those of statistics packages. Pass <code>C=np.inf</code> for an unpenalized fit.</p>
+    </div></div>
+    <div class="wwh"><div class="tag">Why</div><div class="body">
+      <p>With many features and few rows, an unpenalized model fits noise: weights grow large to explain quirks of the training sample and predictions on new data get worse. A penalty trades a little training fit for stability. L1 has an extra use, since a model with fewer features is easier to explain and cheaper to feed.</p>
+      <p>Our dataset has six informative columns and 750 training rows, so the penalty has little to fix here. That makes it a clean place to see what C does.</p>
+    </div></div>
+    <div class="wwh"><div class="tag">How</div><div class="body">
+      <div class="cell" data-cell="regularization"></div>
+      <p>At C = 0.001 the weights are squeezed nearly to zero and the model falls back to the 75.2% baseline. From C = 1 upward accuracy stops changing and the coefficients settle.</p>
+      <figure class="fig">
+        <figcaption><b>Coefficient paths</b>Each line is one feature's coefficient as C changes. Drag the slider to read values at any C, and switch penalty to see L1 switch features off.</figcaption>
+        <div class="row" role="group" aria-label="Penalty type"><button class="btn" id="rg-l2" aria-pressed="true">L2 (ridge)</button><button class="btn" id="rg-l1" aria-pressed="false">L1 (lasso)</button></div>
+        <div class="controls"><div class="ctl"><label for="rg-c">C <output id="rg-c-o"></output></label><input type="range" id="rg-c" min="0" max="20" step="1" value="12"><div class="lab" style="font-size:12.5px"><span>stronger penalty</span><span>weaker penalty</span></div></div></div>
+        <div class="chart" id="c-path"></div>
+        <div class="tscroll"><table id="rg-table"></table></div>
+        <p class="readout" id="rg-read"></p>
+      </figure>
+      <p>In code, <code>l1_ratio=1</code> selects the L1 penalty, and it needs a solver that supports it:</p>
+      <div class="cell" data-cell="l1"></div>
+      <p>With a strong L1 penalty only tenure and support calls survive. The model has chosen its two most useful features on its own.</p>
+      <p class="note">Version note: this is the scikit-learn 1.8+ spelling. In older versions write <code>penalty="l1"</code> instead of <code>l1_ratio=1</code>; the <code>penalty</code> argument was deprecated in 1.8.</p>
+    </div></div>
+    <div class="foot"><div class="quiz" data-q="6"></div><label class="done"><input type="checkbox" id="done-7"> I have finished module 7</label></div>
+  </section>
+
+  <!-- ============ 8 ============ -->
+  <section class="module" id="m8">
+    <header class="mod-head">
+      <p class="eyebrow">Module 8 · Advanced</p>
+      <h2>Validation and tuning</h2>
+      <p class="lede">Measure performance in a way that does not depend on one lucky split, choose settings without touching the test set, and handle a rare "yes" class.</p>
+    </header>
+    <div class="wwh"><div class="tag">What</div><div class="body">
+      <ul>
+        <li><b>Cross-validation</b> splits the training rows into k parts (folds). It trains on k − 1 of them, scores on the one left out, and repeats until every fold has been the left-out one. You get k scores instead of one.</li>
+        <li><b>Grid search</b> runs cross-validation for every combination of settings you list and keeps the best.</li>
+        <li><b>Class weights</b> make mistakes on the rare class count for more during training.</li>
+      </ul>
+    </div></div>
+    <div class="wwh"><div class="tag">Why</div><div class="body">
+      <p>A single test score is one draw from a noisy process. Our own model shows it: the test AUC was 0.902, yet the five cross-validation folds below range from 0.774 to 0.898. The test split happened to be an easy one.</p>
+      <p>Tuning has its own trap. If you pick C by looking at test scores, the test set has helped train the model and its score stops being an honest estimate. Tune with cross-validation on the training rows, and open the test set once at the end.</p>
+    </div></div>
+    <div class="wwh"><div class="tag">How</div><div class="body">
+      <div class="cell" data-cell="cv"></div>
+      <figure class="fig">
+        <figcaption><b>Five-fold cross-validation on the 750 training rows</b>Each row is one round. The blue block is held out for scoring; the model trains on the other four.</figcaption>
+        <div class="folds" id="c-folds"></div>
+      </figure>
+      <p>Now search over C and the penalty type. Pipeline step names prefix the setting: <code>model__C</code> means "the C of the step called model".</p>
+      <div class="cell" data-cell="grid"></div>
+      <p>The search landed on the defaults, C = 1 with L2. That is a real and common result: on clean, low-dimensional data, tuning buys little. You still needed the search to know that.</p>
+      <h3>When the "yes" class is rare</h3>
+      <p>With <code>class_weight="balanced"</code>, each churner counts about three times as much as a stayer in the loss, in proportion to how rare churners are.</p>
+      <div class="cell" data-cell="balanced"></div>
+      <div class="two">
+        <figure class="fig"><figcaption><b>Default weights</b>Recall 0.58, precision 0.82</figcaption><div class="cm" id="cm-def"></div></figure>
+        <figure class="fig"><figcaption><b>class_weight="balanced"</b>Recall 0.87, precision 0.57</figcaption><div class="cm" id="cm-bal"></div></figure>
+      </div>
+      <p class="note">Balanced weights have much the same effect as lowering the threshold in module 6. They also inflate the predicted probabilities, so do not read them as true churn rates. If you need honest probabilities, keep the default weights and move the threshold instead.</p>
+    </div></div>
+    <div class="foot"><div class="quiz" data-q="7"></div><label class="done"><input type="checkbox" id="done-8"> I have finished module 8</label></div>
+  </section>
+
+  <!-- ============ 9 ============ -->
+  <section class="module" id="m9">
+    <header class="mod-head">
+      <p class="eyebrow">Module 9 · Advanced</p>
+      <h2>Going further</h2>
+      <p class="lede">Curved boundaries, more than two classes, and the mistakes worth checking for before you trust a model.</p>
+    </header>
+    <div class="wwh"><div class="tag">What</div><div class="body">
+      <ul>
+        <li><b>Non-linear terms.</b> Add squares and products of features and the same model can draw a curved boundary.</li>
+        <li><b>Multiclass.</b> With three or more classes, scikit-learn fits one set of weights per class and uses the softmax function so the probabilities sum to 1. You change nothing in your code.</li>
+        <li><b>Statistical inference.</b> scikit-learn reports no p-values or confidence intervals. When you need them, fit the same model with the <code>statsmodels</code> library.</li>
+      </ul>
+    </div></div>
+    <div class="wwh"><div class="tag">Why</div><div class="body">
+      <p>A plain logistic regression assumes each feature moves the log-odds in a straight line and that features do not interact. When that is false, for example if support calls matter only for new customers, extra terms let the model see it. Extra terms also give the model more ways to overfit, so they have to earn their place in cross-validation.</p>
+    </div></div>
+    <div class="wwh"><div class="tag">How</div><div class="body">
+      <div class="cell" data-cell="poly"></div>
+      <p>The richer model scores slightly worse. That is the honest answer for this dataset: the hidden rule from module 2 is a straight line in log-odds, so squares and interactions only add noise. On real data, run this same comparison and keep whichever wins.</p>
+      <h3>Three classes</h3>
+      <p>The churn target has two classes, so this one example borrows scikit-learn's built-in iris dataset, which has three flower species.</p>
+      <div class="cell" data-cell="multiclass"></div>
+      <p><code>coef_</code> now has three rows, one per class, and <code>predict_proba</code> returns three columns.</p>
+      <h3>Before you trust a model</h3>
+      <ul class="checklist">
+        <li>Compared with the "always predict the majority" baseline.</li>
+        <li>Scaling and encoding sit inside a pipeline, fitted on training rows only.</li>
+        <li>No feature leaks the answer, such as a "cancellation date" column.</li>
+        <li>Numeric features are scaled before regularization is applied.</li>
+        <li>You remembered the default L2 penalty when reading coefficients.</li>
+        <li>Odds ratios are reported as changes in odds, not in probability.</li>
+        <li>The threshold was chosen from costs, not left at 0.5 by habit.</li>
+        <li>Performance is quoted from cross-validation, with its spread.</li>
+        <li>A <code>ConvergenceWarning</code> was fixed by scaling or a larger <code>max_iter</code>.</li>
+      </ul>
+      <h3>Take the code with you</h3>
+      <p>Every cell in this tutorial, in order, as one script.</p>
+      <div class="row"><button class="btn primary" id="copy-all">Copy the full script</button><span class="readout" id="copy-all-msg"></span></div>
+    </div></div>
+    <div class="foot"><div class="quiz" data-q="8"></div><label class="done"><input type="checkbox" id="done-9"> I have finished module 9</label></div>
+  </section>
+
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+const D = {"versions":{"sklearn":"1.9.1","numpy":"2.5.3","pandas":"3.0.5"},"rows":{"tenure":[7,56,48,32,32,62,7,51,15,7,38,71,53,55,52,57,37,10,61,33,37,27,14,67,57,47,29,60,40,32,33,17,7,40,64,5,62,60,20,46,12,55,51,26,5,70,33,65,49,57,55,15,27,34,36,4,40,12,54,50,67,54,27,70,30,24,66,27,6,34,58,14,34,10,50,35,24,17,41,49,68,32,12,60,46,51,8,23,56,60,32,58,61,28,65,21,18,50,46,11,60,15,58,1,58,57,57,48,34,51,20,57,41,34,37,41,3,11,18,9,32,49,48,34,62,41,6,56,42,46,41,40,7,41,58,22,44,3,26,32,71,16,20,30,72,62,3,17,60,5,62,21,67,22,32,48,10,41,37,57,72,48,30,30,31,59,24,13,25,2,8,7,56,53,51,34,52,12,65,37,68,11,36,51,36,33,12,28,18,22,50,46,44,27,70,7,25,9,25,70,27,66,36,51,33,20,56,70,19,57,19,52,57,33,54,20,6,7,33,65,10,33,51,15,52,23,59,42,40,13,34,62,2,55,36,52,48,32,23,46,11,43,7,47,46,7,55,30,57,3,13,36,14,24,48,11,49,8,13,43,58,13,22,67,72,42,33,25,45,43,22,2,11,70,31,35,34,57,5,6,20,36,49,36,32,68,12,42,40,35,59,20,69,24,40,38,62,32,21,2,27,60,1,65,40,11,22,40,23,8,48,49,9,21,18,48,53,53,68,56,24,8,45,66,71,17,18,3,11,40,40,27,23,60,34,59,70,23,15,69,46,21,45,38,66,19,72,68,14,12,39,4,22,32,70,72,11,65,7,54,61,65,17,65,9,38,34,23,2,56,25,48,30,27,64,7,54,54,28,19,1,68,69,18,3,9,5,60,65,12,54,13,27,44,52,63,4,15,21,23,72,56,24,70,36,37,32,11,68,2,13,17,21,10,2,49,70,9,22,37,67,50,56,42,31,15,63,58,2,52,7,54,60,10,32,9,41,67,6,29,71,22,10,36,37,48,23,69,38,21,70,67,36,2,43,40,11,46,61,8,53,11,54,31,1,70,12,43,14,68,54,58,32,34,46,57,61,2,48,8,21,60,19,58,34,17,25,39,56,44,68,63,55,44,21,30,9,27,67,31,9,47,70,63,20,33,39,18,20,18,72,54,61,59,70,8,64,5,35,43,26,11,14,60,23,23,67,11,66,67,44,12,12,21,42,12,33,9,39,2,52,4,15,13,60,4,31,43,38,50,58,29,60,23,71,37,53,64,58,62,39,4,36,14,65,18,17,18,47,42,69,30,21,4,1,27,67,38,65,8,7,61,8,4,30,67,50,8,61,61,58,65,18,71,24,58,42,57,46,47,45,57,54,10,60,39,24,38,70,62,61,34,57,28,50,47,18,20,5,11,32,35,12,31,44,17,25,27,37,27,54,24,32,28,14,50,17,22,58,69,49,66,62,35,56,24,34,39,70,62,36,47,15,58,40,39,56,46,6,21,13,53,3,15,44,51,37,62,67,10,69,45,46,7,45,53,42,7,38,68,53,10,70,70,13,58,30,43,33,57,72,58,68,69,7,19,52,43,4,7,38,45,13,13,10,41,1,42,35,34,49,38,53,56,67,58,38,36,17,44,11,68,61,9,57,9,52,7,36,48,53,31,67,56,15,49,53,25,54,65,59,55,46,20,58,27,39,23,23,12,70,11,7,68,40,32,54,28,10,53,13,40,69,68,26,57,45,35,11,28,47,72,1,52,61,69,31,9,20,62,64,46,9,9,35,43,3,50,40,1,7,33,53,60,32,22,70,34,23,32,1,22,38,67,54,57,40,8,29,72,4,64,50,21,57,61,4,8,48,72,2,48,10,47,45,7,50,65,63,3,18,18,33,11,62,56,59,15,2,66,21,48,66,3,1,1,12,4,60,44,71,58,70,18,21,62,18,5,49,58,70,67,9,56,61,51,60,61,33,3,33,15,9,9,51,37,39,54,40,46,7,62,33,12,59,53,4,14,2,20,8,52,38,71,54,45,37,4,6,45,1,4,16,64,34,52,30,13,27,7,56,14,28,71,43,34,40,57,19,46,63,42,33,11,18,69,39,22,31,42,39,51,19,47,32,68,12,11,34,37,50,30,66,35,10,9,71,10,69,21,7,22,45,31,57,44,29,46,70,30,12,30,61,16,69,43,44,23,67,3,22,31,35,35,11,17,7,42,26,41,43,51,40,47,43,47,45,23,18,57,25,40,15,32,39,46,38,26,70,37],"charges":[98.66,71.83,81.62,68.86,66.59,54.41,78.61,52.97,83.31,91.71,77.33,64.28,79.08,63.83,88.71,33.37,63.29,30.18,40.1,97.28,87.9,55.61,39.95,20.0,59.13,118.41,78.7,58.81,79.3,38.78,64.05,71.99,68.28,85.82,76.89,83.37,56.23,87.96,102.58,50.6,52.25,96.72,66.17,98.08,61.15,99.1,72.63,75.16,101.29,62.76,51.18,61.03,79.05,38.68,82.75,59.22,92.96,22.11,54.27,36.27,53.48,74.95,66.42,64.93,66.82,74.07,49.83,84.14,83.25,77.7,81.13,75.93,110.7,68.26,63.86,54.93,49.35,45.11,52.22,68.59,76.69,71.02,54.69,88.0,84.79,66.81,56.94,80.97,73.76,41.04,68.64,75.24,52.01,73.8,40.9,96.72,94.96,64.95,77.27,21.8,46.87,64.12,48.56,84.29,109.95,46.47,53.25,74.71,102.22,45.55,74.98,106.43,36.96,44.38,61.53,59.59,86.25,74.83,34.5,80.31,58.45,95.49,57.45,57.27,80.82,85.26,78.96,36.29,80.76,49.31,74.71,41.53,78.93,53.87,44.35,84.28,74.83,57.72,99.02,61.19,70.64,75.38,57.61,79.42,59.33,61.77,97.25,49.19,21.74,102.22,120.0,61.89,31.26,63.79,64.28,66.2,47.73,81.59,80.49,40.11,83.98,111.05,73.44,63.25,67.16,82.31,35.39,73.29,62.19,106.96,66.52,103.36,47.93,81.75,76.39,52.62,73.55,94.25,63.52,36.16,69.65,51.95,63.15,68.37,35.89,37.69,79.64,59.55,20.0,85.7,75.45,55.72,43.66,86.72,76.99,117.65,78.4,77.75,66.66,86.34,82.5,95.03,59.57,61.29,60.42,85.82,99.97,60.82,61.5,76.28,65.08,89.04,24.96,53.47,54.35,23.59,50.73,51.7,65.98,92.26,65.1,49.38,68.86,90.98,50.48,51.79,81.17,65.57,82.95,69.73,84.03,49.3,69.76,65.79,45.68,38.73,83.71,62.98,49.55,68.08,92.56,24.39,40.07,51.54,99.22,75.65,85.35,47.2,47.61,78.96,71.17,80.97,66.25,75.56,73.16,85.56,86.14,37.6,25.05,90.03,93.75,49.59,32.8,71.98,88.62,105.95,80.33,62.57,52.14,70.23,64.01,49.7,110.98,105.7,92.72,51.58,87.1,82.79,78.85,94.99,82.71,84.8,82.74,76.82,34.33,71.67,58.88,44.4,103.64,104.58,97.18,75.1,97.01,70.24,74.06,48.13,77.94,71.21,43.95,68.98,68.41,105.95,87.88,70.23,74.98,70.88,65.94,48.35,66.98,55.08,44.99,80.22,77.83,34.27,67.55,89.91,91.18,90.52,70.78,53.1,48.33,76.89,77.59,95.75,92.0,67.36,45.12,63.62,74.34,65.96,58.44,75.06,59.92,57.44,76.23,61.96,74.88,75.46,47.21,60.38,98.76,46.76,27.67,32.76,70.58,70.62,67.65,94.28,20.0,77.92,101.23,47.44,62.4,54.94,52.11,63.47,98.55,106.75,63.28,108.1,70.71,105.07,68.13,72.62,77.31,120.0,87.03,55.85,89.38,62.76,60.2,88.17,70.62,75.57,70.28,76.73,78.5,31.26,83.33,50.36,41.15,68.83,71.68,56.13,86.62,43.16,61.86,58.3,69.07,75.58,49.84,84.49,71.26,32.16,30.83,69.75,65.58,67.93,69.44,74.51,88.95,47.78,46.56,48.13,75.78,94.9,61.37,20.0,35.92,53.34,58.85,61.83,70.77,63.77,90.99,56.48,52.75,79.58,39.29,77.79,72.05,67.05,101.77,57.56,111.21,65.49,44.46,71.4,48.48,54.96,77.94,81.11,57.56,89.75,93.15,98.73,80.59,97.27,32.38,63.64,52.66,72.38,58.57,66.68,107.64,66.61,78.28,65.35,71.51,70.12,78.97,93.31,102.95,76.19,81.79,46.98,68.24,88.81,87.32,74.23,87.73,79.82,94.01,75.79,62.89,76.72,20.0,77.66,20.0,35.53,79.04,79.55,46.75,55.76,97.41,60.32,114.86,69.96,78.16,102.34,72.62,49.95,67.81,69.29,42.71,64.88,55.16,88.49,70.69,64.34,67.88,74.46,82.34,50.01,49.17,92.09,61.75,41.66,78.88,79.27,39.39,74.59,84.71,77.49,82.64,41.91,76.62,63.95,60.34,87.41,99.59,105.89,96.3,67.81,77.05,85.34,72.42,72.62,86.48,68.81,55.41,61.71,82.68,70.06,76.8,83.4,62.5,85.12,77.58,45.3,98.85,59.99,36.9,49.1,49.58,71.04,64.52,63.26,82.39,76.8,76.32,78.2,82.32,27.84,62.71,26.4,70.72,69.91,90.91,93.75,74.06,59.99,79.7,59.44,69.97,89.72,58.84,86.11,83.55,50.9,89.48,83.97,72.04,54.75,52.82,59.25,80.85,50.89,78.75,45.16,65.92,72.19,118.9,42.45,99.44,73.0,78.22,72.37,78.89,66.93,99.08,60.87,92.64,57.11,68.79,48.56,79.1,98.9,68.45,66.06,47.71,65.41,38.14,51.74,74.54,96.38,120.0,58.27,98.71,74.88,66.98,78.65,71.24,72.21,61.83,42.04,39.13,83.06,64.47,58.08,70.17,85.9,73.61,56.88,94.53,101.58,79.89,89.47,94.84,92.6,82.28,81.97,80.39,48.05,84.01,42.88,54.11,96.07,86.8,99.75,64.57,46.96,65.19,72.04,71.58,92.67,62.77,77.04,50.23,79.01,70.06,55.0,65.28,66.32,64.6,105.43,68.03,65.12,28.05,52.12,64.74,56.28,97.63,66.7,95.77,71.23,70.74,68.22,70.08,104.38,23.61,29.97,59.14,70.29,83.8,79.46,62.32,90.38,90.6,73.68,89.25,75.45,58.77,83.96,72.21,70.03,99.46,20.98,41.65,46.26,62.73,64.91,39.85,50.3,52.78,119.15,106.03,61.77,62.73,47.02,31.84,67.66,50.04,68.3,38.0,54.76,72.97,77.32,78.35,43.59,87.09,54.0,82.66,69.79,42.47,63.68,77.31,82.26,67.18,100.64,90.15,64.87,85.0,108.68,109.21,45.44,51.47,99.7,48.83,43.55,60.28,78.4,67.95,56.99,56.52,55.75,52.41,115.63,75.95,87.74,60.22,66.28,55.73,20.0,42.44,33.79,25.0,46.09,96.5,69.11,95.81,78.22,85.65,51.98,80.48,84.57,58.47,81.19,81.32,59.01,47.54,46.32,71.73,76.54,54.15,70.53,81.41,82.36,101.04,95.54,49.97,103.67,59.38,90.9,71.36,61.76,33.85,66.57,38.81,89.35,100.34,54.06,76.04,55.49,57.43,85.49,69.23,104.79,60.36,89.99,71.95,85.92,61.06,69.01,67.69,53.28,83.24,83.0,81.87,100.74,98.99,62.5,77.46,57.53,70.47,58.01,102.4,77.27,65.64,93.87,26.59,29.72,85.92,71.21,75.01,43.47,69.54,110.07,86.48,73.39,61.22,62.11,27.42,75.15,86.91,38.49,56.77,46.85,50.69,71.07,28.31,82.29,85.08,64.98,20.39,50.07,94.66,20.0,63.05,46.4,86.09,56.5,78.08,81.31,106.72,65.94,77.52,40.3,93.81,54.79,58.78,69.56,38.74,74.58,89.35,75.86,38.22,67.52,84.84,32.44,48.5,87.53,75.4,78.24,107.19,79.37,83.16,120.0,65.72,54.04,78.56,78.78,59.47,49.35,116.2,76.54,55.35,88.32,67.82,64.94,81.25,44.16,77.05,108.26,79.32,62.48,59.86,61.79,64.92,62.44,88.33,35.34,87.24,62.41,77.54,47.46,96.57,94.91,89.19,39.7,86.58,78.1,37.89,69.51,77.29,81.12,73.55,75.82,99.47,94.52,20.0,63.65,66.71,34.96,71.88,94.98,48.27,76.73,51.68,56.56,99.55,59.15,79.24,32.58,107.25,82.05,66.35,81.51,41.8,93.65,63.52,65.92,60.17,58.39,83.89,75.12,83.03,69.82,80.26,61.62,114.59,38.64,95.22,97.36,52.96,114.59,89.91,89.42,70.56,65.66,65.81,77.81,98.02,73.63,51.77,86.49,88.42,83.09,84.91,64.58,51.42,52.64,37.29,74.74,68.33,61.2,20.0,45.05,92.42,56.71,77.21,42.19,98.77,67.12,75.8,116.52,100.33,63.87,58.14,63.49,80.2,67.9,62.1,99.34,67.72,115.99,71.81,105.71,77.15,89.26,55.51,52.92,79.19,89.77,70.81,44.27,42.79,41.46,34.65,72.19,92.5,69.73,24.79,66.18,66.74,111.92,40.86,62.19,104.12,79.0],"calls":[4,1,0,1,0,2,4,1,1,1,1,1,0,1,1,4,5,0,0,2,3,1,4,1,2,1,0,0,0,3,0,0,1,1,2,2,1,1,3,0,2,0,2,2,0,0,1,4,2,2,1,0,1,3,1,0,2,2,0,2,3,0,2,1,4,4,0,1,2,2,3,5,3,2,4,2,2,0,2,0,2,2,1,3,2,1,4,1,1,3,0,4,0,0,0,0,1,0,4,3,1,0,1,0,1,2,0,2,2,1,2,1,3,1,0,0,2,3,3,3,3,2,0,0,0,0,3,1,1,1,2,1,4,1,1,6,2,5,1,2,2,1,0,2,2,1,1,0,0,1,1,2,0,2,0,2,0,4,1,1,0,2,2,3,2,0,1,1,2,1,2,5,3,1,1,3,2,1,0,3,3,2,2,0,2,2,2,4,2,0,1,1,1,1,0,2,0,0,1,2,2,1,1,2,2,4,2,2,2,2,0,0,2,0,2,2,2,2,1,1,1,1,1,1,2,2,2,1,1,0,6,0,2,1,2,0,1,0,1,1,1,0,0,0,4,2,4,2,2,1,4,1,0,1,1,2,1,1,1,0,1,2,4,1,2,1,2,2,1,1,2,1,2,0,3,1,0,3,1,0,2,0,0,1,1,3,1,1,0,1,1,1,1,2,4,0,3,0,1,4,4,1,3,2,0,2,2,1,1,1,0,4,1,2,2,1,1,0,3,0,1,2,0,2,2,3,1,0,0,1,1,2,0,0,1,2,3,1,3,1,1,1,1,1,2,2,0,0,0,2,1,2,0,2,0,0,3,2,1,2,2,1,1,0,1,0,1,2,4,1,4,2,0,2,0,2,4,2,1,2,1,3,1,3,0,0,0,2,1,2,2,3,4,2,3,0,4,1,0,1,0,1,0,0,1,2,5,1,3,0,2,1,1,1,1,2,2,0,1,0,3,2,0,2,3,3,1,1,0,0,1,0,1,3,2,3,3,0,1,2,3,1,5,3,1,1,3,1,0,1,4,6,4,1,1,1,1,2,2,1,2,3,2,1,1,1,2,3,1,3,3,1,0,2,1,1,2,3,1,2,2,1,1,1,2,0,1,2,0,0,1,1,1,5,2,1,5,2,2,1,0,0,0,2,4,1,5,4,1,1,1,0,0,2,0,1,3,1,4,2,1,4,1,2,1,1,0,2,2,3,2,1,0,1,2,0,2,1,0,1,1,0,0,1,1,0,1,0,0,4,1,2,1,4,3,2,0,1,0,2,0,1,3,2,3,1,1,1,1,1,3,0,1,2,0,0,2,1,1,1,1,0,2,4,3,0,1,1,1,3,2,1,1,2,1,2,0,1,3,2,1,2,1,0,2,2,1,3,0,2,4,2,1,3,1,0,1,1,2,1,2,5,2,0,0,3,0,3,4,0,1,0,1,4,1,2,2,1,1,1,1,1,0,1,4,0,3,2,0,1,5,0,1,0,0,1,0,4,3,0,0,5,0,2,2,1,0,0,2,1,0,3,1,0,6,0,0,0,0,2,1,2,1,1,2,2,2,0,1,0,0,2,2,2,1,4,1,0,1,1,0,0,1,1,1,2,4,2,1,1,1,0,2,0,1,2,3,1,2,2,0,0,1,4,0,1,0,1,3,3,0,2,1,1,2,2,0,3,2,0,0,1,1,2,1,2,2,0,2,1,1,0,3,3,3,1,2,2,0,2,5,1,0,1,1,1,2,3,1,1,4,2,1,1,1,0,0,2,2,3,0,4,3,1,2,2,2,2,3,4,2,2,2,3,2,0,3,2,7,2,1,1,1,0,2,0,1,2,1,2,1,1,2,3,1,4,3,5,1,1,1,1,1,3,3,2,2,0,5,0,1,1,0,1,1,1,3,0,2,1,4,1,0,3,0,1,2,0,1,0,2,1,1,1,1,0,2,0,3,1,0,1,1,1,3,1,1,1,0,0,2,1,1,2,1,0,2,2,0,1,3,7,3,3,5,0,2,2,0,2,1,2,0,2,1,1,1,2,1,2,5,3,2,2,3,2,1,0,3,1,0,0,1,0,0,4,0,1,1,1,4,0,2,2,2,1,2,2,4,2,1,1,2,3,1,2,1,1,1,0,0,0,2,1,3,2,3,0,2,2,1,0,0,3,4,2,1,1,2,0,3,3,3,0,1,1,1,0,0,0,1,1,0,2,3,3,1,0,1,1,1,1,1,1,0,0,0,0,2,2,1,0,4,0,1,0,0,1,0,2],"contract":[0,0,0,0,0,0,1,0,0,2,0,1,0,0,0,0,1,0,0,0,2,1,2,1,1,0,2,0,0,1,0,0,0,0,2,0,2,0,1,0,2,0,0,0,0,0,1,2,1,0,0,2,2,0,2,0,2,2,1,0,1,0,1,0,1,2,0,0,1,0,0,0,0,1,1,0,0,0,0,1,0,0,2,0,1,0,0,0,1,2,0,0,0,1,1,1,2,0,1,1,0,2,0,1,1,2,0,0,2,1,0,1,0,1,2,0,0,2,1,2,0,2,0,0,0,1,2,1,1,0,0,0,0,0,2,1,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,2,0,0,0,0,0,2,0,1,0,0,0,0,0,2,1,2,0,1,1,1,2,1,2,1,0,1,0,2,2,0,0,0,0,0,1,1,2,0,0,0,2,0,0,0,2,0,1,1,1,0,0,0,0,1,0,0,0,1,0,1,0,2,1,0,0,0,0,0,2,1,0,1,0,2,0,1,1,0,0,0,2,0,1,1,2,0,0,1,0,2,0,0,2,0,0,0,0,2,0,0,0,2,0,2,2,0,2,1,0,0,2,1,1,2,0,2,2,0,0,0,2,0,1,0,0,1,0,2,0,2,0,2,1,0,0,0,1,2,0,0,1,0,1,0,1,2,0,0,0,1,0,2,1,0,1,0,2,0,1,2,1,2,0,2,1,1,0,0,1,0,1,2,2,0,2,0,0,2,0,0,0,0,2,0,0,1,0,1,2,1,2,0,2,0,0,1,0,2,1,2,0,0,1,0,0,1,2,1,0,0,1,0,0,0,0,0,0,1,0,1,0,2,0,0,0,0,0,2,2,0,0,1,1,0,1,0,1,0,0,0,1,0,1,1,1,0,0,0,1,2,0,2,0,0,0,1,0,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,2,2,0,1,1,2,0,0,0,0,0,2,2,0,0,0,0,1,0,2,2,1,1,0,0,0,1,0,2,0,0,0,2,0,0,0,1,2,0,2,0,1,0,0,1,0,0,2,2,0,1,1,0,2,0,1,0,0,0,0,2,2,0,0,0,0,0,2,1,0,0,1,0,0,0,0,0,1,0,1,0,2,0,0,0,0,0,1,0,0,0,1,2,1,1,1,1,0,1,1,0,1,0,0,0,1,2,0,0,0,0,2,0,0,0,2,0,1,0,0,1,0,1,0,1,1,1,0,1,2,0,0,2,0,1,1,0,1,1,0,2,0,0,2,0,2,0,0,0,1,1,2,2,1,1,0,2,1,2,0,0,1,0,0,2,0,0,0,0,1,2,2,1,1,0,2,0,0,2,2,0,1,0,0,0,0,0,0,0,0,2,1,2,0,1,2,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,2,2,0,0,0,2,2,0,0,0,2,2,0,1,0,1,2,0,0,1,0,2,0,2,0,0,0,0,0,1,0,0,0,0,2,2,0,1,1,2,0,0,0,2,1,0,0,1,2,0,1,0,0,0,1,2,0,0,0,0,0,0,0,0,0,1,0,1,2,1,0,0,1,0,0,0,0,0,1,0,0,2,0,1,0,0,2,0,0,2,1,1,0,0,1,0,0,1,0,0,0,0,1,2,0,0,0,0,0,2,0,0,2,0,2,0,0,2,0,0,0,1,1,0,1,1,0,0,0,0,0,0,0,0,1,0,2,2,1,2,2,0,1,0,1,0,0,0,2,0,0,0,0,2,1,0,0,0,0,2,1,0,1,0,1,0,1,0,2,0,0,0,0,0,1,1,0,1,1,0,0,0,0,1,2,1,0,1,1,0,2,0,0,0,0,2,0,0,0,0,0,0,1,0,1,0,1,2,0,0,2,0,1,0,0,0,2,0,1,1,0,0,0,0,1,0,0,1,1,0,1,0,1,0,0,0,1,1,0,2,2,0,1,0,2,0,0,0,0,1,0,0,0,2,1,0,0,0,2,1,1,2,0,1,0,0,0,0,2,0,2,1,1,2,0,0,0,0,2,0,0,0,0,1,0,1,1,1,0,1,0,0,1,1,0,2,0,1,2,0,2,1,1,1,1,0,1,0,2,0,0,2,0,0,1,0,0,0,0,0,0,0,0,0,1,1,0,0,2,1,0,0,0,2,2,2,0,0,0,0,0,1,0,2,0,0,2,1,0,1,0,0,0,0,1,0,1,1],"autopay":[1,0,1,0,1,0,1,1,1,1,1,1,1,0,0,0,1,1,0,0,1,1,1,0,0,0,1,1,1,0,0,1,1,0,1,1,0,1,1,1,0,1,0,1,0,1,1,0,0,0,1,1,1,0,0,0,1,1,0,0,1,1,0,1,0,0,0,1,1,0,1,1,1,1,0,0,0,0,0,0,1,0,0,0,0,1,1,0,1,1,1,0,1,1,1,0,1,0,0,1,1,0,1,1,1,0,0,1,1,1,1,1,1,0,1,0,1,0,1,0,0,0,0,1,0,1,1,1,0,0,0,0,0,1,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,1,1,1,0,0,1,0,0,0,0,1,1,0,0,1,1,1,0,1,1,1,0,1,0,0,1,1,0,0,0,0,1,0,1,0,1,1,1,1,1,1,1,0,1,1,0,1,0,1,1,1,1,0,0,1,0,1,0,1,1,1,1,0,0,0,1,1,1,0,1,0,0,0,1,0,1,1,1,1,0,0,1,1,1,1,0,0,0,0,1,1,1,1,0,1,0,0,0,1,1,1,1,0,0,1,0,1,0,0,0,0,1,1,1,1,0,0,0,1,0,0,1,1,1,0,1,1,0,1,1,0,0,0,1,0,1,1,0,1,1,1,0,0,1,0,0,1,0,1,0,0,0,0,0,0,0,1,1,0,0,0,0,1,1,0,1,1,0,1,0,1,1,0,1,1,0,0,1,0,0,1,0,1,1,1,1,1,1,1,0,1,0,1,0,0,0,1,0,0,1,1,1,0,1,1,0,1,0,0,1,0,0,0,1,0,0,1,1,0,1,0,1,1,1,0,1,1,0,0,1,0,1,0,1,1,0,0,0,1,1,0,1,1,0,1,0,1,0,0,0,0,0,1,0,1,0,0,1,0,0,1,0,1,0,1,0,0,1,1,1,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,1,1,0,1,0,0,0,0,1,1,1,1,1,0,0,0,1,0,1,1,0,0,1,0,0,0,1,0,1,0,1,1,0,1,0,0,1,0,1,1,0,0,1,0,0,0,0,1,0,1,1,1,1,1,0,0,1,0,1,0,1,1,0,1,0,0,1,1,1,0,0,0,1,0,1,1,0,1,0,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,0,1,1,1,1,0,0,1,1,0,0,1,0,1,0,0,1,1,1,1,0,1,1,1,0,1,0,1,1,0,1,1,1,1,1,0,1,1,0,0,0,1,0,1,1,0,1,1,1,1,0,0,0,0,1,0,1,1,0,1,0,1,0,0,0,1,0,1,0,0,1,1,0,0,0,1,0,0,1,0,0,1,0,0,0,1,1,1,1,0,0,0,0,1,0,1,1,0,1,1,0,0,0,1,1,0,1,0,0,0,0,0,0,0,1,0,1,1,1,0,1,0,0,1,0,1,0,1,1,1,1,1,0,0,0,1,1,1,1,0,1,1,0,0,1,0,1,1,1,1,1,1,1,0,1,1,1,0,0,1,0,0,1,0,1,0,0,1,0,1,1,0,1,0,1,0,0,0,1,0,1,0,0,1,0,0,1,1,0,1,1,0,1,1,1,0,0,1,1,0,0,1,1,0,0,1,1,1,1,1,0,0,0,0,1,1,0,0,0,0,0,0,1,0,1,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0,1,0,0,1,1,0,0,1,0,1,0,0,1,0,1,1,0,0,0,1,0,1,1,1,0,0,1,1,0,1,0,1,1,0,0,0,0,0,1,0,0,0,0,1,0,1,0,1,1,0,0,1,1,0,1,1,1,0,1,1,1,0,1,0,0,0,0,1,1,0,0,0,1,0,0,1,1,0,0,0,1,1,0,0,0,0,1,0,1,0,1,0,1,0,0,0,1,0,0,1,1,1,0,0,0,0,1,1,1,1,0,1,1,1,1,0,0,0,1,0,0,0,0,1,1,1,0,0,0,1,1,0,0,0,1,0,1,0,0,1,1,1,0,0,1,1,0,1,1,1,0,1,1,0,0,1,0,0,0,1,1,1,1,1,0,0,0,0,0,1,0,0,1,0,1,1,1,1,0,1,0,1,1,1,0,1,1,1,0,1,0,0,1,0,0,1,1,0,0,0,0,1,0,1,0,1,1,1,0],"churn":[1,1,0,0,0,0,1,0,1,0,0,0,1,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,1,1,0,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,0,1,1,0,0,0,0,1,1,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,1,0,1,0,1,0,1,0,0,1,1,0,1,0,0,0,0,0,0,1,1,0,0,0,0,1,0,1,0,0,0,1,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,1,0,0,0,0,0,1,0,1,0,1,0,1,0,0,1,0,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1,1,0,1,0,0,0,0,0,1,0,0,1,1,0,0,1,1,0,0,1,0,1,0,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,0,1,0,1,0,0,0,0,0,1,0,0,0,1,0,0,1,0,0,0,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,0,1,0,1,0,0,1,0,0,0,1,1,0,1,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,1,0,0,0,0,1,0,0,1,1,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,0,0,0,0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,0,1,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,0,1,0,1,1,0,0,0,0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,1,0,1,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,1,0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,0,0,0,1,0,1,1,0,0,1,0,1,1,0,1,1,0,0,1,0,1,1,0,0,0,0,0,0,0,1,1,1,0,0,0,1,0,0,0,1,0,0,0,0,1,1,0,0,0,0,1,0,0,1,0,1,0,0,0,0,0,0,1,0,0,0,1,1,0,1,0,0,0,0,0,0,1,0,1,1,0,0,0,0,1,0,1,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1,0,1,1,0,1,0,1,1,0,1,0,0,0,0,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,1,0,0,0,1,0,1,0,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,1,1,1,0,0,1,0,0,0,1,0,0,0,1,1,1,0,0,0,1,0,1,1,0,0,0,1,0,0,0,1,0,1,0,0,0,0,1,0,0]},"tenure_bins":[{"x":3.0,"rate":0.4853,"n":68},{"x":9.0,"rate":0.4737,"n":114},{"x":15.0,"rate":0.3944,"n":71},{"x":21.0,"rate":0.321,"n":81},{"x":27.0,"rate":0.2759,"n":58},{"x":33.0,"rate":0.2727,"n":99},{"x":39.0,"rate":0.1264,"n":87},{"x":45.0,"rate":0.1628,"n":86},{"x":51.0,"rate":0.1928,"n":83},{"x":57.0,"rate":0.1489,"n":94},{"x":63.0,"rate":0.1029,"n":68},{"x":69.0,"rate":0.044,"n":91}],"m1":{"b0":0.14175045700441258,"b1":-0.03780476186760976},"lin":{"b0":0.48883689667659946,"b1":-0.0065025019514456705},"m2":{"b0":-0.6722640053815296,"b1":-0.038927559507338824,"b2":0.5131940127858532},"full":{"names":["num__tenure_months","num__monthly_charges","num__support_calls","cat__contract_One year","cat__contract_Two year","remainder__autopay"],"coef":[-0.8774552002505142,0.44156469017521915,0.70038237013054,-1.3755580152503053,-2.4497124242397827,-0.3905275722064866],"intercept":-0.6025978228553678,"mean":[36.846666666666664,69.74604,1.472],"scale":[20.812860340557606,20.239388256196545,1.2214264884415544]},"test":{"y":[1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1,1,0,0,0,0,1,1,0,1,0,0,1,0,1,0,1,1,0,1,0,0,0,1,0,0,1,1,0,0,0,1,1,1,0,1,0,0,1,0,1,0,0,0,0,1,1,1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,1,0,0,0,1,1,0,0,1,1,0,0,1,0,1,0,0,0,1,0,0,1,0,0,0,0,0,1,1,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0,1,0,1,0,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0],"p":[0.3137,0.3826,0.0302,0.0811,0.3768,0.4952,0.0656,0.134,0.085,0.1274,0.023,0.3256,0.4684,0.0856,0.0339,0.037,0.0623,0.2941,0.0704,0.2988,0.0044,0.0933,0.5074,0.4525,0.3556,0.1967,0.2108,0.0063,0.3073,0.0985,0.3492,0.0752,0.8708,0.287,0.4104,0.5775,0.2339,0.3503,0.0191,0.5035,0.2956,0.0146,0.5792,0.9096,0.1079,0.1873,0.1096,0.749,0.2964,0.6061,0.0084,0.1331,0.4312,0.1174,0.2676,0.1684,0.4181,0.0542,0.0974,0.2853,0.0245,0.6907,0.5635,0.7168,0.1272,0.0976,0.0748,0.7482,0.2182,0.0156,0.8325,0.0261,0.038,0.0132,0.4748,0.1107,0.8265,0.0306,0.3183,0.3769,0.2747,0.4272,0.0264,0.0726,0.2109,0.0735,0.1698,0.0935,0.0159,0.0213,0.365,0.0274,0.1473,0.192,0.775,0.029,0.2023,0.0962,0.037,0.2687,0.163,0.0077,0.1089,0.0455,0.5306,0.068,0.4268,0.0743,0.0824,0.3773,0.0569,0.1705,0.0314,0.0524,0.0894,0.1664,0.0127,0.0197,0.2437,0.11,0.3019,0.6712,0.0069,0.2105,0.3251,0.1026,0.0886,0.1466,0.064,0.0768,0.0701,0.0075,0.8272,0.1369,0.0563,0.1018,0.1572,0.0336,0.699,0.1825,0.2296,0.0647,0.0672,0.1034,0.1441,0.0547,0.0586,0.6098,0.6301,0.0544,0.7795,0.0914,0.0495,0.1874,0.0598,0.3694,0.1203,0.0351,0.1309,0.9353,0.1398,0.0865,0.1455,0.1893,0.1647,0.0695,0.2044,0.0426,0.4294,0.5557,0.0231,0.5926,0.2172,0.1247,0.2344,0.6137,0.0931,0.0438,0.4885,0.1434,0.5905,0.1918,0.0095,0.2921,0.5766,0.068,0.0073,0.9093,0.4527,0.9132,0.0194,0.1814,0.0206,0.8577,0.3781,0.2132,0.6957,0.0077,0.2563,0.2586,0.0747,0.379,0.4755,0.7573,0.3892,0.5124,0.346,0.1512,0.0488,0.5084,0.1267,0.4617,0.5689,0.0936,0.0153,0.0112,0.0723,0.4295,0.1946,0.0151,0.0784,0.407,0.8097,0.6119,0.2268,0.0171,0.1039,0.5021,0.0695,0.8165,0.0882,0.5707,0.1918,0.3111,0.0649,0.0336,0.1368,0.3862,0.8936,0.0991,0.3037,0.2227,0.0573,0.7865,0.0666,0.6946,0.1718,0.0636,0.3344,0.2087]},"paths":{"C":[0.001,0.0017782794100389228,0.0031622776601683794,0.005623413251903491,0.01,0.01778279410038923,0.03162277660168379,0.056234132519034905,0.1,0.1778279410038923,0.31622776601683794,0.5623413251903491,1.0,1.7782794100389228,3.1622776601683795,5.62341325190349,10.0,17.78279410038923,31.622776601683793,56.23413251903491,100.0],"l2":[[-0.0786,0.0401,0.0669,-0.0558,-0.0503,-0.079],[-0.125,0.0639,0.1063,-0.0883,-0.0827,-0.1199],[-0.1886,0.0969,0.16,-0.1335,-0.1319,-0.1692],[-0.2688,0.1389,0.2267,-0.1934,-0.2048,-0.2209],[-0.3612,0.1878,0.302,-0.2714,-0.3111,-0.2676],[-0.4592,0.2396,0.3793,-0.3731,-0.4633,-0.3038],[-0.5543,0.2893,0.4522,-0.5038,-0.673,-0.3279],[-0.6398,0.3327,0.5167,-0.6636,-0.9441,-0.3427],[-0.7121,0.3677,0.5713,-0.8418,-1.265,-0.3534],[-0.771,0.3948,0.6164,-1.0183,-1.6084,-0.3643],[-0.8171,0.4152,0.6526,-1.1729,-1.94,-0.3763],[-0.8515,0.4299,0.6801,-1.2938,-2.2291,-0.3879],[-0.8757,0.4401,0.6997,-1.3795,-2.4579,-0.3975],[-0.8917,0.4467,0.7128,-1.4362,-2.6229,-0.4046],[-0.9018,0.4509,0.7211,-1.4715,-2.7331,-0.4093],[-0.9078,0.4533,0.7261,-1.4926,-2.8024,-0.4123],[-0.9114,0.4548,0.7291,-1.505,-2.8441,-0.4141],[-0.9134,0.4556,0.7308,-1.512,-2.8685,-0.4152],[-0.9146,0.4561,0.7318,-1.5161,-2.8826,-0.4158],[-0.9153,0.4564,0.7323,-1.5184,-2.8906,-0.4161],[-0.9156,0.4565,0.7326,-1.5197,-2.8952,-0.4163]],"l1":[[0.0,0.0,0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0,0.0,0.0],[-0.2225,0.0,0.131,0.0,0.0,0.0],[-0.4064,0.1187,0.293,0.0,-0.0379,0.0],[-0.556,0.2283,0.4234,-0.4253,-0.8269,-0.0514],[-0.6748,0.3069,0.5267,-0.8185,-1.4734,-0.1775],[-0.7628,0.3627,0.6022,-1.0869,-1.965,-0.2663],[-0.8227,0.3999,0.6534,-1.261,-2.315,-0.3254],[-0.861,0.4233,0.686,-1.3692,-2.5476,-0.3629],[-0.8842,0.4374,0.7058,-1.4337,-2.6936,-0.3855],[-0.8978,0.4457,0.7174,-1.4711,-2.7813,-0.3987],[-0.9057,0.4505,0.7242,-1.4927,-2.8327,-0.4063],[-0.9103,0.4532,0.728,-1.505,-2.8622,-0.4107],[-0.9128,0.4547,0.7302,-1.5121,-2.8791,-0.4131],[-0.9142,0.4556,0.7315,-1.5162,-2.889,-0.415],[-0.9151,0.4561,0.7322,-1.5184,-2.8944,-0.4157],[-0.9155,0.4564,0.7325,-1.5195,-2.8973,-0.416],[-0.9158,0.4565,0.7328,-1.5201,-2.8988,-0.4161]],"auc_l2":[0.7949,0.7952,0.7971,0.8002,0.803,0.807,0.8113,0.8154,0.8218,0.8254,0.8263,0.8284,0.829,0.829,0.829,0.8285,0.8281,0.828,0.8281,0.8281,0.8282],"auc_l1":[0.5,0.5,0.5,0.5,0.5,0.7259,0.749,0.7969,0.8193,0.8264,0.8274,0.8279,0.8275,0.8276,0.8278,0.8281,0.8282,0.8282,0.8282,0.8282,0.8281]},"calib":{"pred":[0.0264,0.08,0.1644,0.337,0.6668],"true":[0.0,0.02,0.12,0.32,0.78]},"cells":{"data":{"code":"import numpy as np\nimport pandas as pd\n\npd.set_option(\"display.width\", 120, \"display.max_columns\", None)  # no \"...\"\n\nrng = np.random.default_rng(42)      # fixed seed: you get the same rows I did\nn = 1000\n\ndf = pd.DataFrame({\n    \"tenure_months\":   rng.integers(1, 73, n),\n    \"monthly_charges\": rng.normal(70, 20, n).clip(20, 120).round(2),\n    \"support_calls\":   rng.poisson(1.5, n),\n    \"contract\":        rng.choice([\"Month-to-month\", \"One year\", \"Two year\"],\n                                  n, p=[0.55, 0.25, 0.20]),\n    \"autopay\":         rng.integers(0, 2, n),\n})\n\n# The hidden rule that decides who leaves. In real life nobody hands you this.\nlog_odds = (\n    0.2\n    - 0.045 * df[\"tenure_months\"]\n    + 0.025 * (df[\"monthly_charges\"] - 70)\n    + 0.55  * df[\"support_calls\"]\n    - 1.1   * (df[\"contract\"] == \"One year\")\n    - 2.0   * (df[\"contract\"] == \"Two year\")\n    - 0.5   * df[\"autopay\"]\n)\np = 1 / (1 + np.exp(-log_odds))\ndf[\"churn\"] = rng.binomial(1, p)     # 1 = left, 0 = stayed\n\nprint(df.shape)\nprint(df.head(8))","out":"(1000, 6)\n   tenure_months  monthly_charges  support_calls        contract  autopay  churn\n0              7            98.66              4  Month-to-month        1      1\n1             56            71.83              1  Month-to-month        0      1\n2             48            81.62              0  Month-to-month        1      0\n3             32            68.86              1  Month-to-month        0      0\n4             32            66.59              0  Month-to-month        1      0\n5             62            54.41              2  Month-to-month        0      0\n6              7            78.61              4        One year        1      1\n7             51            52.97              1  Month-to-month        1      0"},"explore":{"code":"print(df[\"churn\"].value_counts())\nprint(f\"\\nChurn rate: {df['churn'].mean():.1%}\\n\")\nprint(df.groupby(\"contract\")[\"churn\"].mean().round(3))","out":"churn\n0    750\n1    250\nName: count, dtype: int64\n\nChurn rate: 25.0%\n\ncontract\nMonth-to-month    0.352\nOne year          0.149\nTwo year          0.056\nName: churn, dtype: float64"},"first_model":{"code":"from sklearn.linear_model import LogisticRegression\n\nX = df[[\"tenure_months\"]]     # features: always 2-D (a table)\ny = df[\"churn\"]               # target: 1-D (a column)\n\nmodel = LogisticRegression()\nmodel.fit(X, y)\n\nprint(\"intercept b0:\", model.intercept_[0].round(4))\nprint(\"slope     b1:\", model.coef_[0][0].round(4))","out":"intercept b0: 0.1418\nslope     b1: -0.0378"},"first_predict":{"code":"new_customers = pd.DataFrame({\"tenure_months\": [3, 24, 60]})\n\nprint(model.predict_proba(new_customers).round(3))   # columns: P(stay), P(churn)\nprint(model.predict(new_customers))                  # 1 when P(churn) >= 0.5","out":"[[0.493 0.507]\n [0.683 0.317]\n [0.893 0.107]]\n[1 0 0]"},"by_hand":{"code":"b0, b1 = model.intercept_[0], model.coef_[0][0]\n\nz = b0 + b1 * 3                  # log-odds for a 3-month customer\nprob = 1 / (1 + np.exp(-z))      # the sigmoid\nprint(f\"z = {z:.3f}   ->   P(churn) = {prob:.3f}\")","out":"z = 0.028   ->   P(churn) = 0.507"},"split":{"code":"from sklearn.model_selection import train_test_split\n\nX = df.drop(columns=\"churn\")\ny = df[\"churn\"]\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, stratify=y, random_state=42\n)\nprint(X_train.shape, X_test.shape)\nprint(f\"churn rate   train: {y_train.mean():.3f}   test: {y_test.mean():.3f}\")","out":"(750, 5) (250, 5)\nchurn rate   train: 0.251   test: 0.248"},"pipeline":{"code":"from sklearn.compose import ColumnTransformer\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\nnumeric = [\"tenure_months\", \"monthly_charges\", \"support_calls\"]\ncategorical = [\"contract\"]\n\npreprocess = ColumnTransformer([\n    (\"num\", StandardScaler(), numeric),\n    (\"cat\", OneHotEncoder(drop=\"first\"), categorical),\n], remainder=\"passthrough\")           # autopay is already 0/1\n\nclf = Pipeline([\n    (\"prep\", preprocess),\n    (\"model\", LogisticRegression()),\n])\nclf.fit(X_train, y_train)\n\nprint(f\"train accuracy: {clf.score(X_train, y_train):.3f}\")\nprint(f\"test accuracy:  {clf.score(X_test, y_test):.3f}\")\nprint(f\"baseline (always predict 'stays'): {1 - y_test.mean():.3f}\")","out":"train accuracy: 0.804\ntest accuracy:  0.864\nbaseline (always predict 'stays'): 0.752"},"score_new":{"code":"new = pd.DataFrame([\n    {\"tenure_months\": 2,  \"monthly_charges\": 95.0, \"support_calls\": 4,\n     \"contract\": \"Month-to-month\", \"autopay\": 0},\n    {\"tenure_months\": 48, \"monthly_charges\": 60.0, \"support_calls\": 0,\n     \"contract\": \"Two year\", \"autopay\": 1},\n])\nnew[\"p_churn\"] = clf.predict_proba(new)[:, 1].round(3)\nprint(new[[\"tenure_months\", \"support_calls\", \"contract\", \"p_churn\"]])","out":"   tenure_months  support_calls        contract  p_churn\n0              2              4  Month-to-month    0.946\n1             48              0        Two year    0.007"},"coefs":{"code":"names = clf.named_steps[\"prep\"].get_feature_names_out()\ncoefs = clf.named_steps[\"model\"].coef_[0]\n\nreport = pd.DataFrame(\n    {\"coefficient\": coefs, \"odds_ratio\": np.exp(coefs)}, index=names\n).round(3)\nprint(report.sort_values(\"coefficient\"))\nprint(\"\\nintercept:\", clf.named_steps[\"model\"].intercept_[0].round(3))","out":"                        coefficient  odds_ratio\ncat__contract_Two year       -2.450       0.086\ncat__contract_One year       -1.376       0.253\nnum__tenure_months           -0.877       0.416\nremainder__autopay           -0.391       0.677\nnum__monthly_charges          0.442       1.555\nnum__support_calls            0.700       2.015\n\nintercept: -0.603"},"per_unit":{"code":"scaler = clf.named_steps[\"prep\"].named_transformers_[\"num\"]\nper_unit = coefs[:3] / scaler.scale_          # undo the scaling\n\nprint(pd.DataFrame({\n    \"learned\":   per_unit,\n    \"true_rule\": [-0.045, 0.025, 0.55],\n}, index=numeric).round(3))","out":"                 learned  true_rule\ntenure_months     -0.042     -0.045\nmonthly_charges    0.022      0.025\nsupport_calls      0.573      0.550"},"evaluate":{"code":"from sklearn.metrics import (classification_report, confusion_matrix,\n                             roc_auc_score)\n\ny_pred = clf.predict(X_test)                  # labels, threshold 0.5\ny_prob = clf.predict_proba(X_test)[:, 1]      # P(churn)\n\nprint(confusion_matrix(y_test, y_pred))\nprint(classification_report(y_test, y_pred, target_names=[\"stay\", \"churn\"]))\nprint(f\"ROC AUC: {roc_auc_score(y_test, y_prob):.3f}\")","out":"[[180   8]\n [ 26  36]]\n              precision    recall  f1-score   support\n\n        stay       0.87      0.96      0.91       188\n       churn       0.82      0.58      0.68        62\n\n    accuracy                           0.86       250\n   macro avg       0.85      0.77      0.80       250\nweighted avg       0.86      0.86      0.86       250\n\nROC AUC: 0.902"},"threshold":{"code":"from sklearn.metrics import precision_score, recall_score\n\nthreshold = 0.30\ny_pred_30 = (y_prob >= threshold).astype(int)\n\nprint(confusion_matrix(y_test, y_pred_30))\nprint(f\"precision: {precision_score(y_test, y_pred_30):.3f}\"\n      f\"   recall: {recall_score(y_test, y_pred_30):.3f}\")","out":"[[154  34]\n [ 13  49]]\nprecision: 0.590   recall: 0.790"},"regularization":{"code":"for C in [0.001, 0.01, 0.1, 1, 10, 100]:\n    m = Pipeline([(\"prep\", preprocess),\n                  (\"model\", LogisticRegression(C=C))])\n    m.fit(X_train, y_train)\n    size = np.abs(m.named_steps[\"model\"].coef_).sum()\n    print(f\"C = {C:<6} sum of |coefficients| = {size:6.3f}\"\n          f\"   test accuracy = {m.score(X_test, y_test):.3f}\")","out":"C = 0.001  sum of |coefficients| =  0.249   test accuracy = 0.752\nC = 0.01   sum of |coefficients| =  1.411   test accuracy = 0.800\nC = 0.1    sum of |coefficients| =  3.969   test accuracy = 0.848\nC = 1      sum of |coefficients| =  6.235   test accuracy = 0.864\nC = 10     sum of |coefficients| =  6.858   test accuracy = 0.864\nC = 100    sum of |coefficients| =  6.938   test accuracy = 0.864"},"l1":{"code":"lasso = Pipeline([\n    (\"prep\", preprocess),\n    (\"model\", LogisticRegression(C=0.02, l1_ratio=1, solver=\"liblinear\")),\n])\nlasso.fit(X_train, y_train)\n\nprint(pd.Series(lasso.named_steps[\"model\"].coef_[0], index=names).round(3))","out":"num__tenure_months       -0.264\nnum__monthly_charges      0.000\nnum__support_calls        0.169\ncat__contract_One year    0.000\ncat__contract_Two year    0.000\nremainder__autopay        0.000\ndtype: float64"},"cv":{"code":"from sklearn.model_selection import cross_val_score\n\nscores = cross_val_score(clf, X_train, y_train, cv=5, scoring=\"roc_auc\")\nprint(scores.round(3))\nprint(f\"mean {scores.mean():.3f}  +/- {scores.std():.3f}\")","out":"[0.898 0.852 0.774 0.793 0.826]\nmean 0.829  +/- 0.044"},"grid":{"code":"from sklearn.model_selection import GridSearchCV\n\ngrid = GridSearchCV(\n    Pipeline([(\"prep\", preprocess),\n              (\"model\", LogisticRegression(solver=\"liblinear\"))]),\n    param_grid={\n        \"model__C\": [0.01, 0.1, 1, 10, 100],\n        \"model__l1_ratio\": [0, 1],            # 0 = L2 (ridge), 1 = L1 (lasso)\n    },\n    cv=5, scoring=\"roc_auc\",\n)\ngrid.fit(X_train, y_train)\n\nprint(\"best settings:\", grid.best_params_)\nprint(f\"best cross-validated AUC: {grid.best_score_:.3f}\")\nprint(f\"test AUC with those settings: \"\n      f\"{roc_auc_score(y_test, grid.predict_proba(X_test)[:, 1]):.3f}\")","out":"best settings: {'model__C': 1, 'model__l1_ratio': 0}\nbest cross-validated AUC: 0.829\ntest AUC with those settings: 0.902"},"balanced":{"code":"balanced = Pipeline([\n    (\"prep\", preprocess),\n    (\"model\", LogisticRegression(class_weight=\"balanced\")),\n])\nbalanced.fit(X_train, y_train)\n\nprint(confusion_matrix(y_test, balanced.predict(X_test)))\nprint(classification_report(y_test, balanced.predict(X_test),\n                            target_names=[\"stay\", \"churn\"]))","out":"[[148  40]\n [  8  54]]\n              precision    recall  f1-score   support\n\n        stay       0.95      0.79      0.86       188\n       churn       0.57      0.87      0.69        62\n\n    accuracy                           0.81       250\n   macro avg       0.76      0.83      0.78       250\nweighted avg       0.86      0.81      0.82       250"},"poly":{"code":"from sklearn.preprocessing import PolynomialFeatures\n\npoly = Pipeline([\n    (\"prep\", preprocess),\n    (\"poly\", PolynomialFeatures(degree=2, include_bias=False)),\n    (\"model\", LogisticRegression(max_iter=1000)),\n])\n\nfor label, m in [(\"straight terms only\", clf),\n                 (\"plus squares and interactions\", poly)]:\n    auc = cross_val_score(m, X_train, y_train, cv=5, scoring=\"roc_auc\")\n    print(f\"{label:<30} AUC = {auc.mean():.3f}\")","out":"straight terms only            AUC = 0.829\nplus squares and interactions  AUC = 0.817"},"multiclass":{"code":"from sklearn.datasets import load_iris\n\niris = load_iris(as_frame=True)\nXi_train, Xi_test, yi_train, yi_test = train_test_split(\n    iris.data, iris.target, stratify=iris.target, random_state=42\n)\n\nmulti = Pipeline([(\"scale\", StandardScaler()),\n                  (\"model\", LogisticRegression())])\nmulti.fit(Xi_train, yi_train)\n\nprint(\"classes:\", multi.classes_)\nprint(\"coef_ shape:\", multi.named_steps[\"model\"].coef_.shape)\nprint(\"test accuracy:\", round(multi.score(Xi_test, yi_test), 3))\nprint(multi.predict_proba(Xi_test.iloc[:3]).round(3))   # each row sums to 1","out":"classes: [0 1 2]\ncoef_ shape: (3, 4)\ntest accuracy: 0.921\n[[0.985 0.015 0.   ]\n [0.034 0.621 0.345]\n [0.045 0.882 0.072]]"}}};
+
+/* ---------- pure maths (also exercised in a node check) ---------- */
+/*PURE-START*/
+const sig = z => 1/(1+Math.exp(-z));
+function logLoss(b0,b1){ const t=D.rows.tenure,y=D.rows.churn; let s=0;
+  for(let i=0;i<t.length;i++){ let p=sig(b0+b1*t[i]); p=Math.min(1-1e-12,Math.max(1e-12,p)); s-= y[i]?Math.log(p):Math.log(1-p);} return s/t.length; }
+function contributions(c){ const F=D.full, z=v=>(v[0]-F.mean[v[1]])/F.scale[v[1]];
+  return [
+    ['Starting point: average month-to-month customer, no autopay', F.intercept],
+    ['Tenure: '+c.ten+' months', F.coef[0]*z([c.ten,0])],
+    ['Monthly charges: $'+c.chg, F.coef[1]*z([c.chg,1])],
+    ['Support calls: '+c.cal, F.coef[2]*z([c.cal,2])],
+    ['Contract: '+['Month-to-month','One year','Two year'][c.con], c.con==1?F.coef[3]:c.con==2?F.coef[4]:0],
+    ['Autopay: '+(c.auto?'on':'off'), F.coef[5]*c.auto] ]; }
+function confusion(t){ const y=D.test.y,p=D.test.p; let tn=0,fp=0,fn=0,tp=0;
+  for(let i=0;i<y.length;i++){ const f=p[i]>=t; if(y[i]){f?tp++:fn++}else{f?fp++:tn++} } return {tn,fp,fn,tp}; }
+function metrics(c){ const n=c.tn+c.fp+c.fn+c.tp, prec=c.tp+c.fp?c.tp/(c.tp+c.fp):NaN, rec=c.tp/(c.tp+c.fn);
+  return {acc:(c.tp+c.tn)/n, prec, rec, f1:(prec+rec)?2*prec*rec/(prec+rec):NaN}; }
+function roc(){ const idx=D.test.p.map((p,i)=>i).sort((a,b)=>D.test.p[b]-D.test.p[a]); const P=D.test.y.reduce((a,b)=>a+b,0), N=D.test.y.length-P;
+  const pts=[[0,0]]; let tp=0,fp=0,auc=0;
+  for(let k=0;k<idx.length;k++){ const i=idx[k]; D.test.y[i]?tp++:fp++;
+    if(k==idx.length-1 || D.test.p[idx[k+1]]!==D.test.p[i]){ const pt=[fp/N,tp/P], q=pts[pts.length-1]; auc+=(pt[0]-q[0])*(pt[1]+q[1])/2; pts.push(pt);} }
+  return {pts,auc}; }
+function cost(t,miss,offer){ const c=confusion(t); return c.fn*miss+(c.tp+c.fp)*offer; }
+function cheapest(miss,offer){ let best=0.5,bc=Infinity; for(let k=5;k<=95;k++){ const t=k/100,c=cost(t,miss,offer); if(c<bc){bc=c;best=t} } return {t:best,c:bc}; }
+/*PURE-END*/
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+const NS='http://www.w3.org/2000/svg';
+function S(tag,attrs,parent,text){ const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); if(text!=null) e.textContent=text; if(parent) parent.appendChild(e); return e; }
+function H(tag,cls,html){ const e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; }
+const pct=(v,d=0)=>(v*100).toFixed(d)+'%';
+const sgn=(v,d=2)=>(v<0?'−':'+')+Math.abs(v).toFixed(d);
+const neg=(v,d=2)=>(v<0?'−':'')+Math.abs(v).toFixed(d);
+const tip=$('tip');
+function showTip(html,e){ tip.innerHTML=html; tip.hidden=false; const r=tip.getBoundingClientRect(); let x=e.clientX+14,y=e.clientY+14;
+  if(x+r.width>innerWidth-8) x=e.clientX-r.width-14; if(y+r.height>innerHeight-8) y=e.clientY-r.height-14;
+  tip.style.left=Math.max(8,x)+'px'; tip.style.top=Math.max(8,y)+'px'; }
+function hideTip(){ tip.hidden=true; }
+function hover(node,fn){ node.addEventListener('pointermove',e=>showTip(fn(e),e)); node.addEventListener('pointerleave',hideTip); }
+
+const redraws={};
+function chart(id,draw){ const host=$(id); let w=0;
+  const go=()=>{ if(w){ host.replaceChildren(); draw(host,w); } };
+  const size=()=>{ const nw=Math.floor(host.clientWidth); if(nw>0 && Math.abs(nw-w)>1){ w=nw; go(); } };
+  size(); if(window.ResizeObserver) new ResizeObserver(size).observe(host); else addEventListener('resize',size);
+  redraws[id]=go; return go; }
+
+function plot(host,w,o){ const m=Object.assign({t:14,r:22,b:42,l:46},o.m||{}), Ht=o.h||300, iw=w-m.l-m.r, ih=Ht-m.t-m.b;
+  const X=v=>m.l+(v-o.x[0])/(o.x[1]-o.x[0])*iw, Y=v=>m.t+ih-(v-o.y[0])/(o.y[1]-o.y[0])*ih;
+  const svg=S('svg',{viewBox:`0 0 ${w} ${Ht}`,width:w,height:Ht,role:'img','aria-label':o.label||''},host);
+  (o.yt||[]).forEach(v=>{ S('line',{class:'grid',x1:m.l,x2:m.l+iw,y1:Y(v),y2:Y(v)},svg); S('text',{class:'tick',x:m.l-7,y:Y(v)+4,'text-anchor':'end'},svg,(o.yf||String)(v)); });
+  (o.xt||[]).forEach(v=>{ S('line',{class:'axis',x1:X(v),x2:X(v),y1:m.t+ih,y2:m.t+ih+4},svg); S('text',{class:'tick',x:X(v),y:m.t+ih+17,'text-anchor':'middle'},svg,(o.xf||String)(v)); });
+  S('line',{class:'axis',x1:m.l,x2:m.l+iw,y1:m.t+ih,y2:m.t+ih},svg);
+  if(o.xl) S('text',{class:'axl',x:m.l+iw/2,y:Ht-6,'text-anchor':'middle'},svg,o.xl);
+  if(o.yl) S('text',{class:'axl',x:m.l,y:10,'text-anchor':'start'},svg,o.yl);
+  return {svg,X,Y,m,iw,ih,Ht,w,xOf:px=>o.x[0]+(px-m.l)/iw*(o.x[1]-o.x[0])}; }
+function pathOf(fn,a,b,n,P){ let d=''; for(let i=0;i<=n;i++){ const x=a+(b-a)*i/n; d+=(i?'L':'M')+P.X(x).toFixed(1)+' '+P.Y(fn(x)).toFixed(1); } return d; }
+function crosshair(P,fn){ const line=S('line',{class:'axis',y1:P.m.t,y2:P.m.t+P.ih,x1:0,x2:0,visibility:'hidden','stroke-dasharray':'3 3'},P.svg);
+  const r=S('rect',{x:P.m.l,y:P.m.t,width:P.iw,height:P.ih,fill:'transparent'},P.svg);
+  r.addEventListener('pointermove',e=>{ const b=P.svg.getBoundingClientRect(); const px=(e.clientX-b.left)*(P.w/b.width); const x=P.xOf(px);
+    line.setAttribute('x1',px); line.setAttribute('x2',px); line.setAttribute('visibility','visible'); showTip(fn(x),e); });
+  r.addEventListener('pointerleave',()=>{ line.setAttribute('visibility','hidden'); hideTip(); }); }
+function bind(id,fmt,fn){ const el=$(id), o=$(id+'-o'); const run=()=>{ if(o) o.textContent=fmt(+el.value); fn&&fn(); }; el.addEventListener('input',run); if(o) o.textContent=fmt(+el.value); return el; }
+
+$('ver').textContent=D.versions.sklearn;
+
+/* ---------- code cells ---------- */
+function copyText(text,btn,done){ const ok=()=>{ const t=btn.textContent; btn.textContent=done||'Copied'; setTimeout(()=>btn.textContent=t,1400); };
+  try{ navigator.clipboard.writeText(text).then(ok,()=>fallback()); }catch(e){ fallback(); }
+  function fallback(){ const ta=document.createElement('textarea'); ta.value=text; ta.style.cssText='position:fixed;left:8px;top:8px;width:60vw;height:30vh;z-index:99'; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); ok(); }catch(e){} setTimeout(()=>ta.remove(),200); } }
+document.querySelectorAll('.cell').forEach(c=>{ const d=D.cells[c.dataset.cell]; if(!d) return;
+  const h=H('div','cell-h','<span>Python</span>'); const b=H('button','btn','Copy'); b.type='button'; b.addEventListener('click',()=>copyText(d.code,b)); h.appendChild(b); c.appendChild(h);
+  const pre=H('pre'), code=H('code'); let done=false;
+  try{ if(window.hljs){ code.innerHTML=hljs.highlight(d.code,{language:'python'}).value; done=true; } }catch(e){}
+  if(!done) code.textContent=d.code; pre.appendChild(code); c.appendChild(pre);
+  if(d.out){ const o=H('div','out'); o.appendChild(H('div','out-h','Output')); const p=H('pre'); p.textContent=d.out; o.appendChild(p); c.appendChild(o); } });
+$('copy-all').addEventListener('click',e=>{ const order=['data','explore','first_model','first_predict','by_hand','split','pipeline','score_new','coefs','per_unit','evaluate','threshold','regularization','l1','cv','grid','balanced','poly','multiclass'];
+  copyText(order.map(k=>'# --- '+k.replace(/_/g,' ')+' ---\n'+D.cells[k].code).join('\n\n')+'\n', e.currentTarget,'Copied'); $('copy-all-msg').textContent='Paste into a .py file or one notebook cell.'; });
+
+/* ---------- M1: line vs curve ---------- */
+chart('c-line',(host,w)=>{ const wide=w>=560;
+  const P=plot(host,w,{h:320,x:[0,100],y:[-0.25,0.7],xt:wide?[0,12,24,36,48,60,72,84,96]:[0,24,48,72,96],yt:[-0.2,0,0.2,0.4,0.6],yf:v=>pct(v),xl:'Tenure (months)',yl:'Churn probability',m:{r:wide?132:14,t:22},label:'Linear versus logistic fit of churn on tenure'});
+  S('rect',{x:P.m.l,y:P.Y(0),width:P.iw,height:P.Y(-0.25)-P.Y(0),fill:'var(--s2)',opacity:.1},P.svg);
+  S('text',{class:'lbl',x:P.m.l+8,y:P.Y(-0.25)-8},P.svg,'Below 0%: not a possible probability');
+  S('line',{class:'axis',x1:P.X(72),x2:P.X(72),y1:P.m.t,y2:P.m.t+P.ih,'stroke-dasharray':'3 4'},P.svg);
+  S('text',{class:'tick',x:P.X(72)-5,y:P.m.t+10,'text-anchor':'end'},P.svg,'data ends at 72');
+  const lin=x=>D.lin.b0+D.lin.b1*x, lg=x=>sig(D.m1.b0+D.m1.b1*x);
+  S('path',{d:pathOf(lin,0,100,2,P),fill:'none',stroke:'var(--s2)','stroke-width':2},P.svg);
+  S('path',{d:pathOf(lg,0,100,80,P),fill:'none',stroke:'var(--s1)','stroke-width':2},P.svg);
+  D.tenure_bins.forEach(b=>S('circle',{cx:P.X(b.x),cy:P.Y(b.rate),r:4.5,fill:'var(--ink-2)',stroke:'var(--surface)','stroke-width':2},P.svg));
+  if(wide){ S('text',{class:'lbl',x:P.X(100)+8,y:P.Y(lg(100))+4},P.svg,'Logistic: '+pct(lg(100),1)); S('text',{class:'lbl',x:P.X(100)+8,y:P.Y(lin(100))+4},P.svg,'Linear: '+neg(lin(100)*100,1)+'%'); }
+  crosshair(P,x=>{ x=Math.max(0,Math.min(100,x)); return `<b>${x.toFixed(0)} months</b><br>Logistic: ${pct(lg(x),1)}<br>Linear: ${neg(lin(x)*100,1)}%`; }); });
+
+/* ---------- M1: sigmoid playground ---------- */
+const sg={w:1,b:0};
+const sgDraw=chart('c-sig',(host,w)=>{ const P=plot(host,w,{h:260,x:[-10,10],y:[0,1],xt:[-10,-5,0,5,10],yt:[0,0.25,0.5,0.75,1],yf:v=>pct(v),xl:'Feature value x',yl:'P(yes)',m:{t:22},label:'Sigmoid curve'});
+  S('path',{d:pathOf(x=>sig(x),-10,10,80,P),fill:'none',stroke:'var(--ink-3)','stroke-width':1.5,'stroke-dasharray':'4 4'},P.svg);
+  S('path',{d:pathOf(x=>sig(sg.w*x+sg.b),-10,10,160,P),fill:'none',stroke:'var(--s1)','stroke-width':2.5},P.svg);
+  if(sg.w!==0){ const mid=-sg.b/sg.w; if(mid>=-10&&mid<=10){ S('circle',{cx:P.X(mid),cy:P.Y(.5),r:5,fill:'var(--s1)',stroke:'var(--surface)','stroke-width':2},P.svg);
+    S('text',{class:'lbl',x:P.X(mid)+(mid>5?-10:10),y:P.Y(.5)-9,'text-anchor':mid>5?'end':'start'},P.svg,'50% at x = '+neg(mid,1)); } }
+  crosshair(P,x=>`<b>x = ${neg(x,1)}</b><br>z = ${neg(sg.w*x+sg.b,2)}<br>P(yes) = ${pct(sig(sg.w*x+sg.b),1)}`); });
+function sgUpdate(){ sg.w=+$('sg-w').value; sg.b=+$('sg-b').value; sgDraw();
+  const how=sg.w===0?'With a weight of 0 the feature is ignored and every case gets the same probability.':(sg.w>0?'A positive weight: larger x means a higher probability.':'A negative weight: larger x means a lower probability.');
+  $('sg-read').innerHTML=`<b>P(yes) = 1 / (1 + e<sup>−(${neg(sg.w,1)}·x ${sg.b<0?'−':'+'} ${Math.abs(sg.b).toFixed(1)})</sup>)</b>. ${how} The dashed grey curve is the reference with weight 1 and intercept 0.`; }
+bind('sg-w',v=>neg(v,1),sgUpdate); bind('sg-b',v=>neg(v,1),sgUpdate); sgUpdate();
+
+/* ---------- M2: bars ---------- */
+function rateBy(keyFn,labels){ const n=labels.map(()=>0), c=labels.map(()=>0); const R=D.rows;
+  for(let i=0;i<R.churn.length;i++){ const k=keyFn(i); n[k]++; c[k]+=R.churn[i]; } return labels.map((l,i)=>({label:l,rate:c[i]/n[i],n:n[i],k:c[i]})); }
+function barChart(id,items,xl){ chart(id,(host,w)=>{ const top=Math.ceil(Math.max(...items.map(d=>d.rate))*10)/10+0.1;
+  const P=plot(host,w,{h:230,x:[0,items.length],y:[0,top],yt:[0,0.2,0.4,0.6,0.8].filter(v=>v<=top),yf:v=>pct(v),xl,m:{t:18,l:40},label:xl});
+  const bw=Math.min(46,P.iw/items.length*0.6);
+  items.forEach((d,i)=>{ const cx=P.X(i+.5), y=P.Y(d.rate), h=P.Y(0)-y;
+    const r=S('path',{d:`M${cx-bw/2} ${P.Y(0)}V${y+4}q0 -4 4 -4h${bw-8}q4 0 4 4V${P.Y(0)}z`,fill:'var(--s1)'},P.svg);
+    S('text',{class:'val',x:cx,y:y-6,'text-anchor':'middle'},P.svg,pct(d.rate,0));
+    S('text',{class:'tick',x:cx,y:P.m.t+P.ih+17,'text-anchor':'middle'},P.svg,d.label);
+    const hit=S('rect',{x:cx-P.iw/items.length/2,y:P.m.t,width:P.iw/items.length,height:P.ih,fill:'transparent'},P.svg);
+    hover(hit,()=>`<b>${d.long||d.label}</b><br>${d.k} of ${d.n} churned (${pct(d.rate,1)})`); }); }); }
+{ const a=rateBy(i=>D.rows.contract[i],['Monthly','One year','Two year']); a[0].long='Month-to-month'; barChart('c-contract',a,'Contract');
+  barChart('c-calls',rateBy(i=>Math.min(5,D.rows.calls[i]),['0','1','2','3','4','5+']),'Support calls last quarter'); }
+
+/* ---------- M3: fit by hand ---------- */
+const ft={b0:0,b1:0,show:false}, bestLoss=logLoss(D.m1.b0,D.m1.b1);
+const ftDraw=chart('c-fit',(host,w)=>{ const P=plot(host,w,{h:320,x:[0,72],y:[-0.08,1.08],xt:w>=520?[0,12,24,36,48,60,72]:[0,24,48,72],yt:[0,0.25,0.5,0.75,1],yf:v=>pct(v),xl:'Tenure (months)',yl:'P(churn)',m:{t:22},label:'Fit a logistic curve to churn by tenure'});
+  let d1='',d0=''; const R=D.rows; for(let i=0;i<R.tenure.length;i++){ const x=P.X(R.tenure[i]+((i*37)%100)/100-0.5).toFixed(1); if(R.churn[i]) d1+=`M${x} ${P.Y(1.07).toFixed(1)}v7`; else d0+=`M${x} ${P.Y(-0.02).toFixed(1)}v7`; }
+  S('path',{d:d1,stroke:'var(--s2)','stroke-width':1,opacity:.55,fill:'none'},P.svg); S('path',{d:d0,stroke:'var(--s1)','stroke-width':1,opacity:.45,fill:'none'},P.svg);
+  if(ft.show) S('path',{d:pathOf(x=>sig(D.m1.b0+D.m1.b1*x),0,72,72,P),fill:'none',stroke:'var(--ink-3)','stroke-width':2,'stroke-dasharray':'5 4'},P.svg);
+  S('path',{d:pathOf(x=>sig(ft.b0+ft.b1*x),0,72,72,P),fill:'none',stroke:'var(--s1)','stroke-width':2.5},P.svg);
+  D.tenure_bins.forEach(b=>{ const c=S('circle',{cx:P.X(b.x),cy:P.Y(b.rate),r:5,fill:'var(--ink-2)',stroke:'var(--surface)','stroke-width':2},P.svg);
+    hover(c,()=>`<b>${b.x-3}–${b.x+3} months</b><br>${pct(b.rate,1)} churned (${b.n} customers)<br>Your curve: ${pct(sig(ft.b0+ft.b1*b.x),1)}`); }); });
+function ftUpdate(){ ft.b0=+$('ft-b0').value; ft.b1=+$('ft-b1').value; ftDraw(); const L=logLoss(ft.b0,ft.b1), g=L-bestLoss;
+  $('ft-loss').textContent=L.toFixed(4); $('ft-best').textContent=bestLoss.toFixed(4); $('ft-gap').textContent=(g<0.00005?'0.0000':'+'+g.toFixed(4));
+  $('ft-msg').textContent= g<0.0005?'You have matched it.':g<0.01?'Very close. Fine-tune both sliders.':g<0.05?'Getting there.':'Tilt the slope downward to follow the dots.'; }
+bind('ft-b0',v=>neg(v,2),ftUpdate); bind('ft-b1',v=>neg(v,3),ftUpdate);
+$('ft-snap').addEventListener('click',()=>{ ft.show=true; $('ft-b0').value=D.m1.b0.toFixed(2); $('ft-b1').value=(Math.round(D.m1.b1/0.002)*0.002).toFixed(3); $('ft-b0').dispatchEvent(new Event('input')); $('ft-b1').dispatchEvent(new Event('input')); });
+$('ft-reset').addEventListener('click',()=>{ ft.show=false; $('ft-b0').value=0; $('ft-b1').value=0; $('ft-b0').dispatchEvent(new Event('input')); $('ft-b1').dispatchEvent(new Event('input')); });
+ftUpdate();
+
+/* ---------- M4: boundary ---------- */
+chart('c-bound',(host,w)=>{ const P=plot(host,w,{h:340,x:[0,73],y:[-0.6,8.6],xt:w>=520?[0,12,24,36,48,60,72]:[0,24,48,72],yt:[0,2,4,6,8],xl:'Tenure (months)',yl:'Support calls',m:{t:22,l:34},label:'Decision boundary for tenure and support calls'});
+  const M=D.m2, lineY=(p,x)=>(Math.log(p/(1-p))-M.b0-M.b1*x)/M.b2;
+  const cp=S('clipPath',{id:'bclip'},P.svg); S('rect',{x:P.m.l,y:P.m.t,width:P.iw,height:P.ih},cp); const g=S('g',{'clip-path':'url(#bclip)'},P.svg);
+  S('path',{d:`M${P.X(0)} ${P.Y(lineY(.5,0))}L${P.X(73)} ${P.Y(lineY(.5,73))}L${P.X(73)} ${P.Y(20)}L${P.X(0)} ${P.Y(20)}z`,fill:'var(--s2)',opacity:.09},g);
+  const R=D.rows;
+  for(let i=0;i<350;i++){ const x=R.tenure[i], y=R.calls[i]+(((i*53)%100)/100-0.5)*0.55, ch=R.churn[i];
+    const c=S('circle',{cx:P.X(x),cy:P.Y(y),r:4,fill:ch?'var(--s2)':'var(--surface)',stroke:ch?'var(--surface)':'var(--s1)','stroke-width':ch?1:1.6},g);
+    hover(c,()=>`<b>${ch?'Churned':'Stayed'}</b><br>${x} months, ${R.calls[i]} calls<br>Model: ${pct(sig(M.b0+M.b1*x+M.b2*R.calls[i]),0)} chance of churn`); }
+  [[.25,'var(--ink-3)',1.5,'5 4','25%'],[.75,'var(--ink-3)',1.5,'5 4','75%'],[.5,'var(--ink)',2.2,'','50%']].forEach(([p,col,sw,dash,l])=>{
+    S('line',{x1:P.X(0),y1:P.Y(lineY(p,0)),x2:P.X(73),y2:P.Y(lineY(p,73)),stroke:col,'stroke-width':sw,'stroke-dasharray':dash,'pointer-events':'none'},g);
+    const lx=p==.75?30:p==.5?46:62; S('text',{class:'val',x:P.X(lx),y:P.Y(lineY(p,lx))-7,'text-anchor':'middle','paint-order':'stroke',stroke:'var(--surface)','stroke-width':4,'pointer-events':'none'},g,l); });
+  const halo={'paint-order':'stroke',stroke:'var(--surface)','stroke-width':4,'pointer-events':'none'}; S('text',Object.assign({class:'val',x:P.X(2),y:P.Y(8.1)},halo),g,'Predict churn'); S('text',Object.assign({class:'val',x:P.X(71),y:P.Y(-0.3),'text-anchor':'end'},halo),g,'Predict stay'); });
+
+/* ---------- M5: coefficient bars + calculator ---------- */
+function barRows(host,items,range){ host.replaceChildren(); items.forEach(([label,v,extra])=>{ const r=H('div','brow');
+  r.appendChild(H('div','bl',`<span>${label}</span><b>${sgn(v)}${extra?' · '+extra:''}</b>`)); const t=H('div','track'), i=document.createElement('i');
+  const wd=Math.min(50,Math.abs(v)/range*50); i.className=v<0?'neg':'pos'; i.style.width=wd+'%'; i.style.left=(v<0?50-wd:50)+'%'; t.appendChild(i); r.appendChild(t); host.appendChild(r); }); }
+{ const F=D.full, nm=[`Tenure, +1 SD (${F.scale[0].toFixed(1)} months)`,`Monthly charges, +1 SD ($${F.scale[1].toFixed(2)})`,`Support calls, +1 SD (${F.scale[2].toFixed(2)} calls)`,'Contract: one year','Contract: two year','Autopay on'];
+  const it=F.coef.map((c,i)=>[nm[i],c,'odds ×'+Math.exp(c).toFixed(2)]).sort((a,b)=>a[1]-b[1]); barRows($('c-coef'),it,2.6); }
+const cuIds=['cu-ten','cu-chg','cu-cal','cu-con','cu-auto'];
+function cuUpdate(){ const c={ten:+$('cu-ten').value,chg:+$('cu-chg').value,cal:+$('cu-cal').value,con:+$('cu-con').value,auto:+$('cu-auto').value};
+  $('cu-ten-o').textContent=c.ten; $('cu-chg-o').textContent=c.chg; $('cu-cal-o').textContent=c.cal;
+  const parts=contributions(c), z=parts.reduce((a,p)=>a+p[1],0), p=sig(z);
+  $('cu-p').textContent=pct(p,1); $('cu-z').textContent=neg(z,2); const od=p/(1-p); $('cu-odds').textContent=od>=10?od.toFixed(1):od.toFixed(od<0.1?3:2);
+  barRows($('cu-bars'),parts,4); }
+cuIds.forEach(id=>{ $(id).addEventListener('input',cuUpdate); $(id).addEventListener('change',cuUpdate); });
+function cuSet(a){ cuIds.forEach((id,i)=>$(id).value=a[i]); cuUpdate(); }
+$('cu-p1').addEventListener('click',()=>cuSet([2,95,4,0,0])); $('cu-p2').addEventListener('click',()=>cuSet([48,60,0,2,1])); $('cu-p3').addEventListener('click',()=>cuSet([37,70,1,0,0]));
+cuUpdate();
+
+/* ---------- M6: threshold explorer ---------- */
+function cmRender(host,c){ host.replaceChildren();
+  const add=(cls,html)=>host.appendChild(H('div',cls,html));
+  add('h',''); add('h','Predicted<br>stay'); add('h','Predicted<br>churn');
+  add('h rh','Actually stayed'); add('c ok',`<b>${c.tn}</b><span>correctly left alone</span>`); add('c err',`<b>${c.fp}</b><span>false alarms</span>`);
+  add('h rh','Actually churned'); add('c err',`<b>${c.fn}</b><span>missed churners</span>`); add('c ok',`<b>${c.tp}</b><span>caught churners</span>`); }
+const th={t:0.5}, R0=roc();
+const histDraw=chart('c-hist',(host,w)=>{ const nb=20, a=Array(nb).fill(0), b=Array(nb).fill(0);
+  D.test.p.forEach((p,i)=>{ const k=Math.min(nb-1,Math.floor(p*nb)); D.test.y[i]?b[k]++:a[k]++; });
+  const top=Math.ceil(Math.max(...a.map((v,i)=>v+b[i]))/10)*10;
+  const P=plot(host,w,{h:250,x:[0,1],y:[0,top],xt:[0,0.25,0.5,0.75,1],xf:v=>pct(v),yt:[0,top/2,top],xl:'Predicted probability of churn',yl:'Test customers',m:{t:34},label:'Histogram of predicted probabilities'});
+  const bw=P.iw/nb;
+  for(let k=0;k<nb;k++){ const x=P.X(k/nb)+1, y1=P.Y(a[k]), y2=P.Y(a[k]+b[k]);
+    if(a[k]) S('rect',{x,y:y1,width:bw-2,height:P.Y(0)-y1,fill:'var(--s1)',rx:2},P.svg);
+    if(b[k]) S('rect',{x,y:y2,width:bw-2,height:Math.max(1,y1-y2-(a[k]?2:0)),fill:'var(--s2)',rx:2},P.svg);
+    const hit=S('rect',{x:P.X(k/nb),y:P.m.t,width:bw,height:P.ih,fill:'transparent'},P.svg);
+    hover(hit,()=>`<b>${pct(k/nb)} to ${pct((k+1)/nb)}</b><br>${a[k]} stayed<br>${b[k]} churned`); }
+  const tx=P.X(th.t); S('line',{x1:tx,x2:tx,y1:P.m.t-14,y2:P.m.t+P.ih,stroke:'var(--ink)','stroke-width':2,'pointer-events':'none'},P.svg);
+  if(tx-P.m.l>70) S('text',{class:'lbl',x:tx-8,y:P.m.t-4,'text-anchor':'end'},P.svg,'← predict stay');
+  if(P.m.l+P.iw-tx>78) S('text',{class:'lbl',x:tx+8,y:P.m.t-4},P.svg,'predict churn →'); });
+const rocDraw=chart('c-roc',(host,w)=>{ const s=Math.min(w,300);
+  const P=plot(host,s,{h:s,x:[0,1],y:[0,1],xt:[0,0.5,1],yt:[0,0.5,1],xf:v=>pct(v),yf:v=>pct(v),xl:'False alarm rate',yl:'Recall',m:{t:22,r:16},label:'ROC curve'});
+  S('line',{x1:P.X(0),y1:P.Y(0),x2:P.X(1),y2:P.Y(1),class:'axis','stroke-dasharray':'4 4'},P.svg);
+  S('path',{d:R0.pts.map((p,i)=>(i?'L':'M')+P.X(p[0]).toFixed(1)+' '+P.Y(p[1]).toFixed(1)).join(''),fill:'none',stroke:'var(--s1)','stroke-width':2},P.svg);
+  S('text',{class:'lbl',x:P.X(.97),y:P.Y(.08),'text-anchor':'end'},P.svg,'AUC = '+R0.auc.toFixed(3));
+  S('text',{class:'tick',x:P.X(.6),y:P.Y(.5),'text-anchor':'start'},P.svg,'guessing');
+  const c=confusion(th.t); S('circle',{cx:P.X(c.fp/(c.fp+c.tn)),cy:P.Y(c.tp/(c.tp+c.fn)),r:6,fill:'var(--ink)',stroke:'var(--surface)','stroke-width':2},P.svg); });
+function money(v){ return '$'+Math.round(v).toLocaleString('en-US'); }
+function thUpdate(){ th.t=+$('th-t').value; const c=confusion(th.t), m=metrics(c); histDraw(); rocDraw(); cmRender($('th-cm'),c);
+  const f=v=>isNaN(v)?'n/a':v.toFixed(2);
+  $('th-stats').innerHTML=[['Accuracy',m.acc,'all labels correct'],['Precision',m.prec,'flagged who churned'],['Recall',m.rec,'churners caught'],['F1',m.f1,'balance of the two']].map(s=>`<div class="stat"><div class="k">${s[0]}</div><div class="v">${f(s[1])}</div><div class="d">${s[2]}</div></div>`).join('');
+  const miss=Math.max(0,+$('th-miss').value||0), off=Math.max(0,+$('th-offer').value||0), best=cheapest(miss,off);
+  $('th-cost').innerHTML=`At a threshold of <b>${th.t.toFixed(2)}</b>: ${c.fn} missed × ${money(miss)} + ${c.tp+c.fp} offers × ${money(off)} = <b>${money(cost(th.t,miss,off))}</b>. The cheapest threshold for these costs is <b>${best.t.toFixed(2)}</b> at <b>${money(best.c)}</b>. This assumes an offer keeps a customer who would have left.`; }
+bind('th-t',v=>v.toFixed(2),thUpdate); ['th-miss','th-offer'].forEach(id=>$(id).addEventListener('input',thUpdate));
+$('th-best').addEventListener('click',()=>{ const b=cheapest(Math.max(0,+$('th-miss').value||0),Math.max(0,+$('th-offer').value||0)); $('th-t').value=b.t; $('th-t').dispatchEvent(new Event('input')); });
+thUpdate();
+chart('c-cal',(host,w)=>{ const s=Math.min(w,420); const P=plot(host,s,{h:Math.min(s,340),x:[0,1],y:[0,1],xt:[0,0.25,0.5,0.75,1],yt:[0,0.25,0.5,0.75,1],xf:v=>pct(v),yf:v=>pct(v),xl:'Average predicted probability',yl:'Share who actually churned',m:{t:22,r:18},label:'Calibration plot'});
+  S('line',{x1:P.X(0),y1:P.Y(0),x2:P.X(1),y2:P.Y(1),class:'axis','stroke-dasharray':'4 4'},P.svg); S('text',{class:'tick',x:P.X(.86),y:P.Y(.93),'text-anchor':'end'},P.svg,'perfect calibration');
+  const C=D.calib; S('path',{d:C.pred.map((x,i)=>(i?'L':'M')+P.X(x)+' '+P.Y(C.true[i])).join(''),fill:'none',stroke:'var(--s1)','stroke-width':2},P.svg);
+  C.pred.forEach((x,i)=>{ const c=S('circle',{cx:P.X(x),cy:P.Y(C.true[i]),r:5.5,fill:'var(--s1)',stroke:'var(--surface)','stroke-width':2},P.svg); hover(c,()=>`<b>Group ${i+1} of 5</b> (about 50 customers)<br>Predicted: ${pct(x,1)}<br>Actual: ${pct(C.true[i],0)}`); }); });
+
+/* ---------- M7: paths ---------- */
+const rg={kind:'l2',i:12}, pn=['Tenure','Charges','Calls','One-year','Two-year','Autopay'], pc=['--s1','--s2','--s3','--s4','--s5','--s6'];
+const fmtC=c=>c>=1?(+c.toPrecision(3)).toString():(+c.toPrecision(2)).toString();
+const pathDraw=chart('c-path',(host,w)=>{ const wide=w>=520, PT=D.paths, lc=PT.C.map(c=>Math.log10(c));
+  const P=plot(host,w,{h:330,x:[-3,2],y:[-2.75,1],xt:[-3,-2,-1,0,1,2],xf:v=>['0.001','0.01','0.1','1','10','100'][v+3],yt:[-2,-1,0,1],yf:v=>neg(v,0),xl:'C (log scale)',yl:'Coefficient',m:{t:22,r:wide?76:14},label:'Coefficient paths against C'});
+  S('line',{x1:P.m.l,x2:P.m.l+P.iw,y1:P.Y(0),y2:P.Y(0),stroke:'var(--ink-3)','stroke-width':1},P.svg);
+  const rows=PT[rg.kind];
+  for(let f=0;f<6;f++){ S('path',{d:rows.map((r,i)=>(i?'L':'M')+P.X(lc[i]).toFixed(1)+' '+P.Y(r[f]).toFixed(1)).join(''),fill:'none',stroke:`var(${pc[f]})`,'stroke-width':2},P.svg);
+    if(wide) S('text',{class:'lbl',x:P.X(2)+8,y:P.Y(rows[20][f])+4},P.svg,pn[f]); }
+  const cx=P.X(lc[rg.i]); S('line',{x1:cx,x2:cx,y1:P.m.t,y2:P.m.t+P.ih,stroke:'var(--ink)','stroke-width':1.5,'stroke-dasharray':'4 3'},P.svg);
+  for(let f=0;f<6;f++) S('circle',{cx,cy:P.Y(rows[rg.i][f]),r:4.5,fill:`var(${pc[f]})`,stroke:'var(--surface)','stroke-width':2},P.svg);
+  crosshair(P,x=>{ let k=0,bd=9; lc.forEach((v,i)=>{ if(Math.abs(v-x)<bd){bd=Math.abs(v-x);k=i} }); return `<b>C = ${fmtC(PT.C[k])}</b><br>`+pn.map((n,f)=>`${n}: ${neg(rows[k][f])}`).join('<br>'); }); });
+function rgUpdate(){ rg.i=+$('rg-c').value; $('rg-c-o').textContent=fmtC(D.paths.C[rg.i]); pathDraw(); const r=D.paths[rg.kind][rg.i];
+  $('rg-table').innerHTML='<thead><tr><th>Feature</th><th class="n">Coefficient</th><th class="n">Odds ratio</th></tr></thead><tbody>'+pn.map((n,f)=>`<tr><td><i class="sw" style="background:var(${pc[f]});margin-right:8px;vertical-align:middle"></i>${n}${r[f]===0?' <span class="pill">removed</span>':''}</td><td class="n">${neg(r[f],3)}</td><td class="n">${Math.exp(r[f]).toFixed(3)}</td></tr>`).join('')+'</tbody>';
+  const kept=r.filter(v=>v!==0).length, auc=D.paths['auc_'+rg.kind][rg.i];
+  $('rg-read').innerHTML=`<b>${rg.kind.toUpperCase()}, C = ${fmtC(D.paths.C[rg.i])}</b>: ${kept} of 6 features in use. Cross-validated AUC <b>${auc.toFixed(3)}</b>${auc===0.5?', the same as guessing, because every coefficient is zero':''}.`; }
+bind('rg-c',()=>'',rgUpdate);
+[['rg-l2','l2'],['rg-l1','l1']].forEach(([id,k])=>$(id).addEventListener('click',()=>{ rg.kind=k; $('rg-l2').setAttribute('aria-pressed',k==='l2'); $('rg-l1').setAttribute('aria-pressed',k==='l1'); rgUpdate(); }));
+rgUpdate();
+
+/* ---------- M8 ---------- */
+{ const sc=[0.898,0.852,0.774,0.793,0.826], host=$('c-folds');
+  sc.forEach((s,r)=>{ const row=H('div','fold'); row.appendChild(H('span','','Round '+(r+1))); for(let k=0;k<5;k++){ const i=document.createElement('i'); if(k===r){ i.className='v'; i.title='validation fold'; } row.appendChild(i); } row.appendChild(H('span','sc',s.toFixed(3))); host.appendChild(row); });
+  const last=H('div','fold'); last.innerHTML='<span></span><span style="grid-column:2/7;color:var(--ink-2)">AUC on the held-out block → mean 0.829, standard deviation 0.044</span><span></span>'; host.appendChild(last);
+  cmRender($('cm-def'),{tn:180,fp:8,fn:26,tp:36}); cmRender($('cm-bal'),{tn:148,fp:40,fn:8,tp:54}); }
+
+/* ---------- quiz ---------- */
+const QUIZ=[
+ {q:'Why is a straight line a poor model for a yes/no outcome?',o:['It can predict values below 0 or above 1, which are not probabilities','It cannot use more than one feature','It always predicts exactly 0.5'],a:0,why:'A line keeps going in both directions. In the first figure it gives a churn probability of about −16% at 100 months. The sigmoid flattens out inside 0 to 1.'},
+ {q:'25% of customers churn. A "model" that predicts "stays" for everyone has what accuracy?',o:['25%','50%','75%'],a:2,why:'It is right for every customer who stayed, which is 75% of them. Any real model has to beat that baseline.'},
+ {q:'The fitted slope for tenure is −0.0378. What does the negative sign tell you?',o:['The model fits badly','Longer-tenured customers are less likely to churn','Tenure has no effect on churn'],a:1,why:'A negative weight lowers z, and so the probability, as the feature grows. Each extra month multiplies the odds of churn by e^−0.0378, about 0.963.'},
+ {q:'Why should the scaler be fitted inside a pipeline, on training rows only?',o:['It makes training faster','Otherwise the test rows influence the preparation step and the test score becomes too optimistic','scikit-learn raises an error if you do not'],a:1,why:'This is data leakage. A pipeline guarantees that every preparation step learns only from the rows the model is being trained on.'},
+ {q:'Autopay has an odds ratio of 0.677. Which statement is correct?',o:['Autopay customers are 67.7% likely to churn','Autopay lowers the probability of churn by 32.3 percentage points','Autopay multiplies the odds of churn by 0.677, about 32% lower odds'],a:2,why:'Odds ratios multiply odds. The change in probability depends on where the customer starts, as the calculator shows.'},
+ {q:'You lower the threshold from 0.50 to 0.30. What happens?',o:['Recall goes up and precision usually goes down','Precision and recall both go up','Nothing changes, because the model is the same'],a:0,why:'More customers are flagged, so you catch more real churners (recall 0.58 → 0.79) and raise more false alarms (precision 0.82 → 0.59).'},
+ {q:'In scikit-learn, what does a smaller C do?',o:['Weakens regularization, letting coefficients grow','Strengthens regularization, shrinking coefficients','Lowers the decision threshold'],a:1,why:'C is the inverse of regularization strength. At C = 0.001 the coefficients in this tutorial are almost zero.'},
+ {q:'The test AUC is 0.902 and the 5-fold cross-validated AUC is 0.829 ± 0.044. What is the most reasonable reading?',o:['The model improved between the two measurements','One 250-row split is a noisy measurement; treat 0.90 as optimistic and report the spread','Cross-validation is wrong and should be ignored'],a:1,why:'The fold scores range from 0.774 to 0.898, so a single split near 0.90 is within reach of luck. Reporting a mean with its spread is more honest than one number.'},
+ {q:'A logistic regression with three classes returns predict_proba rows such as [0.034, 0.621, 0.345]. What is always true of each row?',o:['The largest value is at least 0.5','The values sum to 1','Each value is independent of the others'],a:1,why:'Softmax spreads one unit of probability across the classes. The predicted class is the largest of them, even if it is below 0.5.'}
+];
+document.querySelectorAll('.quiz').forEach(box=>{ const Q=QUIZ[+box.dataset.q]; box.appendChild(H('p','eyebrow','Check yourself')); box.appendChild(H('p','q',Q.q));
+  const opts=H('div','opts'), fb=H('p','fb',''); Q.o.forEach((t,i)=>{ const b=H('button','opt',t); b.type='button';
+    b.addEventListener('click',()=>{ opts.querySelectorAll('.opt').forEach(x=>x.classList.remove('right','wrong')); const ok=i===Q.a; b.classList.add(ok?'right':'wrong');
+      fb.innerHTML=ok?`<b class="g">Correct.</b> ${Q.why}`:'<b class="b">Not quite.</b> Try another answer.'; }); opts.appendChild(b); });
+  box.appendChild(opts); box.appendChild(fb); });
+
+/* ---------- progress + contents ---------- */
+let doneSet=[]; try{ doneSet=JSON.parse(localStorage.getItem('lr-done')||'[]'); }catch(e){}
+function progress(){ const n=doneSet.length; $('prog-text').textContent=n+' of 9 modules finished'; $('prog-bar').style.width=(n/9*100)+'%';
+  document.querySelectorAll('.toc a').forEach(a=>a.classList.toggle('done',doneSet.includes(+a.dataset.m))); }
+for(let m=1;m<=9;m++){ const cb=$('done-'+m); cb.checked=doneSet.includes(m);
+  cb.addEventListener('change',()=>{ doneSet=doneSet.filter(x=>x!==m); if(cb.checked) doneSet.push(m); try{ localStorage.setItem('lr-done',JSON.stringify(doneSet)); }catch(e){} progress(); }); }
+progress();
+if(window.IntersectionObserver){ const links={}; document.querySelectorAll('.toc a').forEach(a=>links[a.getAttribute('href').slice(1)]=a);
+  const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ Object.values(links).forEach(a=>a.classList.remove('on')); links[e.target.id].classList.add('on'); } }),{rootMargin:'-20% 0px -70% 0px'});
+  document.querySelectorAll('.module').forEach(s=>io.observe(s)); }
+</script>
+
+</body></html>

@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Logistic Regression, Confusion Matrix & ROC Interactive Lab</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            slate: {
+              850: '#141c2b',
+              900: '#0f172a',
+              950: '#090d16',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #090d16;
+      color: #f1f5f9;
+      font-family: 'Inter', sans-serif;
+    }
+    /* Custom Range Slider Styling */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 8px;
+      border-radius: 999px;
+      background: #1e293b;
+      border: 1px solid #334155;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      margin-top: -6px;
+      background-color: #f472b6;
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 12px rgba(244, 114, 182, 0.8);
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+      background-color: #ec4899;
+    }
+    .cyan-slider::-webkit-slider-thumb {
+      background-color: #38bdf8 !important;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.8) !important;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    .glow-pink {
+      filter: drop-shadow(0 0 8px rgba(244, 114, 182, 0.75));
+    }
+    .glow-blue {
+      filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.5));
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-pink-500/30 selection:text-pink-200">
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-30 backdrop-blur-md bg-slate-950/85 border-b border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500/20 via-indigo-500/20 to-pink-500/20 border border-slate-700 flex items-center justify-center shadow-inner">
+          <svg class="w-6 h-6 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 17c4.5 0 5.5-10 10-10h8M3 12h18M12 3v18" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2.5">
+            <h1 class="text-lg sm:text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-200 to-sky-300 bg-clip-text text-transparent">
+              Logistic Regression &amp; ROC Interactive Lab
+            </h1>
+            <span class="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-500/10 text-sky-300 border border-sky-500/30 font-mono">
+              scikit-learn
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Interactive Sigmoid, ROC Curve, Confusion Matrix &amp; Python Pipeline Explorer</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex flex-wrap gap-1.5 bg-slate-900/90 p-1 rounded-xl border border-slate-800" aria-label="Main Tabs">
+        <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all bg-sky-500 text-slate-950 shadow-sm font-semibold">
+          1. Interactive Lab
+        </button>
+        <button onclick="switchTab('concepts')" id="tab-btn-concepts" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-300 hover:text-white hover:bg-slate-800/60">
+          2. Concepts &amp; Sklearn
+        </button>
+        <button onclick="switchTab('rocguide')" id="tab-btn-rocguide" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-300 hover:text-white hover:bg-slate-800/60">
+          3. ROC &amp; Threshold Guide
+        </button>
+        <button onclick="switchTab('pipeline')" id="tab-btn-pipeline" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-300 hover:text-white hover:bg-slate-800/60">
+          4. Python Pipeline
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ========================================================================= -->
+    <!-- TAB 1: INTERACTIVE DASHBOARD (SIGMOID, ROC, CONFUSION MATRIX)             -->
+    <!-- ========================================================================= -->
+    <section id="tab-dashboard" class="tab-panel space-y-6">
+
+      <!-- Master Control Bar -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          
+          <!-- Sliders Column -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1">
+            <!-- Decision Threshold Slider -->
+            <div class="bg-slate-950/70 p-4 rounded-xl border border-slate-800/90">
+              <div class="flex justify-between items-center mb-2">
+                <label for="threshold-slider" class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-pink-400 inline-block"></span>
+                  Decision Threshold (<span class="font-mono text-pink-400">&theta;</span>)
+                </label>
+                <span id="threshold-badge" class="px-2.5 py-0.5 rounded-md bg-pink-500/15 border border-pink-500/40 text-pink-300 font-mono text-sm font-bold">
+                  0.47
+                </span>
+              </div>
+              <input id="threshold-slider" type="range" min="0.01" max="0.99" step="0.01" value="0.47" class="w-full" />
+              <div class="flex justify-between text-[11px] font-mono text-slate-400 mt-1.5">
+                <span>0.01 (Predict All Pos)</span>
+                <span>Default: 0.50</span>
+                <span>0.99 (Predict All Neg)</span>
+              </div>
+            </div>
+
+            <!-- Sigmoid Steepness Slider -->
+            <div class="bg-slate-950/70 p-4 rounded-xl border border-slate-800/90">
+              <div class="flex justify-between items-center mb-2">
+                <label for="scale-slider" class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-sky-400 inline-block"></span>
+                  Coefficient Scale / Steepness (<span class="font-mono text-sky-400">k</span>)
+                </label>
+                <span id="scale-badge" class="px-2.5 py-0.5 rounded-md bg-sky-500/15 border border-sky-500/40 text-sky-300 font-mono text-sm font-bold">
+                  1.0x
+                </span>
+              </div>
+              <input id="scale-slider" type="range" min="0.5" max="3.0" step="0.1" value="1.0" class="w-full cyan-slider" />
+              <div class="flex justify-between text-[11px] font-mono text-slate-400 mt-1.5">
+                <span>0.5x (Strong Regularization)</span>
+                <span>1.0x (Standard)</span>
+                <span>3.0x (Sharp Boundary)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Scenario Presets -->
+          <div class="flex flex-col justify-between bg-slate-950/70 p-4 rounded-xl border border-slate-800/90 lg:w-80">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+              Real-World Operating Point Presets
+            </span>
+            <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-2">
+              <button onclick="applyPreset(0.47, 1.0, 'balanced')" id="preset-balanced" class="preset-btn text-left px-3 py-2 rounded-lg border border-pink-500/50 bg-pink-500/10 text-xs transition flex items-center justify-between">
+                <div>
+                  <div class="font-semibold text-pink-200">Balanced Optimum (&theta; = 0.47)</div>
+                  <div class="text-[11px] text-slate-400">Near Youden's J Elbow (TPR 0.86, FPR 0.20)</div>
+                </div>
+                <span class="font-mono text-pink-300 font-bold">0.47</span>
+              </button>
+              <button onclick="applyPreset(0.20, 1.2, 'sensitivity')" id="preset-sensitivity" class="preset-btn text-left px-3 py-2 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-slate-800 text-xs transition flex items-center justify-between">
+                <div>
+                  <div class="font-semibold text-emerald-300">High Sensitivity (Medical/Fraud)</div>
+                  <div class="text-[11px] text-slate-400">Minimize missed positives (High Recall)</div>
+                </div>
+                <span class="font-mono text-emerald-400 font-bold">0.20</span>
+              </button>
+              <button onclick="applyPreset(0.80, 1.2, 'specificity')" id="preset-specificity" class="preset-btn text-left px-3 py-2 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-slate-800 text-xs transition flex items-center justify-between">
+                <div>
+                  <div class="font-semibold text-amber-300">High Specificity (Spam Filter)</div>
+                  <div class="text-[11px] text-slate-400">Minimize false alarms (Low FPR)</div>
+                </div>
+                <span class="font-mono text-amber-400 font-bold">0.80</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Charts Row: ROC Curve & Sigmoid Function -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Left Card: ROC Curve & Classification Threshold -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
+          <div class="flex items-start justify-between gap-4 mb-3">
+            <div>
+              <h2 class="text-lg font-bold text-white">ROC Curve &amp; Classification Threshold</h2>
+              <p class="text-xs text-slate-400">Receiver Operating Characteristic trade-off across all cutoffs</p>
+            </div>
+            <div class="px-3.5 py-1.5 rounded-full bg-slate-950 border border-slate-800 flex items-center gap-2 shrink-0">
+              <span class="text-xs text-slate-400 font-medium">ROC-AUC</span>
+              <span class="text-base font-bold text-white font-mono">0.89</span>
+            </div>
+          </div>
+
+          <!-- Interactive SVG ROC Curve -->
+          <div class="relative w-full aspect-[16/11] bg-slate-950/60 rounded-xl border border-slate-800/80 p-2 flex items-center justify-center">
+            <svg id="roc-svg" viewBox="0 0 520 350" class="w-full h-full select-none overflow-visible">
+              <defs>
+                <linearGradient id="rocAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.28" />
+                  <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.03" />
+                </linearGradient>
+              </defs>
+
+              <!-- Plot Grid & Axes (X: 65 to 485, Y: 25 to 295) -->
+              <g id="roc-grid" stroke="#1e293b" stroke-width="1"></g>
+
+              <!-- Shaded AUC Area -->
+              <path id="roc-area-path" fill="url(#rocAreaGrad)" />
+
+              <!-- Random Chance Diagonal Line -->
+              <line x1="65" y1="295" x2="485" y2="25" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,5" />
+
+              <!-- Crosshair Guides for Operating Point -->
+              <line id="roc-crosshair-x" x1="65" y1="295" x2="65" y2="295" stroke="#f472b6" stroke-width="1.2" stroke-dasharray="3,3" opacity="0.65" />
+              <line id="roc-crosshair-y" x1="65" y1="295" x2="65" y2="295" stroke="#f472b6" stroke-width="1.2" stroke-dasharray="3,3" opacity="0.65" />
+
+              <!-- ROC Curve Line -->
+              <path id="roc-line-path" fill="none" stroke="#7dd3fc" stroke-width="3" class="glow-blue" />
+
+              <!-- Discrete Reference Nodes on Curve -->
+              <g id="roc-dots"></g>
+
+              <!-- Active Pink Operating Point -->
+              <circle id="roc-operating-point" cx="149" cy="63" r="8.5" fill="#f472b6" stroke="#ffffff" stroke-width="2" class="glow-pink transition-all duration-75" />
+
+              <!-- Axis Titles -->
+              <text x="275" y="338" text-anchor="middle" fill="#cbd5e1" font-size="12" font-weight="500">
+                False Positive Rate (1 - Specificity)
+              </text>
+              <text x="18" y="160" text-anchor="middle" fill="#cbd5e1" font-size="12" font-weight="500" transform="rotate(-90 18 160)">
+                True Positive Rate (Sensitivity)
+              </text>
+            </svg>
+          </div>
+
+          <!-- Legend -->
+          <div class="flex flex-wrap items-center justify-center gap-5 my-3 text-xs font-mono text-slate-300">
+            <div class="flex items-center gap-2">
+              <span class="w-3.5 h-3.5 rounded-full bg-sky-300 inline-block"></span>
+              <span>ROC Curve (AUC = 0.89)</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3.5 h-3.5 rounded-full bg-slate-500 inline-block"></span>
+              <span>Random Chance (0.50)</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3.5 h-3.5 rounded-full bg-pink-400 inline-block"></span>
+              <span>Operating Point</span>
+            </div>
+          </div>
+
+          <!-- Bottom 3 Primary Readout Cards (Matches User Screenshot Style) -->
+          <div class="grid grid-cols-3 gap-3">
+            <div class="bg-slate-950/90 border border-slate-800/90 rounded-xl p-3.5">
+              <div class="text-[11px] text-slate-400 font-medium">Threshold (&theta;)</div>
+              <div id="card-theta" class="text-2xl sm:text-3xl font-bold text-white font-mono mt-1">0.47</div>
+            </div>
+            <div class="bg-slate-950/90 border border-slate-800/90 rounded-xl p-3.5">
+              <div class="text-[11px] text-slate-400 font-medium">True Positive Rate (TPR)</div>
+              <div id="card-tpr" class="text-2xl sm:text-3xl font-bold text-emerald-400 font-mono mt-1">0.86</div>
+            </div>
+            <div class="bg-slate-950/90 border border-slate-800/90 rounded-xl p-3.5">
+              <div class="text-[11px] text-slate-400 font-medium">False Positive Rate (FPR)</div>
+              <div id="card-fpr" class="text-2xl sm:text-3xl font-bold text-rose-400 font-mono mt-1">0.20</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Card: Sigmoid (Logistic) Function & Decision Boundary -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
+          <div class="flex items-start justify-between gap-4 mb-3">
+            <div>
+              <h2 class="text-lg font-bold text-white">Sigmoid Function &amp; Decision Boundary</h2>
+              <p class="text-xs text-slate-400">Maps linear log-odds <span class="font-mono text-sky-300">z = w<sup>T</sup>x + b</span> to probability <span class="font-mono text-pink-300">P(y=1|x)</span></p>
+            </div>
+            <div class="px-3 py-1.5 rounded-full bg-slate-950 border border-slate-800 font-mono text-xs text-sky-300 shrink-0">
+              &sigma;(z) = 1 / (1 + e<sup>-kz</sup>)
+            </div>
+          </div>
+
+          <!-- Interactive SVG Sigmoid Curve -->
+          <div class="relative w-full aspect-[16/11] bg-slate-950/60 rounded-xl border border-slate-800/80 p-2 flex items-center justify-center">
+            <svg id="sigmoid-svg" viewBox="0 0 520 350" class="w-full h-full select-none overflow-visible">
+              <!-- Class 0 vs Class 1 Shaded Regions -->
+              <rect id="sig-region-0" x="65" y="25" width="210" height="270" fill="#ef4444" fill-opacity="0.06" />
+              <rect id="sig-region-1" x="275" y="25" width="210" height="270" fill="#10b981" fill-opacity="0.07" />
+
+              <!-- Grid & Axes -->
+              <g id="sigmoid-grid" stroke="#1e293b" stroke-width="1"></g>
+
+              <!-- Region Labels -->
+              <text id="sig-label-class0" x="125" y="48" text-anchor="middle" fill="#f87171" font-size="11" font-weight="600" font-family="JetBrains Mono">
+                PREDICT CLASS 0
+              </text>
+              <text id="sig-label-class1" x="415" y="48" text-anchor="middle" fill="#34d399" font-size="11" font-weight="600" font-family="JetBrains Mono">
+                PREDICT CLASS 1
+              </text>
+
+              <!-- Horizontal Cutoff Threshold Line -->
+              <line id="sig-thresh-line" x1="65" y1="160" x2="485" y2="160" stroke="#f472b6" stroke-width="2" stroke-dasharray="6,4" />
+              
+              <!-- Vertical Log-Odds Decision Boundary Line (z*) -->
+              <line id="sig-zstar-line" x1="275" y1="25" x2="275" y2="295" stroke="#a855f7" stroke-width="2" stroke-dasharray="4,4" />
+
+              <!-- Sigmoid Curve Path -->
+              <path id="sigmoid-line-path" fill="none" stroke="#38bdf8" stroke-width="3.2" class="glow-blue" />
+
+              <!-- Intersection Point (z*, theta) -->
+              <circle id="sig-intersect-point" cx="275" cy="160" r="7.5" fill="#f472b6" stroke="#ffffff" stroke-width="2" class="glow-pink" />
+
+              <!-- Axis Titles -->
+              <text x="275" y="338" text-anchor="middle" fill="#cbd5e1" font-size="12" font-weight="500">
+                Raw Log-Odds Score z = decision_function(X)
+              </text>
+              <text x="18" y="160" text-anchor="middle" fill="#cbd5e1" font-size="12" font-weight="500" transform="rotate(-90 18 160)">
+                Predicted Probability P(y=1|x)
+              </text>
+            </svg>
+          </div>
+
+          <!-- Legend -->
+          <div class="flex flex-wrap items-center justify-center gap-5 my-3 text-xs font-mono text-slate-300">
+            <div class="flex items-center gap-2">
+              <span class="w-3.5 h-1 bg-sky-400 inline-block"></span>
+              <span>Sigmoid &sigma;(kz)</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3.5 h-0.5 border-t-2 border-dashed border-pink-400 inline-block"></span>
+              <span>Cutoff &theta;</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3.5 h-0.5 border-t-2 border-dashed border-purple-400 inline-block"></span>
+              <span>Log-Odds Boundary z*</span>
+            </div>
+          </div>
+
+          <!-- Bottom 3 Sigmoid Readout Cards -->
+          <div class="grid grid-cols-3 gap-3">
+            <div class="bg-slate-950/90 border border-slate-800/90 rounded-xl p-3.5">
+              <div class="text-[11px] text-slate-400 font-medium">Log-Odds Cutoff (z*)</div>
+              <div id="card-zstar" class="text-2xl sm:text-3xl font-bold text-purple-300 font-mono mt-1">-0.12</div>
+            </div>
+            <div class="bg-slate-950/90 border border-slate-800/90 rounded-xl p-3.5">
+              <div class="text-[11px] text-slate-400 font-medium">Odds Ratio Threshold</div>
+              <div id="card-odds" class="text-2xl sm:text-3xl font-bold text-sky-300 font-mono mt-1">0.89</div>
+            </div>
+            <div class="bg-slate-950/90 border border-slate-800/90 rounded-xl p-3.5">
+              <div class="text-[11px] text-slate-400 font-medium">Youden's J (TPR - FPR)</div>
+              <div id="card-youden" class="text-2xl sm:text-3xl font-bold text-amber-300 font-mono mt-1">0.66</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Lower Section: Synchronized 2x2 Confusion Matrix & Derived Evaluation Metrics -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- 2x2 Interactive Confusion Matrix (7 cols) -->
+        <div class="lg:col-span-7 bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+            <div>
+              <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                Dynamic 2&times;2 Confusion Matrix
+                <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">n = 500 Test Samples</span>
+              </h3>
+              <p class="text-xs text-slate-400">
+                 Reflects the 25% test split (150 Actual Positives [30%], 350 Actual Negatives [70%]). Click any cell to inspect.
+              </p>
+            </div>
+          </div>
+
+          <!-- Matrix Grid Layout -->
+          <div class="grid grid-cols-12 gap-2.5 items-stretch my-auto">
+            <!-- Corner Spacer -->
+            <div class="col-span-3 flex flex-col items-center justify-center p-2 text-center">
+              <span class="text-[11px] font-mono uppercase tracking-wider text-slate-400">Actual \ Predicted</span>
+            </div>
+            <!-- Column Headers -->
+            <div class="col-span-4 bg-slate-950/80 border border-slate-800 rounded-xl p-2.5 text-center">
+              <div class="text-xs font-bold text-emerald-400">Predicted Positive (1)</div>
+              <div class="text-[11px] font-mono text-slate-400">P(y=1|x) &ge; <span id="cm-header-theta1">0.47</span></div>
+            </div>
+            <div class="col-span-5 bg-slate-950/80 border border-slate-800 rounded-xl p-2.5 text-center">
+              <div class="text-xs font-bold text-slate-300">Predicted Negative (0)</div>
+              <div class="text-[11px] font-mono text-slate-400">P(y=1|x) &lt; <span id="cm-header-theta2">0.47</span></div>
+            </div>
+
+            <!-- Row 1: Actual Positive (150) -->
+            <div class="col-span-3 bg-slate-950/80 border border-slate-800 rounded-xl p-3 flex flex-col justify-center">
+              <div class="text-xs font-bold text-emerald-400">Actual Positive (1)</div>
+              <div class="text-[11px] font-mono text-slate-400 mt-0.5">Total = 150 (30%)</div>
+            </div>
+
+            <!-- True Positive (TP) Cell -->
+            <button onclick="inspectMatrixCell('TP')" id="cell-TP" class="col-span-4 text-left bg-emerald-500/10 hover:bg-emerald-500/20 border-2 border-emerald-500/40 rounded-xl p-3.5 transition group relative overflow-hidden">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-emerald-300">True Positive (TP)</span>
+                <span class="text-[11px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-200" id="cm-tp-pct">86.0% of Pos</span>
+              </div>
+              <div id="cm-tp-val" class="text-3xl font-extrabold font-mono text-white my-1.5">129</div>
+              <div class="text-[11px] text-emerald-200/80">Correctly flagged positives (Hit)</div>
+            </button>
+
+            <!-- False Negative (FN) Cell -->
+            <button onclick="inspectMatrixCell('FN')" id="cell-FN" class="col-span-5 text-left bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl p-3.5 transition group relative overflow-hidden">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-amber-300">False Negative (FN)</span>
+                <span class="text-[11px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-200" id="cm-fn-pct">14.0% of Pos</span>
+              </div>
+              <div id="cm-fn-val" class="text-3xl font-extrabold font-mono text-white my-1.5">21</div>
+              <div class="text-[11px] text-amber-200/80">Type II Error (Missed positive case)</div>
+            </button>
+
+            <!-- Row 2: Actual Negative (350) -->
+            <div class="col-span-3 bg-slate-950/80 border border-slate-800 rounded-xl p-3 flex flex-col justify-center">
+              <div class="text-xs font-bold text-slate-300">Actual Negative (0)</div>
+              <div class="text-[11px] font-mono text-slate-400 mt-0.5">Total = 350 (70%)</div>
+            </div>
+
+            <!-- False Positive (FP) Cell -->
+            <button onclick="inspectMatrixCell('FP')" id="cell-FP" class="col-span-4 text-left bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 rounded-xl p-3.5 transition group relative overflow-hidden">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-rose-300">False Positive (FP)</span>
+                <span class="text-[11px] font-mono px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-200" id="cm-fp-pct">20.0% of Neg</span>
+              </div>
+              <div id="cm-fp-val" class="text-3xl font-extrabold font-mono text-white my-1.5">70</div>
+              <div class="text-[11px] text-rose-200/80">Type I Error (False alarm)</div>
+            </button>
+
+            <!-- True Negative (TN) Cell -->
+            <button onclick="inspectMatrixCell('TN')" id="cell-TN" class="col-span-5 text-left bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 rounded-xl p-3.5 transition group relative overflow-hidden">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-sky-300">True Negative (TN)</span>
+                <span class="text-[11px] font-mono px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-200" id="cm-tn-pct">80.0% of Neg</span>
+              </div>
+              <div id="cm-tn-val" class="text-3xl font-extrabold font-mono text-white my-1.5">280</div>
+              <div class="text-[11px] text-sky-200/80">Correctly rejected negatives</div>
+            </button>
+          </div>
+
+          <!-- Interactive Cell Explanation Banner -->
+          <div id="cm-inspector-box" class="mt-4 bg-slate-950/90 border border-slate-800 rounded-xl p-3.5 text-xs text-slate-300 flex items-start gap-3">
+            <span class="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 font-mono font-bold shrink-0" id="cm-insp-tag">TP</span>
+            <div id="cm-insp-text">
+              <strong class="text-white">True Positives (TP):</strong> Observations where the true class is <span class="font-mono text-emerald-300">1</span> and the model predicted probability is &ge; &theta;. Dividing TP by Total Actual Positives (TP + FN) yields the <strong class="text-emerald-300">True Positive Rate (Sensitivity / Recall)</strong> plotted on the ROC Y-axis.
+            </div>
+          </div>
+        </div>
+
+        <!-- Derived Classification Metrics Panel (5 cols) -->
+        <div class="lg:col-span-5 bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
+          <div>
+            <h3 class="text-lg font-bold text-white">Live Threshold-Dependent Metrics</h3>
+            <p class="text-xs text-slate-400 mb-4">How changing <span class="font-mono text-pink-400">&theta;</span> reshapes Precision, Recall, Specificity &amp; F1</p>
+
+            <div class="space-y-3.5">
+              <!-- Sensitivity / Recall -->
+              <div class="bg-slate-950/70 border border-slate-800/90 rounded-xl p-3">
+                <div class="flex justify-between items-center text-xs mb-1">
+                  <span class="font-semibold text-emerald-300">Sensitivity / Recall (TPR)</span>
+                  <span class="font-mono text-slate-400">TP / (TP + FN) = <strong class="text-white" id="metric-tpr-text">86.0%</strong></span>
+                </div>
+                <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                  <div id="bar-tpr" class="h-full bg-emerald-400 transition-all duration-100" style="width: 86%"></div>
+                </div>
+              </div>
+
+              <!-- Specificity (TNR) -->
+              <div class="bg-slate-950/70 border border-slate-800/90 rounded-xl p-3">
+                <div class="flex justify-between items-center text-xs mb-1">
+                  <span class="font-semibold text-sky-300">Specificity (True Negative Rate)</span>
+                  <span class="font-mono text-slate-400">TN / (TN + FP) = <strong class="text-white" id="metric-tnr-text">80.0%</strong></span>
+                </div>
+                <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                  <div id="bar-tnr" class="h-full bg-sky-400 transition-all duration-100" style="width: 80%"></div>
+                </div>
+              </div>
+
+              <!-- Precision (PPV) -->
+              <div class="bg-slate-950/70 border border-slate-800/90 rounded-xl p-3">
+                <div class="flex justify-between items-center text-xs mb-1">
+                  <span class="font-semibold text-purple-300">Precision (Positive Predictive Value)</span>
+                  <span class="font-mono text-slate-400">TP / (TP + FP) = <strong class="text-white" id="metric-prec-text">64.8%</strong></span>
+                </div>
+                <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                  <div id="bar-prec" class="h-full bg-purple-400 transition-all duration-100" style="width: 64.8%"></div>
+                </div>
+              </div>
+
+              <!-- F1-Score -->
+              <div class="bg-slate-950/70 border border-slate-800/90 rounded-xl p-3">
+                <div class="flex justify-between items-center text-xs mb-1">
+                  <span class="font-semibold text-pink-300">F1-Score (Harmonic Mean)</span>
+                  <span class="font-mono text-slate-400">2&middot;(P&middot;R)/(P+R) = <strong class="text-white" id="metric-f1-text">73.9%</strong></span>
+                </div>
+                <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                  <div id="bar-f1" class="h-full bg-pink-400 transition-all duration-100" style="width: 73.9%"></div>
+                </div>
+              </div>
+
+              <!-- Overall Accuracy -->
+              <div class="bg-slate-950/70 border border-slate-800/90 rounded-xl p-3">
+                <div class="flex justify-between items-center text-xs mb-1">
+                  <span class="font-semibold text-amber-300">Overall Accuracy</span>
+                  <span class="font-mono text-slate-400">(TP + TN) / N = <strong class="text-white" id="metric-acc-text">81.8%</strong></span>
+                </div>
+                <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                  <div id="bar-acc" class="h-full bg-amber-400 transition-all duration-100" style="width: 81.8%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 p-3 rounded-xl bg-sky-500/10 border border-sky-500/20 text-xs text-slate-300">
+            <strong class="text-sky-300">Key Takeaway:</strong> Notice how <span class="font-mono text-white">ROC-AUC (0.89)</span> stays constant regardless of where you move the threshold slider, while <span class="font-mono text-white">Precision, Recall, F1, and Accuracy</span> shift dramatically.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 2: CORE THEORETICAL CONCEPTS & SCIKIT-LEARN GUIDE                     -->
+    <!-- ========================================================================= -->
+    <section id="tab-concepts" class="tab-panel hidden space-y-8">
+      
+      <!-- Core Theoretical Concepts -->
+      <div>
+        <div class="mb-4">
+          <h2 class="text-xl font-bold text-white">Core Theoretical Concepts in Logistic Regression</h2>
+          <p class="text-sm text-slate-400">How linear combinations of features are transformed into calibrated class probabilities.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- Card 1: Odds & Log-Odds -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-lg">
+            <div class="flex items-center justify-between mb-3">
+              <span class="px-2.5 py-1 rounded-md bg-sky-500/15 text-sky-300 font-mono text-xs font-semibold">1. Odds &amp; Log-Odds (Logit)</span>
+              <span class="text-xs text-slate-400 font-mono">Range: (-&infin;, +&infin;)</span>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed mb-4">
+              The <strong>odds</strong> of an event is the ratio of the probability of occurrence to the probability of non-occurrence. Logistic regression models the natural logarithm of the odds (the <strong>logit</strong>) as a linear combination of input features:
+            </p>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 font-mono text-xs sm:text-sm text-sky-200 space-y-2">
+              <div>Odds = p / (1 - p)</div>
+              <div>ln( p / (1 - p) ) = &beta;<sub>0</sub> + &beta;<sub>1</sub>x<sub>1</sub> + &dots; + &beta;<sub>k</sub>x<sub>k</sub></div>
+            </div>
+            <p class="text-xs text-slate-400 mt-3">
+              Exponentiating a feature weight (<span class="font-mono text-slate-200">e<sup>&beta;<sub>j</sub></sup></span>) gives the <strong>odds ratio</strong>: the multiplicative change in odds for a 1-unit increase in feature <span class="font-mono">j</span>.
+            </p>
+          </div>
+
+          <!-- Card 2: Sigmoid Function -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-lg">
+            <div class="flex items-center justify-between mb-3">
+              <span class="px-2.5 py-1 rounded-md bg-purple-500/15 text-purple-300 font-mono text-xs font-semibold">2. Sigmoid (Logistic) Function</span>
+              <span class="text-xs text-slate-400 font-mono">Range: (0, 1)</span>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed mb-4">
+              To convert unbounded raw log-odds <span class="font-mono text-purple-300">z = w<sup>T</sup>x + b</span> into a valid probability bounded strictly between <span class="font-mono">0</span> and <span class="font-mono">1</span>, logistic regression passes <span class="font-mono">z</span> through the Sigmoid function:
+            </p>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 font-mono text-xs sm:text-sm text-purple-200 space-y-2">
+              <div>&sigma;(z) = 1 / (1 + e<sup>-z</sup>)</div>
+              <div>When z = 0 &rArr; &sigma;(0) = 0.50 (50% probability)</div>
+            </div>
+            <p class="text-xs text-slate-400 mt-3">
+              As <span class="font-mono">z &rarr; +&infin;</span>, probability approaches <span class="font-mono">1</span>; as <span class="font-mono">z &rarr; -&infin;</span>, probability approaches <span class="font-mono">0</span>.
+            </p>
+          </div>
+
+          <!-- Card 3: Log-Loss Cost Function -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-lg">
+            <div class="flex items-center justify-between mb-3">
+              <span class="px-2.5 py-1 rounded-md bg-pink-500/15 text-pink-300 font-mono text-xs font-semibold">3. Log-Loss (Binary Cross-Entropy)</span>
+              <span class="text-xs text-slate-400 font-mono">Convex Objective</span>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed mb-4">
+              Unlike linear regression (which minimizes Mean Squared Error), logistic regression minimizes <strong>Log-Loss</strong>, which heavily penalizes confident wrong predictions exponentially:
+            </p>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 font-mono text-xs sm:text-sm text-pink-200 overflow-x-auto">
+              L = - (1 / N) &sum; [ y<sub>i</sub> ln(p<sub>i</sub>) + (1 - y<sub>i</sub>) ln(1 - p<sub>i</sub>) ]
+            </div>
+            <p class="text-xs text-slate-400 mt-3">
+              Evaluated in scikit-learn via <span class="font-mono text-slate-200">sklearn.metrics.log_loss(y_true, y_prob)</span>.
+            </p>
+          </div>
+
+          <!-- Card 4: Decision Threshold -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-lg">
+            <div class="flex items-center justify-between mb-3">
+              <span class="px-2.5 py-1 rounded-md bg-emerald-500/15 text-emerald-300 font-mono text-xs font-semibold">4. Decision Threshold (&theta;)</span>
+              <span class="text-xs text-slate-400 font-mono">Default: 0.50</span>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed mb-4">
+              Logistic regression is fundamentally a <strong>probability estimator</strong>. Turning probabilities into discrete class labels (<span class="font-mono">0</span> or <span class="font-mono">1</span>) requires applying a decision cutoff rule:
+            </p>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 font-mono text-xs sm:text-sm text-emerald-200 space-y-1">
+              <div>y&#770; = 1 &nbsp;if P(y=1|x) &ge; &theta;</div>
+              <div>y&#770; = 0 &nbsp;if P(y=1|x) &lt; &theta;</div>
+            </div>
+            <p class="text-xs text-slate-400 mt-3">
+              In <span class="font-mono text-slate-200">model.predict(X)</span>, <span class="font-mono">&theta;</span> is fixed at <span class="font-mono">0.50</span>. Using <span class="font-mono text-slate-200">model.predict_proba(X)[:, 1] &ge; theta</span> lets you tune <span class="font-mono">&theta;</span> for specific business costs.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scikit-Learn Parameter & Attribute Explorer -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <div>
+            <h3 class="text-lg font-bold text-white">Scikit-Learn <span class="font-mono text-sky-400">LogisticRegression</span> Parameter Reference</h3>
+            <p class="text-xs text-slate-400">Key hyperparameters, fitted attributes, and estimator methods</p>
+          </div>
+          <code class="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-xs font-mono text-emerald-300">
+            from sklearn.linear_model import LogisticRegression
+          </code>
+        </div>
+
+        <!-- Hyperparameters Table -->
+        <div class="overflow-x-auto rounded-xl border border-slate-800 mb-6">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr class="bg-slate-950 text-slate-300 border-b border-slate-800">
+                <th class="py-3 px-4 font-mono">Parameter</th>
+                <th class="py-3 px-4">Default</th>
+                <th class="py-3 px-4">Function &amp; Practical Guidance</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/70 bg-slate-900/40">
+              <tr class="hover:bg-slate-800/40">
+                <td class="py-3 px-4 font-mono font-semibold text-sky-300">penalty</td>
+                <td class="py-3 px-4 font-mono text-slate-400">'l2'</td>
+                <td class="py-3 px-4 text-slate-300">Regularization norm: <code class="text-pink-300">'l1'</code> (Lasso, induces sparsity/feature selection), <code class="text-pink-300">'l2'</code> (Ridge, shrinks correlated weights), <code class="text-pink-300">'elasticnet'</code> (combines L1 &amp; L2), or <code class="text-pink-300">None</code>.</td>
+              </tr>
+              <tr class="hover:bg-slate-800/40">
+                <td class="py-3 px-4 font-mono font-semibold text-sky-300">C</td>
+                <td class="py-3 px-4 font-mono text-slate-400">1.0</td>
+                <td class="py-3 px-4 text-slate-300"><strong>Inverse of regularization strength</strong> (<span class="font-mono">C = 1 / &lambda;</span>). Smaller values (e.g. <code class="text-emerald-300">0.01</code>) enforce stronger regularization; larger values (<code class="text-emerald-300">10.0</code>) reduce penalty constraints.</td>
+              </tr>
+              <tr class="hover:bg-slate-800/40">
+                <td class="py-3 px-4 font-mono font-semibold text-sky-300">solver</td>
+                <td class="py-3 px-4 font-mono text-slate-400">'lbfgs'</td>
+                <td class="py-3 px-4 text-slate-300">Optimization algorithm: <code class="text-amber-300">'lbfgs'</code> (fast Quasi-Newton default for L2), <code class="text-amber-300">'saga'</code> (supports L1, L2, and ElasticNet; great for large datasets), <code class="text-amber-300">'liblinear'</code> (coordinate descent, good for small datasets).</td>
+              </tr>
+              <tr class="hover:bg-slate-800/40">
+                <td class="py-3 px-4 font-mono font-semibold text-sky-300">max_iter</td>
+                <td class="py-3 px-4 font-mono text-slate-400">100</td>
+                <td class="py-3 px-4 text-slate-300">Maximum iterations for solver convergence. Increase to <code class="text-sky-300">1000</code> or <code class="text-sky-300">2000</code> alongside <code class="text-sky-300">StandardScaler</code> to resolve <code class="text-rose-300">ConvergenceWarning</code>.</td>
+              </tr>
+              <tr class="hover:bg-slate-800/40">
+                <td class="py-3 px-4 font-mono font-semibold text-sky-300">class_weight</td>
+                <td class="py-3 px-4 font-mono text-slate-400">None</td>
+                <td class="py-3 px-4 text-slate-300">Set to <code class="text-emerald-300">'balanced'</code> on skewed datasets to weight classes inversely proportional to their frequencies: <span class="font-mono">n_samples / (n_classes * np.bincount(y))</span>.</td>
+              </tr>
+              <tr class="hover:bg-slate-800/40">
+                <td class="py-3 px-4 font-mono font-semibold text-sky-300">multi_class</td>
+                <td class="py-3 px-4 font-mono text-slate-400">'auto'</td>
+                <td class="py-3 px-4 text-slate-300">Strategy for &gt;2 classes: <code class="text-purple-300">'ovr'</code> (One-vs-Rest binary fits) or <code class="text-purple-300">'multinomial'</code> (optimizes softmax cross-entropy loss across all classes simultaneously).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Fitted Attributes & Prediction Methods Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- Fitted Attributes -->
+          <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-4">
+            <h4 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              Key Fitted Attributes (After <code class="font-mono text-emerald-300">model.fit(X, y)</code>)
+            </h4>
+            <ul class="space-y-2.5 text-xs text-slate-300">
+              <li><code class="font-mono text-sky-300 font-semibold">model.coef_</code> : Array of learned feature weights (<span class="font-mono">w<sub>1</sub>, ..., w<sub>k</sub></span>). <span class="font-mono">np.exp(model.coef_)</span> yields feature odds ratios.</li>
+              <li><code class="font-mono text-sky-300 font-semibold">model.intercept_</code> : The learned bias / intercept term (<span class="font-mono">b</span> or <span class="font-mono">&beta;<sub>0</sub></span>).</li>
+              <li><code class="font-mono text-sky-300 font-semibold">model.classes_</code> : Array of distinct class labels known to the classifier (e.g., <span class="font-mono">array([0, 1])</span>).</li>
+              <li><code class="font-mono text-sky-300 font-semibold">model.n_iter_</code> : Actual number of iterations run by the solver to reach convergence.</li>
+            </ul>
+          </div>
+
+          <!-- Prediction & Scoring Methods -->
+          <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-4">
+            <h4 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-pink-400"></span>
+              Prediction &amp; Decision Methods
+            </h4>
+            <ul class="space-y-2.5 text-xs text-slate-300">
+              <li><code class="font-mono text-pink-300 font-semibold">model.predict(X)</code> : Returns discrete class labels (<span class="font-mono">0</span> or <span class="font-mono">1</span>) using the fixed <span class="font-mono">0.5</span> probability threshold.</li>
+              <li><code class="font-mono text-pink-300 font-semibold">model.predict_proba(X)</code> : Returns array of shape <span class="font-mono">(n_samples, 2)</span> with <span class="font-mono">[P(y=0|x), P(y=1|x)]</span>. Slice <span class="font-mono">[:, 1]</span> for ROC-AUC.</li>
+              <li><code class="font-mono text-pink-300 font-semibold">model.decision_function(X)</code> : Outputs the raw log-odds score <span class="font-mono">z = w<sup>T</sup>x + b</span> (signed distance to the separating hyperplane) prior to the sigmoid.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 3: ROC CURVE & THRESHOLD USAGE GUIDE                                  -->
+    <!-- ========================================================================= -->
+    <section id="tab-rocguide" class="tab-panel hidden space-y-8">
+      
+      <!-- Visual Anatomy Breakdown -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl">
+        <div class="mb-5">
+          <h2 class="text-xl font-bold text-white">Anatomy of the ROC Curve &amp; Classification Threshold Chart</h2>
+          <p class="text-sm text-slate-400">Step-by-step explanation of every element on the Receiver Operating Characteristic plot</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4">
+            <div class="text-xs font-mono uppercase text-emerald-400 font-bold mb-1">1. Y-Axis: True Positive Rate (TPR)</div>
+            <div class="text-sm font-semibold text-white mb-2">Sensitivity / Recall</div>
+            <div class="font-mono text-xs bg-slate-900 p-2 rounded border border-slate-800 text-emerald-300 mb-2">
+              TPR = TP / (TP + FN)
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Measures the proportion of actual positive cases that the model accurately captures. A TPR of <span class="font-mono text-white">0.86</span> means 86% of true positive instances are detected.
+            </p>
+          </div>
+
+          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4">
+            <div class="text-xs font-mono uppercase text-rose-400 font-bold mb-1">2. X-Axis: False Positive Rate (FPR)</div>
+            <div class="text-sm font-semibold text-white mb-2">1 - Specificity (False Alarm Rate)</div>
+            <div class="font-mono text-xs bg-slate-900 p-2 rounded border border-slate-800 text-rose-300 mb-2">
+              FPR = FP / (FP + TN)
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Measures the proportion of actual negative cases falsely flagged as positive. An FPR of <span class="font-mono text-white">0.20</span> means 20% of negative instances trigger a false alarm.
+            </p>
+          </div>
+
+          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4">
+            <div class="text-xs font-mono uppercase text-sky-400 font-bold mb-1">3. The Blue ROC Curve</div>
+            <div class="text-sm font-semibold text-white mb-2">Parametric Trade-Off Trajectory</div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Traces <span class="font-mono">(FPR, TPR)</span> pairs as the decision cutoff <span class="font-mono">&theta;</span> sweeps from <span class="font-mono">1.0</span> (bottom-left <span class="font-mono">0,0</span>) to <span class="font-mono">0.0</span> (top-right <span class="font-mono">1,1</span>). The closer the curve bows toward the ideal top-left corner <span class="font-mono">(0,1)</span>, the stronger the classifier.
+            </p>
+          </div>
+
+          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4">
+            <div class="text-xs font-mono uppercase text-slate-400 font-bold mb-1">4. Dashed Diagonal Line</div>
+            <div class="text-sm font-semibold text-white mb-2">Random Chance Baseline (AUC = 0.50)</div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Represents a classifier with zero discriminatory skill (e.g., flipping a coin where <span class="font-mono">TPR = FPR</span>). Any useful model must bow significantly above this diagonal line.
+            </p>
+          </div>
+
+          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4">
+            <div class="text-xs font-mono uppercase text-indigo-400 font-bold mb-1">5. ROC-AUC Score (0.89)</div>
+            <div class="text-sm font-semibold text-white mb-2">Threshold-Independent Ranking Skill</div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Area Under the ROC Curve. <strong class="text-white">Probabilistic Meaning:</strong> If you randomly draw one actual positive instance and one actual negative instance, an AUC of <span class="font-mono text-sky-300">0.89</span> means the model assigns a higher probability score to the positive instance <strong>89% of the time</strong>.
+            </p>
+          </div>
+
+          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4">
+            <div class="text-xs font-mono uppercase text-pink-400 font-bold mb-1">6. Pink Operating Point (&theta; = 0.47)</div>
+            <div class="text-sm font-semibold text-white mb-2">Concrete Deployment Cutoff</div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              While the curve shows all possible trade-offs, deploying a model in production requires choosing a single operating point. At <span class="font-mono text-pink-300">&theta; = 0.47</span>, the classifier achieves <span class="font-mono">TPR = 0.86</span> and <span class="font-mono">FPR = 0.20</span>.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Practical Usage Scenarios -->
+      <div>
+        <div class="mb-4">
+          <h3 class="text-xl font-bold text-white">Practical Usage: How to Choose Your Operating Threshold (&theta;)</h3>
+          <p class="text-sm text-slate-400">Click any scenario below to jump directly to that configuration in the Interactive Lab</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <!-- High Sensitivity -->
+          <div class="bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="px-2.5 py-1 rounded-md bg-emerald-500/15 text-emerald-300 font-mono text-xs font-bold">Low Threshold (&theta; &approx; 0.15 - 0.25)</span>
+              </div>
+              <h4 class="text-base font-bold text-white mb-2">High Sensitivity Needs</h4>
+              <p class="text-xs text-slate-400 mb-3">Oncology screening, credit card fraud detection, critical equipment failure alerts.</p>
+              <p class="text-xs text-slate-300 leading-relaxed mb-4">
+                <strong>Why:</strong> Missing an actual positive case (a False Negative) is dangerous or costly. By lowering <span class="font-mono">&theta;</span>, you move <em>up and right</em> along the ROC curve, pushing TPR above <span class="font-mono">0.94+</span> while accepting more false alarms.
+              </p>
+            </div>
+            <button onclick="jumpToPreset(0.20, 1.2, 'sensitivity')" class="w-full py-2 px-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-200 text-xs font-semibold transition">
+              Simulate High Sensitivity (&theta; = 0.20) &rarr;
+            </button>
+          </div>
+
+          <!-- Balanced Optimum -->
+          <div class="bg-slate-900/90 border border-pink-500/30 rounded-2xl p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="px-2.5 py-1 rounded-md bg-pink-500/15 text-pink-300 font-mono text-xs font-bold">Balanced Elbow (&theta; &approx; 0.47)</span>
+              </div>
+              <h4 class="text-base font-bold text-white mb-2">Balanced Trade-Off (Youden's J)</h4>
+              <p class="text-xs text-slate-400 mb-3">Customer churn prediction, lead scoring, general binary classification.</p>
+              <p class="text-xs text-slate-300 leading-relaxed mb-4">
+                <strong>Why:</strong> When False Positives and False Negatives carry comparable costs, data scientists select the "elbow" of the ROC curve that maximizes <strong>Youden's J Statistic</strong> (<span class="font-mono">J = TPR - FPR</span>). Here, <span class="font-mono">&theta; = 0.47</span> achieves <span class="font-mono">J = 0.86 - 0.20 = 0.66</span>.
+              </p>
+            </div>
+            <button onclick="jumpToPreset(0.47, 1.0, 'balanced')" class="w-full py-2 px-3 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/40 text-pink-200 text-xs font-semibold transition">
+              Simulate Balanced Optimum (&theta; = 0.47) &rarr;
+            </button>
+          </div>
+
+          <!-- High Specificity -->
+          <div class="bg-slate-900/90 border border-amber-500/30 rounded-2xl p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="px-2.5 py-1 rounded-md bg-amber-500/15 text-amber-300 font-mono text-xs font-bold">High Threshold (&theta; &approx; 0.75 - 0.90)</span>
+              </div>
+              <h4 class="text-base font-bold text-white mb-2">High Specificity Needs</h4>
+              <p class="text-xs text-slate-400 mb-3">VIP email spam filtering, automated account suspension, high-cost interventions.</p>
+              <p class="text-xs text-slate-300 leading-relaxed mb-4">
+                <strong>Why:</strong> Falsely flagging a good item (a False Positive) is unacceptable—such as sending an important work email to Spam. Raising <span class="font-mono">&theta;</span> moves <em>down and left</em> on the curve, keeping FPR below <span class="font-mono">0.05</span>.
+              </p>
+            </div>
+            <button onclick="jumpToPreset(0.80, 1.2, 'specificity')" class="w-full py-2 px-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 text-xs font-semibold transition">
+              Simulate High Specificity (&theta; = 0.80) &rarr;
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 4: END-TO-END SCIKIT-LEARN PYTHON PIPELINE                            -->
+    <!-- ========================================================================= -->
+    <section id="tab-pipeline" class="tab-panel hidden space-y-6">
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left 8 Cols: Complete Copyable Python Script -->
+        <div class="lg:col-span-8 bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-xl flex flex-col">
+          <div class="bg-slate-950 px-5 py-3.5 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="w-3 h-3 rounded-full bg-rose-500/80"></span>
+              <span class="w-3 h-3 rounded-full bg-amber-500/80"></span>
+              <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
+              <span class="ml-2 font-mono text-xs text-slate-300 font-semibold">logistic_regression_pipeline.py</span>
+            </div>
+            <button onclick="copyPythonCode()" id="copy-code-btn" class="px-3 py-1.5 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/30 text-sky-300 font-mono text-xs font-medium transition flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              <span id="copy-code-text">Copy Python Script</span>
+            </button>
+          </div>
+
+          <pre id="python-code-block" class="p-5 text-xs sm:text-[13px] font-mono leading-relaxed text-slate-200 overflow-x-auto bg-slate-950/60 flex-1"><code>import numpy as np
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split, StratifiedKFold, GridSearchCV
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import (
+    roc_auc_score,
+    classification_report,
+    confusion_matrix,
+    roc_curve
+)
+
+# 1. Generate a synthetic binary classification dataset (2000 samples, 70/30 imbalance)
+X, y = make_classification(
+    n_samples=2000,
+    n_features=12,
+    n_informative=8,
+    n_redundant=2,
+    weights=[0.7, 0.3],  # Imbalanced classes (70% class 0, 30% class 1)
+    random_state=42
+)
+
+# 2. Stratified train/test split to preserve class ratios (500 test samples)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, stratify=y, random_state=42
+)
+
+# 3. Encapsulate preprocessing and estimator inside a Pipeline to prevent data leakage
+pipeline = Pipeline([
+    ('scaler', StandardScaler()),
+    ('clf', LogisticRegression(solver='saga', max_iter=2000, random_state=42))
+])
+
+# 4. Define parameter grid for tuning ('clf__' targets the LogisticRegression step)
+param_grid = [
+    {
+        'clf__penalty': ['l2'],
+        'clf__C': [0.01, 0.1, 1.0, 10.0],
+        'clf__class_weight': [None, 'balanced']
+    },
+    {
+        'clf__penalty': ['elasticnet'],
+        'clf__l1_ratio': [0.2, 0.5, 0.8],
+        'clf__C': [0.01, 0.1, 1.0, 10.0],
+        'clf__class_weight': [None, 'balanced']
+    }
+]
+
+# 5. Cross-validation configuration
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+
+# 6. Grid search optimized explicitly for ROC-AUC
+grid_search = GridSearchCV(
+    estimator=pipeline,
+    param_grid=param_grid,
+    scoring='roc_auc',
+    cv=cv,
+    n_jobs=-1,
+    verbose=1
+)
+
+grid_search.fit(X_train, y_train)
+
+# 7. Extract best model and evaluate on the unseen test set
+best_model = grid_search.best_estimator_
+print(f"Best Parameters: {grid_search.best_params_}")
+print(f"Best CV ROC-AUC: {grid_search.best_score_:.4f}\n")
+
+# Compute unrounded positive-class probabilities and custom threshold predictions
+y_pred_proba = best_model.predict_proba(X_test)[:, 1]
+custom_threshold = 0.47
+y_pred_custom = (y_pred_proba &gt;= custom_threshold).astype(int)
+
+# Compute metrics
+test_roc_auc = roc_auc_score(y_test, y_pred_proba)
+print(f"Test Set ROC-AUC Score: {test_roc_auc:.4f}\n")
+print("Classification Report (at theta = 0.47):")
+print(classification_report(y_test, y_pred_custom))
+
+print("Confusion Matrix:")
+print(confusion_matrix(y_test, y_pred_custom))</code></pre>
+        </div>
+
+        <!-- Right 4 Cols: Architectural Annotations -->
+        <div class="lg:col-span-4 space-y-4">
+          <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+            <h3 class="text-base font-bold text-white mb-3">Pipeline Architecture Notes</h3>
+            <div class="space-y-4 text-xs text-slate-300 leading-relaxed">
+              
+              <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800">
+                <div class="font-mono font-bold text-sky-300 mb-1">1. Why StandardScaler inside Pipeline?</div>
+                Regularization penalties (<span class="font-mono">L1</span>, <span class="font-mono">L2</span>) penalize large coefficients based on scale. Wrapping <span class="font-mono">StandardScaler</span> inside <span class="font-mono">Pipeline</span> ensures mean and variance are computed <strong>only on each training fold</strong> during cross-validation, eliminating test-set data leakage.
+              </div>
+
+              <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800">
+                <div class="font-mono font-bold text-purple-300 mb-1">2. Why solver='saga'?</div>
+                Unlike <span class="font-mono">'lbfgs'</span> (which only supports L2), <span class="font-mono">'saga'</span> supports L1, L2, and ElasticNet mixing (<span class="font-mono">l1_ratio</span>), allowing seamless hyperparameter exploration in <span class="font-mono">GridSearchCV</span>.
+              </div>
+
+              <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800">
+                <div class="font-mono font-bold text-emerald-300 mb-1">3. Why StratifiedKFold?</div>
+                Because our dataset has a 70% / 30% class imbalance, <span class="font-mono">StratifiedKFold</span> guarantees that every validation split maintains that exact 70/30 positive-to-negative ratio.
+              </div>
+
+              <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800">
+                <div class="font-mono font-bold text-pink-300 mb-1">4. Why predict_proba(X)[:, 1]?</div>
+                Passing binary <span class="font-mono">0/1</span> outputs from <span class="font-mono">predict()</span> into <span class="font-mono">roc_auc_score()</span> is a common mistake. <span class="font-mono">roc_auc_score</span> requires continuous positive-class probabilities (<span class="font-mono">[:, 1]</span>) to evaluate ranking across all thresholds.
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 bg-slate-950/60 mt-10 py-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+      <span>Interactive Logistic Regression &amp; ROC-AUC Explorer</span>
+      <span class="font-mono">Synchronized Sigmoid &bull; ROC Curve (AUC = 0.89) &bull; 2&times;2 Confusion Matrix</span>
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT LOGIC: INTERACTIVE CHARTS, INTERPOLATION & STATE MANAGEMENT    -->
+  <!-- ========================================================================= -->
+  <script>
+    // -------------------------------------------------------------------------
+    // 1. EMPIRICAL ROC CURVE DATA (AUC = 0.89, matching user chart exactly)
+    // -------------------------------------------------------------------------
+    const rocData = [
+      { threshold: 1.00, fpr: 0.00, tpr: 0.00 },
+      { threshold: 0.99, fpr: 0.00, tpr: 0.02 },
+      { threshold: 0.90, fpr: 0.02, tpr: 0.22 },
+      { threshold: 0.82, fpr: 0.04, tpr: 0.41 },
+      { threshold: 0.74, fpr: 0.07, tpr: 0.58 },
+      { threshold: 0.65, fpr: 0.10, tpr: 0.70 },
+      { threshold: 0.55, fpr: 0.14, tpr: 0.79 },
+      { threshold: 0.47, fpr: 0.20, tpr: 0.86 }, // Highlighted Operating Point in Screenshot
+      { threshold: 0.40, fpr: 0.25, tpr: 0.90 },
+      { threshold: 0.32, fpr: 0.32, tpr: 0.93 },
+      { threshold: 0.25, fpr: 0.40, tpr: 0.95 },
+      { threshold: 0.18, fpr: 0.50, tpr: 0.97 },
+      { threshold: 0.12, fpr: 0.62, tpr: 0.98 },
+      { threshold: 0.07, fpr: 0.75, tpr: 0.99 },
+      { threshold: 0.03, fpr: 0.88, tpr: 1.00 },
+      { threshold: 0.00, fpr: 1.00, tpr: 1.00 }
+    ];
+
+    // Dataset constants (25% test split of 2,000 samples with 70/30 class ratio)
+    const TOTAL_POS = 150; // 30% Actual Positive
+    const TOTAL_NEG = 350; // 70% Actual Negative
+    const TOTAL_N   = 500;
+
+    // SVG Coordinate Constants (Plot Box: X=[65..485], Y=[25..295])
+    const PLOT = {
+      xMin: 65,
+      xMax: 485,
+      yMin: 25,
+      yMax: 295,
+      width: 420,
+      height: 270
+    };
+
+    // State
+    let currentTheta = 0.47;
+    let currentScale = 1.0;
+
+    // -------------------------------------------------------------------------
+    // 2. COORDINATE MAPPING HELPERS
+    // -------------------------------------------------------------------------
+    function mapRocX(fpr) {
+      return PLOT.xMin + fpr * PLOT.width;
+    }
+    function mapRocY(tpr) {
+      return PLOT.yMax - tpr * PLOT.height;
+    }
+    function mapSigX(z) {
+      // z in [-6, +6]
+      const norm = (z + 6) / 12;
+      return PLOT.xMin + norm * PLOT.width;
+    }
+    function mapSigY(prob) {
+      return PLOT.yMax - prob * PLOT.height;
+    }
+
+    // Interpolate (FPR, TPR) smoothly for any threshold theta in [0.01, 0.99]
+    function interpolateRocForTheta(theta) {
+      for (let i = 0; i < rocData.length - 1; i++) {
+        const hi = rocData[i];
+        const lo = rocData[i + 1];
+        if (theta <= hi.threshold && theta >= lo.threshold) {
+          const span = hi.threshold - lo.threshold;
+          const ratio = span === 0 ? 0 : (hi.threshold - theta) / span;
+          return {
+            fpr: hi.fpr + ratio * (lo.fpr - hi.fpr),
+            tpr: hi.tpr + ratio * (lo.tpr - hi.tpr)
+          };
+        }
+      }
+      return { fpr: 0.20, tpr: 0.86 };
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. INITIALIZE STATIC SVG GRIDS & ROC CURVE PATH
+    // -------------------------------------------------------------------------
+    function initGridsAndRocCurve() {
+      // Build ROC Grid
+      const rocGrid = document.getElementById('roc-grid');
+      let rocGridHtml = '';
+      const ticks = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0];
+
+      ticks.forEach(t => {
+        const x = mapRocX(t);
+        const y = mapRocY(t);
+        // Vertical grid line + X label
+        rocGridHtml += `<line x1="${x}" y1="${PLOT.yMin}" x2="${x}" y2="${PLOT.yMax}" stroke="#1e293b" stroke-width="1" />`;
+        rocGridHtml += `<text x="${x}" y="${PLOT.yMax + 18}" text-anchor="middle" fill="#94a3b8" font-size="11" font-family="JetBrains Mono">${t === 0 ? '0' : t.toFixed(1)}</text>`;
+        // Horizontal grid line + Y label
+        rocGridHtml += `<line x1="${PLOT.xMin}" y1="${y}" x2="${PLOT.xMax}" y2="${y}" stroke="#1e293b" stroke-width="1" />`;
+        rocGridHtml += `<text x="${PLOT.xMin - 12}" y="${y + 4}" text-anchor="end" fill="#94a3b8" font-size="11" font-family="JetBrains Mono">${t === 0 ? '0' : t.toFixed(1)}</text>`;
+      });
+      rocGrid.innerHTML = rocGridHtml;
+
+      // Build ROC Line Path & Shaded Area Path
+      const pts = rocData.map(d => `${mapRocX(d.fpr).toFixed(1)},${mapRocY(d.tpr).toFixed(1)}`);
+      const linePathStr = 'M ' + pts.join(' L ');
+      const areaPathStr = `${linePathStr} L ${mapRocX(1).toFixed(1)},${mapRocY(0).toFixed(1)} Z`;
+
+      document.getElementById('roc-line-path').setAttribute('d', linePathStr);
+      document.getElementById('roc-area-path').setAttribute('d', areaPathStr);
+
+      // Render hollow circle markers along ROC curve (matching screenshot aesthetics)
+      const dotsGroup = document.getElementById('roc-dots');
+      let dotsHtml = '';
+      rocData.forEach((d, idx) => {
+        if (idx === 0) return;
+        const cx = mapRocX(d.fpr).toFixed(1);
+        const cy = mapRocY(d.tpr).toFixed(1);
+        dotsHtml += `<circle cx="${cx}" cy="${cy}" r="4" fill="#090d16" stroke="#bae6fd" stroke-width="1.8" class="cursor-pointer hover:scale-125 transition" onclick="setTheta(${d.threshold})" />`;
+      });
+      dotsGroup.innerHTML = dotsHtml;
+
+      // Build Sigmoid Grid
+      const sigGrid = document.getElementById('sigmoid-grid');
+      let sigGridHtml = '';
+      const zTicks = [-6, -4, -2, 0, 2, 4, 6];
+      zTicks.forEach(z => {
+        const x = mapSigX(z);
+        const isZero = z === 0;
+        sigGridHtml += `<line x1="${x}" y1="${PLOT.yMin}" x2="${x}" y2="${PLOT.yMax}" stroke="${isZero ? '#334155' : '#1e293b'}" stroke-width="${isZero ? '1.5' : '1'}" />`;
+        sigGridHtml += `<text x="${x}" y="${PLOT.yMax + 18}" text-anchor="middle" fill="#94a3b8" font-size="11" font-family="JetBrains Mono">${z > 0 ? '+' + z : z}</text>`;
+      });
+      ticks.forEach(p => {
+        const y = mapSigY(p);
+        sigGridHtml += `<line x1="${PLOT.xMin}" y1="${y}" x2="${PLOT.xMax}" y2="${y}" stroke="#1e293b" stroke-width="1" />`;
+        sigGridHtml += `<text x="${PLOT.xMin - 12}" y="${y + 4}" text-anchor="end" fill="#94a3b8" font-size="11" font-family="JetBrains Mono">${p === 0 ? '0' : p.toFixed(1)}</text>`;
+      });
+      sigGrid.innerHTML = sigGridHtml;
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. MASTER SYNCHRONIZED RENDER FUNCTION
+    // -------------------------------------------------------------------------
+    function updateAllVisuals() {
+      // Update slider badges
+      document.getElementById('threshold-badge').textContent = currentTheta.toFixed(2);
+      document.getElementById('scale-badge').textContent = currentScale.toFixed(1) + 'x';
+
+      // 1. Interpolate ROC (FPR, TPR) for currentTheta
+      const { fpr, tpr } = interpolateRocForTheta(currentTheta);
+      const opX = mapRocX(fpr);
+      const opY = mapRocY(tpr);
+
+      // Move Pink Operating Point & Crosshairs on ROC SVG
+      const opCircle = document.getElementById('roc-operating-point');
+      opCircle.setAttribute('cx', opX.toFixed(1));
+      opCircle.setAttribute('cy', opY.toFixed(1));
+
+      const crossX = document.getElementById('roc-crosshair-x');
+      crossX.setAttribute('x1', opX.toFixed(1));
+      crossX.setAttribute('y1', opY.toFixed(1));
+      crossX.setAttribute('x2', opX.toFixed(1));
+      crossX.setAttribute('y2', PLOT.yMax);
+
+      const crossY = document.getElementById('roc-crosshair-y');
+      crossY.setAttribute('x1', PLOT.xMin);
+      crossY.setAttribute('y1', opY.toFixed(1));
+      crossY.setAttribute('x2', opX.toFixed(1));
+      crossY.setAttribute('y2', opY.toFixed(1));
+
+      // Update Bottom ROC Readout Cards
+      document.getElementById('card-theta').textContent = currentTheta.toFixed(2);
+      document.getElementById('card-tpr').textContent = tpr.toFixed(2);
+      document.getElementById('card-fpr').textContent = fpr.toFixed(2);
+
+      // 2. Update Sigmoid Curve & Decision Boundary (z*)
+      const sigPts = [];
+      for (let z = -6; z <= 6.001; z += 0.15) {
+        const p = 1 / (1 + Math.exp(-currentScale * z));
+        sigPts.push(`${mapSigX(z).toFixed(1)},${mapSigY(p).toFixed(1)}`);
+      }
+      document.getElementById('sigmoid-line-path').setAttribute('d', 'M ' + sigPts.join(' L '));
+
+      // Compute z* where sigma(k * z*) = theta  =>  z* = (1/k) * ln(theta / (1 - theta))
+      const oddsThreshold = currentTheta / (1 - currentTheta);
+      const zStar = Math.log(oddsThreshold) / currentScale;
+      const clampedZStar = Math.max(-6, Math.min(6, zStar));
+
+      const threshY = mapSigY(currentTheta);
+      const zStarX = mapSigX(clampedZStar);
+
+      // Update Sigmoid threshold horizontal line, vertical z* boundary, and shaded regions
+      const threshLine = document.getElementById('sig-thresh-line');
+      threshLine.setAttribute('y1', threshY.toFixed(1));
+      threshLine.setAttribute('y2', threshY.toFixed(1));
+
+      const zStarLine = document.getElementById('sig-zstar-line');
+      zStarLine.setAttribute('x1', zStarX.toFixed(1));
+      zStarLine.setAttribute('x2', zStarX.toFixed(1));
+
+      const sigIntersect = document.getElementById('sig-intersect-point');
+      sigIntersect.setAttribute('cx', zStarX.toFixed(1));
+      sigIntersect.setAttribute('cy', threshY.toFixed(1));
+
+      const reg0 = document.getElementById('sig-region-0');
+      reg0.setAttribute('width', Math.max(0, zStarX - PLOT.xMin).toFixed(1));
+
+      const reg1 = document.getElementById('sig-region-1');
+      reg1.setAttribute('x', zStarX.toFixed(1));
+      reg1.setAttribute('width', Math.max(0, PLOT.xMax - zStarX).toFixed(1));
+
+      // Update Sigmoid Readout Cards
+      document.getElementById('card-zstar').textContent = (zStar >= 0 ? '+' : '') + zStar.toFixed(2);
+      document.getElementById('card-odds').textContent = oddsThreshold > 99 ? '>99' : oddsThreshold.toFixed(2);
+      const youdenJ = tpr - fpr;
+      document.getElementById('card-youden').textContent = (youdenJ >= 0 ? '+' : '') + youdenJ.toFixed(2);
+
+      // 3. Synchronize 2x2 Confusion Matrix Counts (N = 500: 150 Pos, 350 Neg)
+      const tp = Math.round(tpr * TOTAL_POS);
+      const fn = TOTAL_POS - tp;
+      const fp = Math.round(fpr * TOTAL_NEG);
+      const tn = TOTAL_NEG - fp;
+
+      document.getElementById('cm-header-theta1').textContent = currentTheta.toFixed(2);
+      document.getElementById('cm-header-theta2').textContent = currentTheta.toFixed(2);
+
+      document.getElementById('cm-tp-val').textContent = tp;
+      document.getElementById('cm-fn-val').textContent = fn;
+      document.getElementById('cm-fp-val').textContent = fp;
+      document.getElementById('cm-tn-val').textContent = tn;
+
+      document.getElementById('cm-tp-pct').textContent = ((tp / TOTAL_POS) * 100).toFixed(1) + '% of Pos';
+      document.getElementById('cm-fn-pct').textContent = ((fn / TOTAL_POS) * 100).toFixed(1) + '% of Pos';
+      document.getElementById('cm-fp-pct').textContent = ((fp / TOTAL_NEG) * 100).toFixed(1) + '% of Neg';
+      document.getElementById('cm-tn-pct').textContent = ((tn / TOTAL_NEG) * 100).toFixed(1) + '% of Neg';
+
+      // 4. Compute & Update Derived Classification Metrics
+      const recallPct = (tp / TOTAL_POS) * 100;
+      const specPct = (tn / TOTAL_NEG) * 100;
+      const precisionPct = (tp + fp) > 0 ? (tp / (tp + fp)) * 100 : 100.0;
+      const f1Pct = (precisionPct + recallPct) > 0
+        ? (2 * precisionPct * recallPct) / (precisionPct + recallPct)
+        : 0.0;
+      const accPct = ((tp + tn) / TOTAL_N) * 100;
+
+      document.getElementById('metric-tpr-text').textContent = recallPct.toFixed(1) + '%';
+      document.getElementById('bar-tpr').style.width = recallPct.toFixed(1) + '%';
+
+      document.getElementById('metric-tnr-text').textContent = specPct.toFixed(1) + '%';
+      document.getElementById('bar-tnr').style.width = specPct.toFixed(1) + '%';
+
+      document.getElementById('metric-prec-text').textContent = precisionPct.toFixed(1) + '%';
+      document.getElementById('bar-prec').style.width = precisionPct.toFixed(1) + '%';
+
+      document.getElementById('metric-f1-text').textContent = f1Pct.toFixed(1) + '%';
+      document.getElementById('bar-f1').style.width = f1Pct.toFixed(1) + '%';
+
+      document.getElementById('metric-acc-text').textContent = accPct.toFixed(1) + '%';
+      document.getElementById('bar-acc').style.width = accPct.toFixed(1) + '%';
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. USER INTERACTION HANDLERS (SLIDERS, PRESETS, TABS, INSPECTOR)
+    // -------------------------------------------------------------------------
+    function setTheta(val) {
+      currentTheta = Math.max(0.01, Math.min(0.99, val));
+      document.getElementById('threshold-slider').value = currentTheta;
+      updateAllVisuals();
+    }
+
+    function applyPreset(theta, scale, presetKey) {
+      currentTheta = theta;
+      currentScale = scale;
+      document.getElementById('threshold-slider').value = theta;
+      document.getElementById('scale-slider').value = scale;
+
+      // Highlight active preset button
+      document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.classList.remove('border-pink-500/50', 'bg-pink-500/10');
+        btn.classList.add('border-slate-800', 'bg-slate-900/60');
+      });
+      const activeBtn = document.getElementById('preset-' + presetKey);
+      if (activeBtn) {
+        activeBtn.classList.remove('border-slate-800', 'bg-slate-900/60');
+        activeBtn.classList.add('border-pink-500/50', 'bg-pink-500/10');
+      }
+
+      updateAllVisuals();
+    }
+
+    function jumpToPreset(theta, scale, presetKey) {
+      switchTab('dashboard');
+      applyPreset(theta, scale, presetKey);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function inspectMatrixCell(cellType) {
+      const tag = document.getElementById('cm-insp-tag');
+      const text = document.getElementById('cm-insp-text');
+
+      // Reset borders on all 4 cells
+      ['TP', 'FN', 'FP', 'TN'].forEach(c => {
+        document.getElementById('cell-' + c).classList.remove('ring-2', 'ring-white/60');
+      });
+      document.getElementById('cell-' + cellType).classList.add('ring-2', 'ring-white/60');
+
+      const descriptions = {
+        TP: {
+          tagClass: 'bg-emerald-500/20 text-emerald-300',
+          html: `<strong class="text-white">True Positives (TP):</strong> Observations where the actual class is <span class="font-mono text-emerald-300">1</span> and the predicted probability is &ge; &theta;. Dividing TP by Total Actual Positives (150) gives the <strong class="text-emerald-300">True Positive Rate (Sensitivity / Recall)</strong> plotted on the ROC Y-axis.`
+        },
+        FN: {
+          tagClass: 'bg-amber-500/20 text-amber-300',
+          html: `<strong class="text-white">False Negatives (FN — Type II Error):</strong> Actual positive cases missed by the classifier because their predicted probability fell below &theta;. Lowering the threshold &theta; converts False Negatives into True Positives.`
+        },
+        FP: {
+          tagClass: 'bg-rose-500/20 text-rose-300',
+          html: `<strong class="text-white">False Positives (FP — Type I Error / False Alarm):</strong> Actual negative cases incorrectly flagged as positive because their predicted probability was &ge; &theta;. Dividing FP by Total Actual Negatives (350) gives the <strong class="text-rose-300">False Positive Rate (FPR)</strong> plotted on the ROC X-axis.`
+        },
+        TN: {
+          tagClass: 'bg-sky-500/20 text-sky-300',
+          html: `<strong class="text-white">True Negatives (TN):</strong> Actual negative cases accurately rejected (predicted probability &lt; &theta;). Dividing TN by Total Actual Negatives (350) yields <strong class="text-sky-300">Specificity (True Negative Rate = 1 - FPR)</strong>.`
+        }
+      };
+
+      const info = descriptions[cellType];
+      tag.className = `px-2 py-1 rounded font-mono font-bold shrink-0 ${info.tagClass}`;
+      tag.textContent = cellType;
+      text.innerHTML = info.html;
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+      document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.className = 'tab-btn px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-300 hover:text-white hover:bg-slate-800/60';
+      });
+      const activeBtn = document.getElementById('tab-btn-' + tabId);
+      activeBtn.className = 'tab-btn px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all bg-sky-500 text-slate-950 shadow-sm font-semibold';
+    }
+
+    function copyPythonCode() {
+      const codeText = document.getElementById('python-code-block').innerText;
+      const textarea = document.createElement('textarea');
+      textarea.value = codeText;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+
+      const btnText = document.getElementById('copy-code-text');
+      btnText.textContent = 'Copied to Clipboard!';
+      setTimeout(() => {
+        btnText.textContent = 'Copy Python Script';
+      }, 2000);
+    }
+
+    // Bind Slider Event Listeners on Load
+    window.onload = function () {
+      initGridsAndRocCurve();
+      updateAllVisuals();
+
+      document.getElementById('threshold-slider').addEventListener('input', function (e) {
+        currentTheta = parseFloat(e.target.value);
+        updateAllVisuals();
+      });
+
+      document.getElementById('scale-slider').addEventListener('input', function (e) {
+        currentScale = parseFloat(e.target.value);
+        updateAllVisuals();
+      });
+    };
+  </script>
+</body>
+</html>
